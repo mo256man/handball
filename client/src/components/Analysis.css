@@ -1,0 +1,13 @@
+.analysis-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+    position: relative;
+}
+
+.analysis-content {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
+}

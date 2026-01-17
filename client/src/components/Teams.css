@@ -1,0 +1,139 @@
+.teams-container {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh; /* Safari対応 */
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+.team-select {
+    font-size: x-large;
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.selectedMember {
+    font-weight: bold;
+}
+
+.teams-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.team-column {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.teams-btnArea {
+    flex: 0 0 auto;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.team-area {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.lock {
+    border-radius: 5px;
+    padding: 5px;
+    font-size: xx-large;
+    text-align: right;
+    width: fit-content;
+    align-self: flex-end;
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.locked {
+    background: lightgray;
+}
+
+.opened {
+    background: white;
+}
+
+.team-select {
+    background: white;
+}
+
+.team-select:disabled {
+    background: lightgray;
+    opacity: 1;
+    cursor: default;
+    color: black;
+    -webkit-text-fill-color: black;
+}
+
+.team-area-item {
+    flex-shrink: 0;
+}
+
+.team-table-area {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.team-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: medium;
+    user-select: none;
+}
+
+.team-table th {
+    position: sticky;
+    top: 0;
+    background: white;
+    font-size: small;
+    z-index: 1;
+}
+
+.team-table th,td {
+    border: 1px solid #ccc;
+}
+
+.team-table td:nth-child(1) {
+    width: 40px;
+}
+
+.team-table td:nth-child(2) {
+    width: 80px;
+}
+
+.team-table td:nth-child(3) {
+    text-align: left;
+}
+
+.title {
+    font-size: xx-large;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.btnStart {
+    width: 100%;
+    margin: 0 20px;
+    background: lightgreen;
+    border: green 3px solid;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: x-large;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+}

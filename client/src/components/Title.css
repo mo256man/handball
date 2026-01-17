@@ -1,0 +1,68 @@
+.btnTitle {
+    background: lightyellow;
+    border: yellow 3px solid;
+    border-radius: 10px;
+    margin: 10px;
+    width: 40%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    cursor: pointer;
+}
+
+.btnPass {
+    background: lightgreen;
+    border: green 3px solid;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: x-large;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+}
+
+.titleArea {
+    background: lightblue;
+    padding: 20px 10px;
+}
+
+.imgArea {
+    border-radius: 20px;
+    padding: 10px;
+    background: white;
+    margin-bottom: 20px;
+    width: fit-content;
+    display: inline-block;
+}
+
+.title_img {
+    max-width: 300px;
+}
+
+
+input {
+    font-size: x-large;
+    margin-bottom: 5px;
+}
+
+.teams-info {
+    display: flex;
+    justify-content: space-around;
+    margin: 10px 0;
+}
+
+.team {
+    cursor: pointer;
+    padding: 10px;
+}
+
+.selected {
+    background: lightgreen;
+    font-weight: bold;
+}
+
+.notSelected {
+    background: lightgray;
+}
