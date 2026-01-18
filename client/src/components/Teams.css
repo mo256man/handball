@@ -89,6 +89,7 @@
 
 .teamnameNotSelected {
     background: gray;
+    font-weight: normal;
 }
 
 
@@ -133,6 +134,23 @@
     border: 1px solid #ccc;
 }
 
+.team-table th:nth-child(1) {
+    width: 40px;
+    text-align: center;
+}
+
+.team-table th:nth-child(2) {
+    text-align: center;
+    width: 80px;
+}
+
+.team-table th:nth-child(3) {
+    text-align: left;
+    min-width: 300px;
+    padding-left: 10px;
+    text-align: center;
+}
+
 .team-table td:nth-child(1) {
     width: 40px;
     text-align: center;
@@ -142,10 +160,7 @@
     text-align: center;
     width: 80px;
 }
-
 .team-table td:nth-child(3) {
-    text-align: left;
-    min-width: 300px;
     padding-left: 10px;
 }
 

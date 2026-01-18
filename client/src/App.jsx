@@ -102,6 +102,7 @@ function App() {
   } else if (currentView === "teams") {
     content = <Teams
       onShowInput={handleShowInput}
+      onShowInput2={handleShowInput2}
       onBackToTitle={handleBackToTitle}
       initialData={players}
       teams={teams}

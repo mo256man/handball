@@ -20,6 +20,7 @@ export default function TeamSelection({
                 className="team-select team-area-item"
                 disabled={disabled}
             >
+                <option value="">-- 相手チームを選択してください --</option>
                 {teamNames.length === 0 ? (
                     <option value={teamName}>{teamName}</option>
                 ) : (

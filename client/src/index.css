@@ -30,7 +30,6 @@ html, body, #root {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
     flex: 0 0 auto;
 }
 

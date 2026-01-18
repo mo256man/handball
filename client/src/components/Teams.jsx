@@ -3,7 +3,7 @@ import { Player } from "../models/Player";
 import TeamSelection from "./TeamSelection";
 import "./Teams.css";
 
-export default function Teams({ onShowInput, onBackToTitle, initialData, teams: teamsData, players: allPlayers, team1 }) {
+export default function Teams({ onShowInput, onShowInput2, onBackToTitle, initialData, teams: teamsData, players: allPlayers, team1 }) {
     // 今日の日付（JST）
     const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
     
@@ -26,14 +26,6 @@ export default function Teams({ onShowInput, onBackToTitle, initialData, teams: 
     useEffect(() => {
         if (team1) {
             setTeamName1(team1.teamname);
-        } else if (teamNames.length > 0) {
-            if (!teamName1 && !initialData?.teamName1) {
-                setTeamName1(teamNames[0]);
-            }
-        }
-        if (!teamName2 && !initialData?.teamName2) {
-            const team2 = teamNames.length > 1 ? teamNames[1] : teamNames[0];
-            setTeamName2(team2);
         }
     }, [teamNames.length, teamsData, allPlayers, team1]);
 
@@ -79,6 +71,8 @@ export default function Teams({ onShowInput, onBackToTitle, initialData, teams: 
 
     // STARTボタンのクリックハンドラー
     const handleStartClick = () => {
+        if (teamName2 === "") return; // team2が空白なら何もしない
+
         const members1 = getTeamMembers(teamName1);
         const members2 = getTeamMembers(teamName2);
         
@@ -107,6 +101,48 @@ export default function Teams({ onShowInput, onBackToTitle, initialData, teams: 
         const team2info = teamsData.find(t => t.teamname === teamName2);
         
         onShowInput({ 
+            team1: team1Players, 
+            team2: team2Players, 
+            teamName1, 
+            teamName2, 
+            date,
+            team1info,
+            team2info
+        });
+    };
+
+    // START2ボタンのクリックハンドラー
+    const handleStartClick2 = () => {
+        if (teamName2 === "") return; // team2が空白なら何もしない
+
+        const members1 = getTeamMembers(teamName1);
+        const members2 = getTeamMembers(teamName2);
+        
+        // ベンチ入りメンバーを抽出し、16人分のデータを作成
+        const selectedPlayers1 = members1
+            .filter((_, index) => selectedMembers1.has(index))
+            .slice(0, 16);
+        const selectedPlayers2 = members2
+            .filter((_, index) => selectedMembers2.has(index))
+            .slice(0, 16);
+        
+        // 16人に満たない場合は空のプレイヤーで埋める
+        const team1Players = Array.from({ length: 16 }, (_, i) => 
+            selectedPlayers1[i] 
+                ? Player.fromDatabase(selectedPlayers1[i], true)
+                : new Player({ number: "", name: "", position: "", isOnBench: true })
+        );
+        const team2Players = Array.from({ length: 16 }, (_, i) => 
+            selectedPlayers2[i] 
+                ? Player.fromDatabase(selectedPlayers2[i], true)
+                : new Player({ number: "", name: "", position: "", isOnBench: true })
+        );
+        
+        // チーム情報を取得
+        const team1info = teamsData.find(t => t.teamname === teamName1);
+        const team2info = teamsData.find(t => t.teamname === teamName2);
+        
+        onShowInput2({ 
             team1: team1Players, 
             team2: team2Players, 
             teamName1, 
@@ -157,7 +193,8 @@ export default function Teams({ onShowInput, onBackToTitle, initialData, teams: 
                 </div>
             </div>
             <div className="footer">
-                <div className="btnConfirm" onClick={handleStartClick}>試合開始</div>
+                <div className={`btnConfirm ${teamName2 === "" ? "teamnameNotSelected" : ""}`} id="btnStart" onClick={handleStartClick}>試合開始</div>
+                <div className={`btnConfirm ${teamName2 === "" ? "teamnameNotSelected" : ""}`} id="btnStart2" onClick={handleStartClick2}>試合開始2</div>
             </div>
         </div>
     );

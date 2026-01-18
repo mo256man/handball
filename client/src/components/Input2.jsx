@@ -32,6 +32,12 @@ export default function Main({ onBackToTitle, players }) {
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [keyboardType, setKeyboardType] = useState("");
 
+  // 攻守チームの状態
+  const [offendTeam, setOffendTeam] = useState(players.team1);
+  const [defendTeam, setDefendTeam] = useState(players.team2);
+  const [offendTeamInfo, setOffendTeamInfo] = useState(players.team1info);
+  const [defendTeamInfo, setDefendTeamInfo] = useState(players.team2info);
+
   // ANの値を自動更新
   useEffect(() => {
     const currentKind = currentTeam === 1 ? kind1 : kind2;
@@ -96,6 +102,15 @@ export default function Main({ onBackToTitle, players }) {
     }
   };
 
+  // 攻守交代ハンドラー
+  const handleOffendDefendSwap = () => {
+    setOffendTeam(defendTeam);
+    setDefendTeam(offendTeam);
+    setOffendTeamInfo(defendTeamInfo);
+    setDefendTeamInfo(offendTeamInfo);
+    setCurrentTeam(currentTeam === 1 ? 2 : 1);
+  };
+
   const markArea = (teamLabel, i, players) => {
     return (
       <div className="MarkArea">
@@ -132,6 +147,13 @@ export default function Main({ onBackToTitle, players }) {
             <div className="btn" onClick={() => setCurrentTeam(currentTeam === 1 ? 2 : 1)}>
               <div className="btnChangeTeam">change Team</div>
               <div className="btnChangeTeamIcon">🔁</div>
+            </div>
+            <div className="btn" onClick={() => {
+              setOffendTeam(defendTeam);
+              setDefendTeam(offendTeam);
+            }}>
+              <div className="btnChangeTeam">攻守交代</div>
+              <div className="btnChangeTeamIcon">↔️</div>
             </div>
           </div>
         </div>
@@ -862,10 +884,15 @@ export default function Main({ onBackToTitle, players }) {
       {renderKeyboard()}
       <button onClick={onBackToTitle} className="top-right">戻る</button>
       <div className="header">
+        <div className="changeTeam" onClick={handleOffendDefendSwap}>
+          <img src={offendTeamInfo?.filename} alt="Offend Team" className="imgSmall"/>
+          ＞
+          <img src={defendTeamInfo?.filename} alt="Defend Team" className="imgSmall" />
+        </div>
         <div>{players.date}</div>
-        <div>{players.teamName1} vs {players.teamName2}</div>
-        {createBtns()}
+        {/* <div>{players.teamName1} vs {players.teamName2}</div> */}
       </div>
+      {createBtns()}
       {/* {markArea(
         currentTeam === 1 ? players.teamName1 : players.teamName2,
         currentTeam,
