@@ -1,8 +1,7 @@
 .teams-container {
     display: flex;
     flex-direction: column;
-    height: 100dvh; /* Safari対応 */
-    max-height: 100vh;
+    flex: 1 1 0;
     overflow: hidden;
 }
 
@@ -16,6 +15,12 @@
 
 .selectedMember {
     font-weight: bold;
+}
+
+.teams-info {
+    display: flex;
+    justify-content: space-around;
+    margin: 10px 0;
 }
 
 .teams-main {
@@ -66,6 +71,27 @@
     background: white;
 }
 
+.teamname {
+    flex: 1;
+    font-size: large;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 2px ;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+}
+
+.teamnameSelected {
+    background: lightgreen;
+    font-weight: bold;
+}
+
+.teamnameNotSelected {
+    background: gray;
+}
+
+
 .team-select {
     background: white;
 }
@@ -86,10 +112,10 @@
     flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;
+    margin: 0 auto;
 }
 
 .team-table {
-    width: 100%;
     border-collapse: collapse;
     font-size: medium;
     user-select: none;
@@ -109,14 +135,18 @@
 
 .team-table td:nth-child(1) {
     width: 40px;
+    text-align: center;
 }
 
 .team-table td:nth-child(2) {
+    text-align: center;
     width: 80px;
 }
 
 .team-table td:nth-child(3) {
     text-align: left;
+    min-width: 300px;
+    padding-left: 10px;
 }
 
 .title {

@@ -3,7 +3,7 @@ import { Player } from "../models/Player";
 import TeamSelection from "./TeamSelection";
 import "./Teams.css";
 
-export default function Teams2({ onShowInput, onBackToTitle, initialData, teams: teamsData, players: allPlayers }) {
+export default function Teams2({ onShowInput, onBackToTitle, initialData, teams: teamsData, players: allPlayers, team1 }) {
     // 今日の日付（JST）
     const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
     
@@ -17,37 +17,39 @@ export default function Teams2({ onShowInput, onBackToTitle, initialData, teams:
     const [locked2, setLocked2] = useState(false);
 
     // 重複排除したチーム名の配列を取得（teamsテーブルから）
-    const uniqueTeamNames = teamsData ? teamsData.map(t => t.team) : [];
+    const teamNames = teamsData ? teamsData.map(t => t.teamname) : [];
 
     // 選択されたチームのメンバーを取得（playersテーブルから）
     const getTeamMembers = (teamName) => {
-        return allPlayers ? allPlayers.filter(member => member.team === teamName) : [];
+        return allPlayers ? allPlayers.filter(member => member.teamname === teamName) : [];
     };
 
     // teamsDataが読み込まれたら初期チーム名を設定
     useEffect(() => {
-        if (uniqueTeamNames.length > 0) {
+        if (team1) {
+            setTeamName1(team1.teamname);
+        } else if (teamNames.length > 0) {
             if (!teamName1 && !initialData?.teamName1) {
-                setTeamName1(uniqueTeamNames[0]);
-            }
-            if (!teamName2 && !initialData?.teamName2) {
-                const team2 = uniqueTeamNames.length > 1 ? uniqueTeamNames[1] : uniqueTeamNames[0];
-                setTeamName2(team2);
+                setTeamName1(teamNames[0]);
             }
         }
-    }, [uniqueTeamNames.length, teamsData, allPlayers]);
+        if (!teamName2 && !initialData?.teamName2) {
+            const team2 = teamNames.length > 1 ? teamNames[1] : teamNames[0];
+            setTeamName2(team2);
+        }
+    }, [teamNames.length, teamsData, allPlayers, team1]);
 
     // チームが変更されたら全メンバーを選択状態にする
     useEffect(() => {
         if (allPlayers && teamName1) {
-            const members1 = allPlayers.filter(member => member.team === teamName1);
+            const members1 = allPlayers.filter(member => member.teamname === teamName1);
             setSelectedMembers1(new Set(members1.map((_, index) => index)));
         }
     }, [teamName1, allPlayers]);
 
     useEffect(() => {
         if (allPlayers && teamName2) {
-            const members2 = allPlayers.filter(member => member.team === teamName2);
+            const members2 = allPlayers.filter(member => member.teamname === teamName2);
             setSelectedMembers2(new Set(members2.map((_, index) => index)));
         }
     }, [teamName2, allPlayers]);
@@ -103,8 +105,8 @@ export default function Teams2({ onShowInput, onBackToTitle, initialData, teams:
         );
         
         // チーム情報を取得
-        const team1info = teamsData.find(t => t.team === teamName1);
-        const team2info = teamsData.find(t => t.team === teamName2);
+        const team1info = teamsData.find(t => t.teamname === teamName1);
+        const team2info = teamsData.find(t => t.teamname === teamName2);
         
         onShowInput({ 
             team1: team1Players, 
@@ -136,7 +138,7 @@ export default function Teams2({ onShowInput, onBackToTitle, initialData, teams:
                             selectedMembers={selectedMembers1}
                             locked={locked1}
                             setLocked={setLocked1}
-                            uniqueTeamNames={uniqueTeamNames}
+                            teamNames={teamNames}
                             getTeamMembers={getTeamMembers}
                             toggleMemberSelection={toggleMemberSelection}
                         />
@@ -149,7 +151,7 @@ export default function Teams2({ onShowInput, onBackToTitle, initialData, teams:
                             selectedMembers={selectedMembers2}
                             locked={locked2}
                             setLocked={setLocked2}
-                            uniqueTeamNames={uniqueTeamNames}
+                            teamNames={teamNames}
                             getTeamMembers={getTeamMembers}
                             toggleMemberSelection={toggleMemberSelection}
                         />

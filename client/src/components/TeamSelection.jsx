@@ -6,30 +6,24 @@ export default function TeamSelection({
     teamName, 
     setTeamName, 
     selectedMembers, 
-    locked, 
-    setLocked,
-    uniqueTeamNames,
+    teamNames,
     getTeamMembers,
-    toggleMemberSelection
+    toggleMemberSelection,
+    disabled = false
 }) {
     return (
         <div className="team-area">
-            <div>
-                <div className={`lock ${locked ? 'locked' : 'opened'}`} id={`locked${teamNumber}`} onClick={() => setLocked(!locked)} style={{ cursor: 'pointer' }}>
-                    {locked ? '🔒' : '🔓'}
-                </div>
-            </div>
             <select 
                 id={`teamName${teamNumber}`} 
                 value={teamName} 
                 onChange={(e) => setTeamName(e.target.value)} 
                 className="team-select team-area-item"
-                disabled={locked}
+                disabled={disabled}
             >
-                {uniqueTeamNames.length === 0 ? (
+                {teamNames.length === 0 ? (
                     <option value={teamName}>{teamName}</option>
                 ) : (
-                    uniqueTeamNames.map((name, index) => (
+                    teamNames.map((name, index) => (
                         <option key={index} value={name}>{name}</option>
                     ))
                 )}

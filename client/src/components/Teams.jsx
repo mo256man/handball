@@ -3,7 +3,7 @@ import { Player } from "../models/Player";
 import TeamSelection from "./TeamSelection";
 import "./Teams.css";
 
-export default function Teams({ onShowInput, onBackToTitle, initialData, teams: teamsData, players: allPlayers }) {
+export default function Teams({ onShowInput, onBackToTitle, initialData, teams: teamsData, players: allPlayers, team1 }) {
     // 今日の日付（JST）
     const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
     
@@ -12,47 +12,42 @@ export default function Teams({ onShowInput, onBackToTitle, initialData, teams: 
     const [date, setDate] = useState(initialData?.date || today);
     const [selectedMembers1, setSelectedMembers1] = useState(new Set());
     const [selectedMembers2, setSelectedMembers2] = useState(new Set());
-    const [locked1, setLocked1] = useState(true);
-    const [locked2, setLocked2] = useState(false);
+    const [selectedTeam, setSelectedTeam] = useState(1);
 
     // 重複排除したチーム名の配列を取得（teamsテーブルから）
-    const uniqueTeamNames = teamsData ? teamsData.map(t => t.team) : [];
+    const teamNames = teamsData ? teamsData.map(t => t.teamname) : [];
 
     // 選択されたチームのメンバーを取得（playersテーブルから）
     const getTeamMembers = (teamName) => {
-        return allPlayers ? allPlayers.filter(member => member.team === teamName) : [];
+        return allPlayers ? allPlayers.filter(member => member.teamname === teamName) : [];
     };
 
     // teamsDataが読み込まれたら初期チーム名を設定
     useEffect(() => {
-        console.log('uniqueTeamNames:', uniqueTeamNames);
-        console.log('teamName1:', teamName1, 'teamName2:', teamName2);
-        console.log('initialData:', initialData);
-        
-        if (uniqueTeamNames.length > 0) {
+        if (team1) {
+            setTeamName1(team1.teamname);
+        } else if (teamNames.length > 0) {
             if (!teamName1 && !initialData?.teamName1) {
-                console.log('Setting teamName1 to:', uniqueTeamNames[0]);
-                setTeamName1(uniqueTeamNames[0]);
-            }
-            if (!teamName2 && !initialData?.teamName2) {
-                const team2 = uniqueTeamNames.length > 1 ? uniqueTeamNames[1] : uniqueTeamNames[0];
-                console.log('Setting teamName2 to:', team2);
-                setTeamName2(team2);
+                setTeamName1(teamNames[0]);
             }
         }
-    }, [uniqueTeamNames.length, teamsData, allPlayers]);
+        if (!teamName2 && !initialData?.teamName2) {
+            const team2 = teamNames.length > 1 ? teamNames[1] : teamNames[0];
+            setTeamName2(team2);
+        }
+    }, [teamNames.length, teamsData, allPlayers, team1]);
 
     // チームが変更されたら全メンバーを選択状態にする
     useEffect(() => {
         if (allPlayers && teamName1) {
-            const members1 = allPlayers.filter(member => member.team === teamName1);
+            const members1 = allPlayers.filter(member => member.teamname === teamName1);
             setSelectedMembers1(new Set(members1.map((_, index) => index)));
         }
     }, [teamName1, allPlayers]);
 
     useEffect(() => {
         if (allPlayers && teamName2) {
-            const members2 = allPlayers.filter(member => member.team === teamName2);
+            const members2 = allPlayers.filter(member => member.teamname === teamName2);
             setSelectedMembers2(new Set(members2.map((_, index) => index)));
         }
     }, [teamName2, allPlayers]);
@@ -108,8 +103,8 @@ export default function Teams({ onShowInput, onBackToTitle, initialData, teams: 
         );
         
         // チーム情報を取得
-        const team1info = teamsData.find(t => t.team === teamName1);
-        const team2info = teamsData.find(t => t.team === teamName2);
+        const team1info = teamsData.find(t => t.teamname === teamName1);
+        const team2info = teamsData.find(t => t.teamname === teamName2);
         
         onShowInput({ 
             team1: team1Players, 
@@ -123,38 +118,46 @@ export default function Teams({ onShowInput, onBackToTitle, initialData, teams: 
     };
 
     return (
-        <div className="teams-container">
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width:'auto' ,maxWidth:'600px', margin: '0 auto' }}>
+            <div className="header">
+                <div className="title">出場選手 選択</div>
+            </div>
             <div className="teams-main">
                 <button onClick={onBackToTitle} className="top-right">戻る</button>
-                <div className="title">ベンチ入りメンバー 選択</div>
-                <div><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+                <div className="row center"><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+                <div className="teams-info">
+                    <div id="btnTeam1" className={selectedTeam === 1 ? 'teamname teamnameSelected' : 'teamname teamnameNotSelected'} onClick={() => setSelectedTeam(1)}>{teamName1}</div>
+                    <div id="btnTeam2" className={selectedTeam === 2 ? 'teamname teamnameSelected' : 'teamname teamnameNotSelected'} onClick={() => setSelectedTeam(2)}>相手チーム 選択　▼</div>
+                </div>
                 <div className="team-column">
-                    <TeamSelection 
-                        teamNumber={1}
-                        teamName={teamName1}
-                        setTeamName={setTeamName1}
-                        selectedMembers={selectedMembers1}
-                        locked={locked1}
-                        setLocked={setLocked1}
-                        uniqueTeamNames={uniqueTeamNames}
-                        getTeamMembers={getTeamMembers}
-                        toggleMemberSelection={toggleMemberSelection}
-                    />
-                    <TeamSelection 
-                        teamNumber={2}
-                        teamName={teamName2}
-                        setTeamName={setTeamName2}
-                        selectedMembers={selectedMembers2}
-                        locked={locked2}
-                        setLocked={setLocked2}
-                        uniqueTeamNames={uniqueTeamNames}
-                        getTeamMembers={getTeamMembers}
-                        toggleMemberSelection={toggleMemberSelection}
-                    />
+                    {selectedTeam === 1 && (
+                        <TeamSelection 
+                            teamNumber={1}
+                            teamName={teamName1}
+                            setTeamName={setTeamName1}
+                            selectedMembers={selectedMembers1}
+                            teamNames={teamNames}
+                            getTeamMembers={getTeamMembers}
+                            toggleMemberSelection={toggleMemberSelection}
+                            disabled={true}
+                        />
+                    )}
+                    {selectedTeam === 2 && (
+                        <TeamSelection 
+                            teamNumber={2}
+                            teamName={teamName2}
+                            setTeamName={setTeamName2}
+                            selectedMembers={selectedMembers2}
+                            teamNames={teamNames}
+                            getTeamMembers={getTeamMembers}
+                            toggleMemberSelection={toggleMemberSelection}
+                            disabled={false}
+                        />
+                    )}
                 </div>
             </div>
-            <div className="teams-btnArea">
-                <div className="btnStart" onClick={handleStartClick}>START</div>
+            <div className="footer">
+                <div className="btnConfirm" onClick={handleStartClick}>試合開始</div>
             </div>
         </div>
     );

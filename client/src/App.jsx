@@ -20,6 +20,7 @@ function App() {
   const [recordDate, setRecordDate] = useState(null);
   const [recordTeam1, setRecordTeam1] = useState(null);
   const [recordTeam2, setRecordTeam2] = useState(null);
+  const [selectedTeam1, setSelectedTeam1] = useState(null);
 
   // データベースからteamsとplayersを取得
   useEffect(() => {
@@ -94,21 +95,26 @@ function App() {
       onShowTeams2={handleShowTeams2}
       onShowAnalysisMenu={showAnalysisMenu}
       showMenu={showMenu}
-      setShowMenu={setShowMenu} />;
+      setShowMenu={setShowMenu}
+      teams={teams}
+      onSelectTeam1={setSelectedTeam1}
+      selectedTeam1={selectedTeam1} />;
   } else if (currentView === "teams") {
     content = <Teams
       onShowInput={handleShowInput}
       onBackToTitle={handleBackToTitle}
       initialData={players}
       teams={teams}
-      players={allPlayers} />;
+      players={allPlayers}
+      team1={selectedTeam1} />;
   } else if (currentView === "teams2") {
     content = <Teams2
       onShowInput={handleShowInput2}
       onBackToTitle={handleBackToTitle}
       initialData={players}
       teams={teams}
-      players={allPlayers} />;
+      players={allPlayers}
+      team1={selectedTeam1} />;
   } else if (currentView === "input") {
       content = <Input
         onBackToTitle={handleBackToTeams}

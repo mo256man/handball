@@ -1,9 +1,17 @@
+.titleArea {
+    background: lightblue;
+    padding: 10px 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .btnTitle {
     background: lightyellow;
     border: yellow 3px solid;
     border-radius: 10px;
-    margin: 10px;
-    width: 40%;
+    font-size: xx-large;
     height: 50px;
     display: flex;
     justify-content: center;
@@ -12,45 +20,24 @@
     cursor: pointer;
 }
 
-.btnPass {
-    background: lightgreen;
-    border: green 3px solid;
-    border-radius: 10px;
-    padding: 20px;
-    font-size: x-large;
-    font-weight: bold;
-    user-select: none;
-    cursor: pointer;
-}
-
-.titleArea {
-    background: lightblue;
-    padding: 20px 10px;
-}
-
 .imgArea {
     border-radius: 20px;
     padding: 10px;
     background: white;
     margin-bottom: 20px;
     width: fit-content;
-    display: inline-block;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.title_img {
+.title-img {
     max-width: 300px;
 }
-
 
 input {
     font-size: x-large;
     margin-bottom: 5px;
-}
-
-.teams-info {
-    display: flex;
-    justify-content: space-around;
-    margin: 10px 0;
 }
 
 .team {
@@ -58,11 +45,93 @@ input {
     padding: 10px;
 }
 
-.selected {
-    background: lightgreen;
+.btnSetting {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: lightyellow;
+    border: yellow 5px solid;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 10px;
+    font-size: x-large;
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    cursor: pointer;
+}
+
+
+.selectTeamPopup {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    border-radius: 20px;
+    height: auto;
+    max-height: 80vh;
+    margin: 0;
+    background: white;
+    border-radius: 5px;
+    padding: 10px 30px;
+    box-sizing: border-box;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+}
+
+.selectTeamArea {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    overflow-y: auto;
+}
+
+
+.team-item {
+    font-size: normal;
+    font-weight: bold;
+    color: darkblue;
+    background: lightblue;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.team-item:hover {
+    background: lightcyan;
+}
+
+.team-item:active {
+    background: darkcyan;
+}
+
+img.team-logo {
+    max-width: 80%;
+    height: auto;
+}
+
+.teamname-title {
+    font-size: x-large;
     font-weight: bold;
 }
 
-.notSelected {
-    background: lightgray;
+.btnPopupClose {
+    font-size: xx-large;
+    cursor: pointer;
+    user-select: none;
+    align-self: flex-end;
+    margin-bottom: 5px;
+    margin-left: auto;
 }
