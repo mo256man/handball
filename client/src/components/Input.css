@@ -1,3 +1,12 @@
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
 .header-container {
     display: flex;
     flex-direction: row;
@@ -62,6 +71,7 @@
     max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.2s ease-out;
 }
 
 .keyboard-header {
@@ -155,6 +165,7 @@
     width: 100%;
     padding: 5px;
     box-sizing: border-box;
+    max-width: 600px;
 }
 
 .grid {

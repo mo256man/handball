@@ -1,8 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Input.css";
 import { insertRecord } from "../api";
+import ShootAreaSVG from "./ShootAreaSVG";
 
 export default function Main({ onBackToTitle, players }) {
+
+  const btns = [
+    { label: 'ハーフ', id: "half" },
+    { label: '状況', id: "situation" },
+    { label: '背番号', id: "no" },
+    { label: '種類', id: "kind" },
+    { label: '結果', id: "result" },
+    { label: 'GK', id: "gk" },
+    { label: 'イエロー', id: "yellowcard" },
+    { label: '2分退場', id: "2min" },
+    { label: 'AN', id: "an" },
+    { label: 'エリア', id: "shootArea" },
+    { label: 'ゴール', id: "goal" },
+    { empty: true },
+    { label: 'Remarks', id: "remarks", gridColumn: "span 4" },
+  ];
+
   // クリックで書き込む表示用の状態
   const [no1Text, setNo1Text] = useState("");
   const [no2Text, setNo2Text] = useState("");
@@ -195,7 +213,7 @@ export default function Main({ onBackToTitle, players }) {
                 <div className="group">
                     <div className="label">Shoot Area</div>
                     <div className="container">
-                        {createShootAreaSVG()}
+                        <ShootAreaSVG onClick={handleClick} />
                     </div>
                 </div>
                   <div className="group">
@@ -357,48 +375,6 @@ export default function Main({ onBackToTitle, players }) {
     )
   }
 
-  const createSectorPath = (centerX, centerY, radius, startAngle, endAngle) => {
-    // 度数法からラジアンに変換
-    const startRad = (startAngle * Math.PI) / 180;
-    const endRad = (endAngle * Math.PI) / 180;
-    // 開始点の座標
-    const startX = centerX + radius * Math.cos(startRad);
-    const startY = centerY + radius * Math.sin(startRad);
-    // 終了点の座標
-    const endX = centerX + radius * Math. cos(endRad);
-    const endY = centerY + radius * Math.sin(endRad);
-    // 大きい弧かどうか（180度より大きいか）
-    const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
-    // パス文字列を生成
-    return `M ${centerX} ${centerY} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
-  };
-
-  const createShootAreaSVG = () => {
-    return (
-      <svg width="200" height="150" viewBox="0 0 200 150">
-        <path d={createSectorPath(85, 10, 130, 90, 135)} fill="lightyellow" onClick={() => handleClick("area", "L9")} className="shootArea"/>
-        <path d={createSectorPath(115, 10, 130, 45, 90)} fill="lightyellow" onClick={() => handleClick("area", "R9")} className="shootArea" />
-        <path d={createSectorPath(85, 10, 90, 90, 135)} fill="lightblue" onClick={() => handleClick("area", "L6")} className="shootArea" />
-        <path d={createSectorPath(115, 10, 90, 45, 90)} fill="lightblue" onClick={() => handleClick("area", "R6")} className="shootArea" />
-        <path d="M 0 10 L 85 10 L 0 95 Z" fill="lightgreen" onClick={() => handleClick("area", "LW")} className="shootArea" />
-        <path d="M 200 10 L 115 10 L 200 95 Z" fill="lightgreen"  onClick={() => handleClick("area", "RW")} className="shootArea" />
-        <rect x="75" y="70" width="50" height="30" fill="lightblue" onClick={() => handleClick("area", "M6")} className="shootArea" />
-        <rect x="75" y="100" width="50" height="40" fill="lightyellow" onClick={() => handleClick("area", "M9")} className="shootArea" />
-        <path d="M 25 10 A 60 60 0 0 0 85 70 L 115 70 A 60 60 0 0 0 175 10 Z" fill="white" stroke="black" strokeWidth="1" />
-        <path d="M 0 300 L 0 10 L 200 10 L 200 300" fill="none" stroke="black" strokeWidth="1" />
-        <rect x="85" y="0" width="30" height="10" fill="white" stroke="black" strokeWidth="1" />
-        <text x="15" y="40" className="shootAreaText">LW</text>
-        <text x="185" y="40" className="shootAreaText">RW</text>
-        <text x="50" y="80" className="shootAreaText">L6</text>
-        <text x="150" y="80" className="shootAreaText">R6</text>
-        <text x="40" y="115" className="shootAreaText">L9</text>
-        <text x="160" y="115" className="shootAreaText">R9</text>
-        <text x="100" y="85" className="shootAreaText">M6</text>
-        <text x="100" y="120" className="shootAreaText">M9</text>
-      </svg>
-    )
-  }
-
   const createGoal = () => {
     const positions = ["左上", "上", "右上", "左中", "中", "右中", "左下", "下", "右下"];
     const getColorClass = (idx) => {
@@ -426,23 +402,6 @@ export default function Main({ onBackToTitle, players }) {
 
   const createBtns = () => {
     const remarksInputRef = useRef(null);
-    
-    const btns = [
-      { label: 'ハーフ', id:"half"},
-      { label: '状況', id:"situation"},
-      { label: '背番号', id:"no"},
-      { label: '種類', id:"kind"},
-      { label: '結果', id:"result"},
-      { label: 'GK', id:"gk"},
-      { label: 'イエロー', id:"yellowcard"},
-      { label: '2分退場', id:"2min"},
-      { label: 'AN', id:"an"},
-      { label: 'エリア', id:"shootArea"},
-      { label: 'ゴール', id:"goal"},
-      { empty: true},
-      { label: 'Remarks', id:"remarks", gridColumn:"span 4"},
-    ];
-
     const getValueByTeam = (id) => {
       const valueMap = {
         half: currentHalf,
@@ -737,24 +696,16 @@ export default function Main({ onBackToTitle, players }) {
   const setKeyboardShootArea = () => {
     return {
       title: 'Shoot Area選択',
-      keys: [
-        { label: 'LW', value: 'LW' },
-        { label: 'L6', value: 'L6' },
-        { label: 'L9', value: 'L9' },
-        { label: 'M6', value: 'M6' },
-        { label: 'M9', value: 'M9' },
-        { label: 'R6', value: 'R6' },
-        { label: 'R9', value: 'R9' },
-        { label: 'RW', value: 'RW' },
-      ],
-      handler: (value) => {
-        if (currentTeam === 1) {
-          setArea1(value);
-        } else {
-          setArea2(value);
+      component: <ShootAreaSVG onClick={(field, value) => {
+        if (field === 'area') {
+          if (currentTeam === 1) {
+            setArea1(value);
+          } else {
+            setArea2(value);
+          }
+          closeKeyboard();
         }
-        closeKeyboard();
-      }
+      }} />
     };
   }
 
@@ -817,15 +768,17 @@ export default function Main({ onBackToTitle, players }) {
             <button className="keyboard-close" onClick={closeKeyboard}>✕</button>
           </div>
           <div className="keyboard-keys">
-            {currentKeyboard.keys.map((key, idx) => (
-              <button
-                key={idx}
-                className={`keyboard-key ${key.className || ''}`}
-                onClick={() => currentKeyboard.handler(key.value)}
-              >
-                {key.label}
-              </button>
-            ))}
+            {currentKeyboard.component
+              ? currentKeyboard.component
+              : currentKeyboard.keys && currentKeyboard.keys.map((key, idx) => (
+                  <button
+                    key={idx}
+                    className={`keyboard-key ${key.className || ''}`}
+                    onClick={() => currentKeyboard.handler(key.value)}
+                  >
+                    {key.label}
+                  </button>
+                ))}
           </div>
         </div>
       </div>
@@ -878,6 +831,32 @@ export default function Main({ onBackToTitle, players }) {
     }, 500);
   };
 
+  // 各入力値のstateを空文字にリセットする
+  const resetBtnValues = () => {
+    setNo1Text("");
+    setNo2Text("");
+    setSituation1("");
+    setSituation2("");
+    setKind1("");
+    setKind2("");
+    setResult1("");
+    setResult2("");
+    setY1("");
+    setY2("");
+    setMin1("");
+    setMin2("");
+    setArea1("");
+    setArea2("");
+    setGoal1("");
+    setGoal2("");
+    setGk1("");
+    setGk2("");
+    setRemarks1("");
+    setRemarks2("");
+    setAn1("");
+    setAn2("");
+  };
+
   return (
     <div className="base">
       {showPopup && <div className="popup">登録中</div>}
@@ -892,13 +871,14 @@ export default function Main({ onBackToTitle, players }) {
         <div>{players.date}</div>
         {/* <div>{players.teamName1} vs {players.teamName2}</div> */}
       </div>
-      {createBtns()}
       {/* {markArea(
         currentTeam === 1 ? players.teamName1 : players.teamName2,
         currentTeam,
         currentTeam === 1 ? players.team1 : players.team2
       )} */}
       <div className="footer">
+        <div id="btnReset" onClick={resetBtnValues}>reset</div>
+        {createBtns()}
         <div className="btn btnConfirm" id="confirmButton" onClick={handleConfirmClick}>登録</div>
       </div>
     </div>

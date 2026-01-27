@@ -182,3 +182,21 @@
     user-select: none;
     cursor: pointer;
 }
+
+.extension-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.extension-btn {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    background: white;
+}
+
+.extension-btn.selected {
+    background: lightgreen;
+    font-weight: bold;
+}

@@ -6,13 +6,13 @@ import "./Teams.css";
 export default function Teams({ onShowInput, onShowInput2, onBackToTitle, initialData, teams: teamsData, players: allPlayers, team1 }) {
     // 今日の日付（JST）
     const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
-    
     const [teamName1, setTeamName1] = useState(initialData?.teamName1 || "");
     const [teamName2, setTeamName2] = useState(initialData?.teamName2 || "");
     const [date, setDate] = useState(initialData?.date || today);
     const [selectedMembers1, setSelectedMembers1] = useState(new Set());
     const [selectedMembers2, setSelectedMembers2] = useState(new Set());
     const [selectedTeam, setSelectedTeam] = useState(1);
+    const [isOvertime, setIsOvertime] = useState(false);
 
     // 重複排除したチーム名の配列を取得（teamsテーブルから）
     const teamNames = teamsData ? teamsData.map(t => t.teamname) : [];
@@ -107,7 +107,8 @@ export default function Teams({ onShowInput, onShowInput2, onBackToTitle, initia
             teamName2, 
             date,
             team1info,
-            team2info
+            team2info,
+            isOvertime
         });
     };
 
@@ -149,7 +150,8 @@ export default function Teams({ onShowInput, onShowInput2, onBackToTitle, initia
             teamName2, 
             date,
             team1info,
-            team2info
+            team2info,
+            isOvertime
         });
     };
 
@@ -160,7 +162,13 @@ export default function Teams({ onShowInput, onShowInput2, onBackToTitle, initia
             </div>
             <div className="teams-main">
                 <button onClick={onBackToTitle} className="top-right">戻る</button>
-                <div className="row center"><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+                <div className="row center">
+                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                    <div className="extension-buttons">
+                        <button className={`extension-btn ${!isOvertime ? 'selected' : ''}`} onClick={() => setIsOvertime(false)}>延長なし</button>
+                        <button className={`extension-btn ${isOvertime ? 'selected' : ''}`} onClick={() => setIsOvertime(true)}>延長あり</button>
+                    </div>
+                </div>
                 <div className="teams-info">
                     <div id="btnTeam1" className={selectedTeam === 1 ? 'teamname teamnameSelected' : 'teamname teamnameNotSelected'} onClick={() => setSelectedTeam(1)}>{teamName1}</div>
                     <div id="btnTeam2" className={selectedTeam === 2 ? 'teamname teamnameSelected' : 'teamname teamnameNotSelected'} onClick={() => setSelectedTeam(2)}>相手チーム 選択　▼</div>
