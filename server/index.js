@@ -35,6 +35,23 @@ async function initDatabase() {
     }
 }
 
+// APIエンドポイント: recordテーブルの日付一覧（重複なし）を取得
+app.get('/api/available-dates', (req, res) => {
+    try {
+        if (!db) {
+            throw new Error('データベースが初期化されていません');
+        }
+        // DISTINCTで日付一覧を取得
+        const rows = queryAll(db, "SELECT DISTINCT date FROM record ORDER BY date ASC");
+        // date列だけの配列に変換
+        const dates = rows.map(row => row.date);
+        res.json(dates);
+    } catch (error) {
+        console.error('available-dates取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // APIエンドポイント: SELECTクエリを実行
 app.post('/api/query', (req, res) => {
     try {
@@ -223,6 +240,7 @@ app.get('/api/getMatches', (req, res) => {
     }
 });
 
+
 // APIエンドポイント: 全選手を取得
 app.get('/api/players', (req, res) => {
     try {
@@ -234,6 +252,20 @@ app.get('/api/players', (req, res) => {
         res.json({ success: true, players: players });
     } catch (error) {
         console.error('選手取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// APIエンドポイント: チームごとの選手を取得
+app.get('/api/players/by-team', (req, res) => {
+    try {
+        if (!db) throw new Error('データベースが初期化されていません');
+        const { teamname } = req.query;
+        if (!teamname) return res.status(400).json({ error: 'teamnameが指定されていません' });
+        const players = queryAll(db, "SELECT * FROM players WHERE teamname = ?", [teamname]);
+        res.json(players);
+    } catch (error) {
+        console.error('チーム別選手取得エラー:', error);
         res.status(500).json({ error: error.message });
     }
 });

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./Input.css";
 import { insertRecord } from "../api";
 import ShootAreaSVG from "./ShootAreaSVG";
+import GoalSVG from "./GoalSVG";
 
 export default function Main({ onBackToTitle, players }) {
   // players全体の構造を確認
@@ -325,20 +326,23 @@ export default function Main({ onBackToTitle, players }) {
       return "lightpink";
     };
     
+    // return (
+    //   <div className="btn goalOuter" onClick={() => handleClick("goal", "Out")}>
+    //     <div style={{ alignSelf: 'center' }}>Out</div>
+    //     <div className="btn goalPost" onClick={(e) => { e.stopPropagation(); handleClick("goal", "Post"); }}>
+    //       <div style={{ alignSelf: 'center' }}>Post</div>
+    //       <div className="goalInner">
+    //         {positions.map((pos, idx) => (
+    //           <div key={idx} className={`btn goalPosition ${getColorClass(idx)}`} onClick={(e) => { e.stopPropagation(); handleClick("goal", pos); }}>
+    //             {pos}
+    //           </div>
+    //         ))}
+    //       </div>
+    //     </div>
+    //   </div>
+    // )
     return (
-      <div className="btn goalOuter" onClick={() => handleClick("goal", "Out")}>
-        <div style={{ alignSelf: 'center' }}>Out</div>
-        <div className="btn goalPost" onClick={(e) => { e.stopPropagation(); handleClick("goal", "Post"); }}>
-          <div style={{ alignSelf: 'center' }}>Post</div>
-          <div className="goalInner">
-            {positions.map((pos, idx) => (
-              <div key={idx} className={`btn goalPosition ${getColorClass(idx)}`} onClick={(e) => { e.stopPropagation(); handleClick("goal", pos); }}>
-                {pos}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <GoalSVG drawOut={true} onClick={handleClick} />
     )
   }
 
