@@ -1,11 +1,11 @@
 import React from "react";
-import "./MakeMatch.css";
+import "./Teams.css";
 
 export default function TeamSelection({ 
     teamNumber, 
     teamName, 
     setTeamName, 
-    // selectedMembers, 
+    selectedMembers, 
     teamNames,
     getTeamMembers,
     toggleMemberSelection,
@@ -30,7 +30,7 @@ export default function TeamSelection({
                 )}
             </select>
             <div className="selectedMember team-area-item">
-                {/* 選択中: {selectedMembers.size} / 16人 */}
+                選択中: {selectedMembers.size} / 16人
             </div>
             <div className="team-table-area">
                 <table className="team-table">
@@ -46,11 +46,11 @@ export default function TeamSelection({
                             <tr 
                                 key={index}
                                 onClick={() => toggleMemberSelection(teamNumber, index)}
-                                // style={{ 
-                                //     cursor: 'pointer',
-                                //     backgroundColor: selectedMembers.has(index) ? '#e3f2fd' : '#f5f5f5',
-                                //     opacity: selectedMembers.has(index) ? 1 : 0.5
-                                // }}
+                                style={{ 
+                                    cursor: 'pointer',
+                                    backgroundColor: selectedMembers.has(index) ? '#e3f2fd' : '#f5f5f5',
+                                    opacity: selectedMembers.has(index) ? 1 : 0.5
+                                }}
                             >
                                 <td>{member.number}</td>
                                 <td>{member.position}</td>

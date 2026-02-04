@@ -1,3 +1,10 @@
+.titleTitle {
+    font-size: xx-large;
+    font-weight: bold;
+}
+
+
+
 .titleArea {
     background: lightblue;
     padding: 10px 20px;
@@ -51,13 +58,13 @@ input {
     right: 0;
     background: lightyellow;
     border: yellow 5px solid;
-    border-radius: 10px;
+    border-radius: 5px;
     margin: 5px;
-    padding: 10px;
+    padding: 5px;
     font-size: x-large;
     text-align: center;
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -86,7 +93,7 @@ input {
 
 .selectTeamArea {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     overflow-y: auto;
 }

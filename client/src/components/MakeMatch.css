@@ -1,4 +1,4 @@
-.teams-container {
+/* .teams-container {
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
@@ -120,6 +120,8 @@
     border-collapse: collapse;
     font-size: medium;
     user-select: none;
+    table-layout: fixed;
+    width: 100%;
 }
 
 .team-table th {
@@ -146,7 +148,6 @@
 
 .team-table th:nth-child(3) {
     text-align: left;
-    min-width: 300px;
     padding-left: 10px;
     text-align: center;
 }
@@ -199,4 +200,4 @@
 .extension-btn.selected {
     background: lightgreen;
     font-weight: bold;
-}
+} */

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+
+const DEV_MODE = true; // 開発時のみtrueに
 import { Player } from "../models/Player";
 import TeamSelection from "./TeamSelection";
 import "./Teams.css";
@@ -34,8 +36,11 @@ export default function Teams2({ onShowInput, onBackToTitle, initialData, teams:
             }
         }
         if (!teamName2 && !initialData?.teamName2) {
-            const team2 = teamNames.length > 1 ? teamNames[1] : teamNames[0];
-            setTeamName2(team2);
+            if (DEV_MODE && teamNames.length > 2) {
+                setTeamName2(teamNames[2]);
+            } else {
+                setTeamName2("");
+            }
         }
     }, [teamNames.length, teamsData, allPlayers, team1]);
 

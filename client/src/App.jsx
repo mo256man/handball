@@ -1,20 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext } from 'react';
+export const setCurrentViewContext = createContext(undefined);
 import './App.css'
-import Input from "./components/Input"
-import Input2 from "./components/Input2"
 import Title from "./components/Title"
-import Teams from "./components/Teams"
-import Teams2 from "./components/Teams2"
-import AnalysisMenu from "./components/AnalysisMenu";
-import Analysis from "./components/Analysis";
+import InputMenu from './components/InputMenu';
+import InputSheet from './components/InputSheet';
+import OutputFlow from './components/OutputFlow';
+
+
+// import MakeMatch from "./components/MakeMatch"
+// import Input from "./components/Input"
+// import Input2 from "./components/Input2"
+// import AnalysisMenu from "./components/AnalysisMenu";
+// import Analysis from "./components/Analysis";
 import { getTeams, getPlayers } from "./api";
 import { insertMatch } from "./api";
+import { TeamData } from "./models/TeamData";
+import { Player } from "./models/Player";
 
 function App() {
-  const [currentView, setCurrentView] = useState('title'); // 'title', 'teams', 'teams2', 'input', 'input2'
-  const [players, setPlayers] = useState({ team1: [], team2: [], teamName1: "", teamName2: "", date: new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' }) });
-  const [showMenu, setShowMenu] = useState(false);
-  const [teams, setTeams] = useState([]);
+  // 攻撃サイド（1 or 2）
+  const [attackSide, setAttackSide] = useState(1);
+  const [currentView, setCurrentView] = useState('title');
+  const [teams, setTeams] = useState([null, null]);
+  const [page, setPage] = useState('menu');
+  const [currentSide, setCurrentSide] = useState(0);
+  const [players, setPlayers] = useState([[], []]);
+  const [allTeams, setAllTeams] = useState([]);
   const [allPlayers, setAllPlayers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [recordDate, setRecordDate] = useState(null);
@@ -31,10 +42,10 @@ function App() {
           getTeams(),
           getPlayers()
         ]);
-        setTeams(teamsData);
-        setAllPlayers(playersData);
-        console.log('取得したチーム:', teamsData);
-        console.log('取得した選手:', playersData);
+        setAllTeams(teamsData);
+        // Playerクラスのインスタンス配列に変換
+        const playerInstances = playersData.map(p => new Player(p));
+        setAllPlayers(playerInstances);
       } catch (error) {
         console.error('データ読み込みエラー:', error);
       } finally {
@@ -44,8 +55,38 @@ function App() {
     loadData();
   }, []);
 
-  const handleShowTeams = () => setCurrentView('teams');
-  const handleShowTeams2 = () => setCurrentView('teams2');
+
+    const [match, setMatch] = useState({
+      team1: null,
+      team2: null,
+      players1: [],
+      players2: [],
+      date: undefined,
+    });
+
+    // allTeams/allPlayersが更新されたらmatchの初期値をセット
+    useEffect(() => {
+        if (allTeams.length >= 2 && allPlayers.length > 0) {
+          const team1 = allTeams[0];
+          const team2 = allTeams[1];
+          const players1 = allPlayers.filter(p => p.teamId === team1.id);
+          const players2 = allPlayers.filter(p => p.teamId === team2.id);
+          const teamData1 = new TeamData(team1, players1);
+          const teamData2 = new TeamData(team2, players2);
+      setMatch({
+        teamData1,
+        teamData2,
+        date: new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' }),
+        attackSide: attackSide
+      });
+        }
+    }, [allTeams, allPlayers, attackSide]);
+
+  // const handleShowMakeMatch = () => setCurrentView('makeMatch');
+  // const onShowInputFlow = () => setCurrentView('inputFlow');
+  // const onShowOutputFlow = () => setCurrentView('outputFlow');
+  const handleBackToTitle = () => setCurrentView('title');
+
   const handleShowInput = async (data) => {
     // 同じ試合が既に登録されていないかチェック
     if (data.date !== recordDate || data.teamName1 !== recordTeam1 || data.teamName2 !== recordTeam2) {
@@ -58,82 +99,58 @@ function App() {
         console.error('試合データ挿入エラー:', error);
       }
     }
-    setPlayers(data);
-    setCurrentView('input');
-  };
-  const handleShowInput2 = async (data) => {
-    // 同じ試合が既に登録されていないかチェック
-    if (data.date !== recordDate || data.teamName1 !== recordTeam1 || data.teamName2 !== recordTeam2) {
-      try {
-        await insertMatch(data.date, data.teamName1, data.teamName2);
-        setRecordDate(data.date);
-        setRecordTeam1(data.teamName1);
-        setRecordTeam2(data.teamName2);
-      } catch (error) {
-        console.error('試合データ挿入エラー:', error);
-      }
-    }
-    setPlayers(data);
-    setCurrentView('input2');
-  };
-  function handleBackToTitle() {
-    return setCurrentView('title');
-  }
-  const handleBackToTeams = () => setCurrentView('teams');
-  const handleBackToTeams2 = () => setCurrentView('teams2');
-  const showAnalysisMenu = () => {
-    setCurrentView("analysisMenu");
-  };
-  const showAnalysis = () => {
-    setCurrentView("analysis");
   };
 
   let content;
   if (currentView === "title") {
     content = <Title
-      onShowTeams={handleShowTeams}
-      onShowTeams2={handleShowTeams2}
-      onShowAnalysisMenu={showAnalysisMenu}
-      showMenu={showMenu}
-      setShowMenu={setShowMenu}
+      allTeams={allTeams}
+      setView={(page) => setCurrentView(page)}
       teams={teams}
-      onSelectTeam1={setSelectedTeam1}
-      selectedTeam1={selectedTeam1} />;
-  } else if (currentView === "teams") {
-    content = <Teams
-      onShowInput={handleShowInput}
-      onShowInput2={handleShowInput2}
-      onBackToTitle={handleBackToTitle}
-      initialData={players}
-      teams={teams}
-      players={allPlayers}
-      team1={selectedTeam1} />;
-  } else if (currentView === "teams2") {
-    content = <Teams2
-      onShowInput={handleShowInput2}
-      onBackToTitle={handleBackToTitle}
-      initialData={players}
-      teams={teams}
-      players={allPlayers}
-      team1={selectedTeam1} />;
-  } else if (currentView === "input") {
-      content = <Input
-        onBackToTitle={handleBackToTeams}
-        players={players} />;
-  } else if (currentView === "input2") {
-      content = <Input2
-        onBackToTitle={handleBackToTeams2}
-        players={players} />;
-  } else if (currentView === "analysisMenu") {
-      content = <AnalysisMenu onBackToTitle={handleBackToTitle} teams={teams} players={allPlayers} />;
-  } else if (currentView === "analysis") {
-      content = <Analysis onBackToTitle={handleBackToTitle} />;
+      setTeams={setTeams}
+    />;
+  } else if (currentView === "inputMenu") {
+    if (page === "menu") {
+      content = <InputMenu
+        allTeams={allTeams}
+        allPlayers={allPlayers}
+        teams={teams}
+        setTeams={setTeams}
+        players={players}
+        setPlayers={setPlayers}
+        setView={setCurrentView}
+        setPage={setPage}
+      />;
+    } else {
+      content = <InputSheet
+        teams={teams}
+        players={players}
+        setPage={setPage}
+      />;
+    }
+  } else if (currentView === "outputFlow") {
+    content = <OutputFlow 
+      allTeams={allTeams}
+      allPlayers={allPlayers}
+      setView={(page) => setCurrentView(page)}
+     />;
   }
+  // } else if (currentView === "input") {
+  //   content = <Input
+  //     onBackToTitle={handleBackToTeams}
+  //     players={players} />;
+  // } else if (currentView === "input2") {
+  //   content = <Input2
+  //     onBackToTitle={handleBackToTeams2}
+  //     players={players} />;
+  // } else if (currentView === "analysisMenu") {
+  //   content = <AnalysisMenu onBackToTitle={handleBackToTitle} teams={teams} players={allPlayers} />;
+  // } else if (currentView === "analysis") {
+  //   content = <Analysis onBackToTitle={handleBackToTitle} />;
+  // }
 
   return (
-    <>
-      <div>{content}</div>
-    </>
+    <div>{content}</div>
   );
 }
 

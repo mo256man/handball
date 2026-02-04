@@ -1,3 +1,10 @@
+// タイムアウト付きPromiseラッパー
+function withTimeout(promise, ms = 3000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('タイムアウト')), ms))
+  ]);
+}
 const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
@@ -49,22 +56,22 @@ function closeDatabase(db) {
  * @param {Array} params パラメータ
  * @returns {Array} クエリ結果
  */
-function queryAll(db, query, params = []) {
-  try {
-    const stmt = db.prepare(query);
-    stmt.bind(params);
-    
-    const rows = [];
-    while (stmt.step()) {
-      rows.push(stmt.getAsObject());
+async function queryAll(db, query, params = []) {
+  return withTimeout(new Promise((resolve, reject) => {
+    try {
+      const stmt = db.prepare(query);
+      stmt.bind(params);
+      const rows = [];
+      while (stmt.step()) {
+        rows.push(stmt.getAsObject());
+      }
+      stmt.free();
+      resolve(rows);
+    } catch (error) {
+      console.error('クエリ実行エラー:', error.message);
+      reject(error);
     }
-    stmt.free();
-    
-    return rows;
-  } catch (error) {
-    console.error('クエリ実行エラー:', error.message);
-    throw error;
-  }
+  }));
 }
 
 /**
@@ -74,20 +81,17 @@ function queryAll(db, query, params = []) {
  * @param {Array} params パラメータ
  * @returns {Object} 実行結果
  */
-function queryRun(db, query, params = []) {
-  try {
-    db.run(query, params);
-    
-    // 変更された行数を取得
-    const changes = db.getRowsModified();
-    
-    return {
-      changes: changes
-    };
-  } catch (error) {
-    console.error('クエリ実行エラー:', error.message);
-    throw error;
-  }
+async function queryRun(db, query, params = []) {
+  return withTimeout(new Promise((resolve, reject) => {
+    try {
+      db.run(query, params);
+      const changes = db.getRowsModified();
+      resolve({ changes });
+    } catch (error) {
+      console.error('クエリ実行エラー:', error.message);
+      reject(error);
+    }
+  }));
 }
 
 /**
@@ -95,17 +99,20 @@ function queryRun(db, query, params = []) {
  * @param {Object} db データベース接続オブジェクト
  * @param {string} filePath 保存先のファイルパス（省略時は元のファイルに上書き）
  */
-function saveDatabase(db, filePath = null) {
-  try {
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    const savePath = filePath || path.join(__dirname, 'handball.sqlite');
-    fs.writeFileSync(savePath, buffer);
-    console.log('データベースを保存しました:', savePath);
-  } catch (error) {
-    console.error('データベース保存エラー:', error.message);
-    throw error;
-  }
+async function saveDatabase(db, filePath = null) {
+  return withTimeout(new Promise((resolve, reject) => {
+    try {
+      const data = db.export();
+      const buffer = Buffer.from(data);
+      const savePath = filePath || path.join(__dirname, 'handball.sqlite');
+      fs.writeFileSync(savePath, buffer);
+      console.log('データベースを保存しました:', savePath);
+      resolve();
+    } catch (error) {
+      console.error('データベース保存エラー:', error.message);
+      reject(error);
+    }
+  }));
 }
 
 module.exports = {

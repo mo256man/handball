@@ -2,10 +2,13 @@
  * プレイヤークラス
  */
 export class Player {
-    constructor({ number = "", name = "", position = "", isOnBench = true } = {}) {
+    constructor({ id = null, number = "", name = "", position = "", teamId = null, shortname = "", isOnBench = true } = {}) {
+        this.id = id;
         this.number = number;
         this.name = name;
         this.position = position;
+        this.teamId = teamId;
+        this.shortname = shortname;
         this.isOnBench = isOnBench;
     }
 
@@ -17,9 +20,12 @@ export class Player {
      */
     static fromDatabase(memberData, isOnBench = true) {
         return new Player({
+            id: memberData.id ?? null,
             number: memberData.number || "",
             name: memberData.name || "",
             position: memberData.position || "",
+            teamId: memberData.teamId ?? null,
+            shortname: memberData.shortname || "",
             isOnBench: isOnBench
         });
     }
@@ -30,9 +36,12 @@ export class Player {
      */
     toJSON() {
         return {
+            id: this.id,
             number: this.number,
             name: this.name,
             position: this.position,
+            teamId: this.teamId,
+            shortname: this.shortname,
             isOnBench: this.isOnBench
         };
     }

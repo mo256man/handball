@@ -36,14 +36,12 @@ async function initDatabase() {
 }
 
 // APIエンドポイント: recordテーブルの日付一覧（重複なし）を取得
-app.get('/api/available-dates', (req, res) => {
+app.get('/api/available-dates', async (req, res) => {
     try {
         if (!db) {
             throw new Error('データベースが初期化されていません');
         }
-        // DISTINCTで日付一覧を取得
-        const rows = queryAll(db, "SELECT DISTINCT date FROM record ORDER BY date ASC");
-        // date列だけの配列に変換
+        const rows = await queryAll(db, "SELECT DISTINCT date FROM record ORDER BY date ASC");
         const dates = rows.map(row => row.date);
         res.json(dates);
     } catch (error) {
@@ -53,20 +51,16 @@ app.get('/api/available-dates', (req, res) => {
 });
 
 // APIエンドポイント: SELECTクエリを実行
-app.post('/api/query', (req, res) => {
+app.post('/api/query', async (req, res) => {
     try {
         const { query, params = [] } = req.body;
-        
         if (!query) {
             return res.status(400).json({ error: 'クエリが指定されていません' });
         }
-        
-        // SELECTクエリのみ許可
         if (!query.trim().toLowerCase().startsWith('select')) {
             return res.status(400).json({ error: 'SELECTクエリのみ実行可能です' });
         }
-        
-        const results = queryAll(db, query, params);
+        const results = await queryAll(db, query, params);
         res.json({ success: true, data: results });
     } catch (error) {
         console.error('クエリ実行エラー:', error);
@@ -75,23 +69,18 @@ app.post('/api/query', (req, res) => {
 });
 
 // APIエンドポイント: INSERT/UPDATE/DELETEクエリを実行
-app.post('/api/execute', (req, res) => {
+app.post('/api/execute', async (req, res) => {
     try {
         const { query, params = [] } = req.body;
-        
         if (!query) {
             return res.status(400).json({ error: 'クエリが指定されていません' });
         }
-        
-        const result = queryRun(db, query, params);
-        saveDatabase(db); // 変更を保存
-        
-        // データ更新を全クライアントに通知
+        const result = await queryRun(db, query, params);
+        await saveDatabase(db); // 変更を保存
         io.emit('data-updated', { 
             message: 'データが更新されました',
             timestamp: new Date().toISOString()
         });
-        
         res.json({ success: true, changes: result.changes });
     } catch (error) {
         console.error('クエリ実行エラー:', error);
@@ -100,13 +89,13 @@ app.post('/api/execute', (req, res) => {
 });
 
 // APIエンドポイント: 全チームを取得
-app.get('/api/teams', (req, res) => {
+app.get('/api/teams', async (req, res) => {
     try {
         console.log('チーム取得リクエストを受信');
         if (!db) {
             throw new Error('データベースが初期化されていません');
         }
-        const teams = queryAll(db, "SELECT * FROM teams");
+        const teams = await queryAll(db, "SELECT * FROM teams WHERE isAvailable = 1");
         console.log('チーム数:', teams.length);
         res.json({ success: true, teams: teams });
     } catch (error) {
@@ -116,14 +105,12 @@ app.get('/api/teams', (req, res) => {
 });
 
 // APIエンドポイント: recordテーブルにデータを挿入
-app.post('/api/insertRecord', (req, res) => {
+app.post('/api/insertRecord', async (req, res) => {
     try {
         const data = req.body;
-        
         if (!data) {
             return res.status(400).json({ error: 'データが指定されていません' });
         }
-        
         const query = `INSERT INTO record (date, team, half, situation, number, kind, result, gk, yellowcard, "2min", remarks, area, goal, player, team1, team2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const params = [
             data.date,
@@ -143,19 +130,14 @@ app.post('/api/insertRecord', (req, res) => {
             data.team1,
             data.team2
         ];
-        
         console.log('INSERT recordクエリ:', query);
         console.log('パラメータ:', params);
-        
-        const result = queryRun(db, query, params);
-        saveDatabase(db); // 変更を保存
-        
-        // データ更新を全クライアントに通知
+        const result = await queryRun(db, query, params);
+        await saveDatabase(db); // 変更を保存
         io.emit('data-updated', { 
             message: 'データが更新されました',
             timestamp: new Date().toISOString()
         });
-        
         res.json({ success: true, changes: result.changes });
     } catch (error) {
         console.error('データ挿入エラー:', error);
@@ -164,22 +146,17 @@ app.post('/api/insertRecord', (req, res) => {
 });
 
 // APIエンドポイント: resultテーブルのカウントを取得
-app.get('/api/resultCount', (req, res) => {
+app.get('/api/resultCount', async (req, res) => {
     try {
         const { date, team } = req.query;
-        
         if (!date || !team) {
             return res.status(400).json({ error: 'dateとteamが指定されていません' });
         }
-        
         const query = `SELECT COUNT(*) as count FROM result WHERE date = ? AND team = ?`;
         const params = [date, team];
-        
         console.log('COUNTクエリ:', query, 'パラメータ:', params);
-        
-        const result = queryAll(db, query, params);
+        const result = await queryAll(db, query, params);
         const count = result[0].count;
-        
         res.json({ success: true, count: count });
     } catch (error) {
         console.error('カウント取得エラー:', error);
@@ -188,28 +165,21 @@ app.get('/api/resultCount', (req, res) => {
 });
 
 // APIエンドポイント: matchテーブルにデータを挿入
-app.post('/api/insertMatch', (req, res) => {
+app.post('/api/insertMatch', async (req, res) => {
     try {
         const { date, team1, team2 } = req.body;
-        
         if (!date || !team1 || !team2) {
             return res.status(400).json({ error: 'date, team1, team2が必要です' });
         }
-        
         const query = `INSERT INTO match (date, team1, team2) VALUES (?, ?, ?)`;
         const params = [date, team1, team2];
-        
         console.log('INSERT matchクエリ:', query, 'パラメータ:', params);
-        
-        const result = queryRun(db, query, params);
-        saveDatabase(db); // 変更を保存
-        
-        // データ更新を全クライアントに通知
+        const result = await queryRun(db, query, params);
+        await saveDatabase(db); // 変更を保存
         io.emit('data-updated', { 
             message: '試合データが更新されました',
             timestamp: new Date().toISOString()
         });
-        
         res.json({ success: true, changes: result.changes });
     } catch (error) {
         console.error('試合データ挿入エラー:', error);
@@ -218,21 +188,16 @@ app.post('/api/insertMatch', (req, res) => {
 });
 
 // APIエンドポイント: 指定日付の試合データを取得
-app.get('/api/getMatches', (req, res) => {
+app.get('/api/getMatches', async (req, res) => {
     try {
         const { date } = req.query;
-        
         if (!date) {
             return res.status(400).json({ error: 'dateが指定されていません' });
         }
-        
         const query = `SELECT * FROM match WHERE date = ?`;
         const params = [date];
-        
         console.log('SELECT matchクエリ:', query, 'パラメータ:', params);
-        
-        const matches = queryAll(db, query, params);
-        
+        const matches = await queryAll(db, query, params);
         res.json({ success: true, matches: matches });
     } catch (error) {
         console.error('試合データ取得エラー:', error);
@@ -242,13 +207,13 @@ app.get('/api/getMatches', (req, res) => {
 
 
 // APIエンドポイント: 全選手を取得
-app.get('/api/players', (req, res) => {
+app.get('/api/players', async (req, res) => {
     try {
         console.log('選手リクエストを受信');
         if (!db) {
             throw new Error('データベースが初期化されていません');
         }
-        const players = queryAll(db, "SELECT * FROM players");
+        const players = await queryAll(db, "SELECT * FROM players WHERE isAvailable = 1");
         res.json({ success: true, players: players });
     } catch (error) {
         console.error('選手取得エラー:', error);
@@ -257,16 +222,50 @@ app.get('/api/players', (req, res) => {
 });
 
 // APIエンドポイント: チームごとの選手を取得
-app.get('/api/players/by-team', (req, res) => {
+app.get('/api/players/by-team', async (req, res) => {
     try {
         if (!db) throw new Error('データベースが初期化されていません');
         const { teamname } = req.query;
         if (!teamname) return res.status(400).json({ error: 'teamnameが指定されていません' });
-        const players = queryAll(db, "SELECT * FROM players WHERE teamname = ?", [teamname]);
+        const players = await queryAll(db, "SELECT * FROM players WHERE teamname = ?", [teamname]);
         res.json(players);
     } catch (error) {
         console.error('チーム別選手取得エラー:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+
+// APIエンドポイント: パスワード認証（POST対応）
+app.post('/api/checkpass', async (req, res) => {
+    let { password, username } = req.body;
+    console.log("受信値 username:", username, ", password:", password);
+    if (password === undefined || username === undefined) {
+        return res.json({ success: false, error: "名前またはパスワード未入力" });
+    }
+    try {
+        if (!db) {
+            throw new Error('データベースが初期化されていません');
+        }
+        // まずuserテーブルからourTeamIdを取得
+        const query = "SELECT ourTeamId FROM user WHERE userName = ? AND password = ?";
+        const params = [username, password];
+        const result = await queryAll(db, query, params);
+        if (result.length > 0) {
+            const ourTeamId = result[0].ourTeamId;
+            // allTeamsから該当チームのレコードを取得
+            const teamRows = await queryAll(db, "SELECT * FROM teams WHERE id = ?", [ourTeamId]);
+            if (teamRows.length > 0) {
+                return res.json({ success: true, team: teamRows[0] });
+            } else {
+                return res.json({ success: false, error: "該当チームが見つかりません" });
+            }
+        } else {
+            return res.json({ success: false, error: "名前またはパスワードが違います" });
+        }
+    } catch (err) {
+        console.error('checkpassエラー:', err);
+        return res.status(500).json({ success: false, error: "サーバーエラー" });
     }
 });
 
