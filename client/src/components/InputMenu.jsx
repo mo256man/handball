@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import TeamSelection from "./TeamSelection";
 import { Player } from "../models/Player";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "./style_datepicker.css";
 import "./style_input.css";
-import { se } from "date-fns/locale";
+import { ja } from "date-fns/locale";
+import { insertMatch, checkMatchDuplicate } from "../api";
 
 export default function InputMenu(
-  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setPage}) {
+  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setPage, setMatchId}) {
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });   // sv-SEはYYYY-MM-DD形式
   const [date, setDate] = useState(today);
   const [selectedTeam, setSelectedTeam] = useState(0);
@@ -35,12 +39,34 @@ export default function InputMenu(
   };
 
   // STARTボタンのクリックハンドラー
-  const handleStartClick = () => {
-    setPlayers([
-      players[0].filter(p => p.isOnBench),
-      players[1].filter(p => p.isOnBench)
-    ]);
-    setPage("inputSheet");
+  const handleStartClick = async () => {
+    try {
+      // ベンチ入り選手のみにフィルター
+      const benchPlayers0 = players[0].filter(p => p.isOnBench);
+      const benchPlayers1 = players[1].filter(p => p.isOnBench);
+      
+      // 選手IDをコンマ区切り文字列に変換
+      const players0 = benchPlayers0.map(p => p.id).join(',');
+      const players1 = benchPlayers1.map(p => p.id).join(',');
+      
+      // 重複チェック
+      const duplicateCheck = await checkMatchDuplicate(date, teams[0].id, teams[1].id, players0, players1);
+      if (duplicateCheck.isDuplicate) {
+        console.log('重複するレコードが既に存在します。DBのmatchテーブルのid:', duplicateCheck.matchId);
+        setMatchId(duplicateCheck.matchId);
+      } else {
+        // matchテーブルに書き込み（チームIDを記録）
+        const result = await insertMatch(date, teams[0].id, teams[1].id, players0, players1);
+        console.log('新しいmatchを作成しました。DBのmatchテーブルのid:', result.matchId);
+        setMatchId(result.matchId);
+      }
+      
+      // stateを更新
+      setPlayers([benchPlayers0, benchPlayers1]);
+      setPage("inputSheet");
+    } catch (error) {
+      console.error('STARTボタンのエラー:', error);
+    }
   };
 
   // メンバーのisOnBenchをトグル
@@ -116,8 +142,16 @@ export default function InputMenu(
       <div className="main" onClick={() => setView("title")}>戻る</div>
     </div>
     <div className="main">
-      <div>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      <div className="date-picker-wrapper">
+        <DatePicker
+          selected={new Date(date)}
+          onChange={(selectedDate) => {
+            const formattedDate = selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+            setDate(formattedDate);
+          }}
+          dateFormat="yyyy-MM-dd"
+          locale={ja}
+        />
       </div>
       <div className="team-btns">
         <div className={selectedTeam === 0 ? 'selected' : 'notSelected'} onClick={() => setSelectedTeam(0)}>{teams[0].teamname}</div>

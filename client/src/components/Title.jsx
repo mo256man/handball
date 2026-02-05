@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./style_title.css";
 
-export default function Title({allTeams, setView, teams, setTeams}) {
+export default function Title({allTeams, setView, teams, setTeams, titleMode, setTitleMode}) {
   const [showPopup, setShowPopup] = useState(false);        // チーム選択ポップアップ表示フラグ
-  const [showMenu, setShowMenu] = useState(false);          // メニュー表示フラグ
   const [password, setPassword] = useState("");
   const [passError, setPassError] = useState("");
   const [username, setUsername] = useState("");
@@ -30,7 +29,7 @@ export default function Title({allTeams, setView, teams, setTeams}) {
           }
           setTeams(newTeams);
         }
-        setShowMenu(true);
+        setTitleMode('menu');
       } else {
         setPassError(result.error || "パスワードが違います");
       }
@@ -67,7 +66,7 @@ export default function Title({allTeams, setView, teams, setTeams}) {
         <div className="btnTitle" onClick={() => setView('inputMenu')}>📝</div>
         <div className="btnTitle" onClick={() => setView('outputMenu')}>📊</div>
       </div>
-      <div className="btnConfirm" onClick={() => { setShowMenu(false); setTeams([null, null]); }}>ログアウト</div>
+      <div className="btnConfirm" onClick={() => { setTitleMode('pass'); setTeams([null, null]); }}>ログアウト</div>
     </div>
   );
 
@@ -83,8 +82,8 @@ export default function Title({allTeams, setView, teams, setTeams}) {
         <div className="align-bottom">
         {/* <div>我々は<span className="teamname-title">{team0?.teamname}</span></div>
         <div className="imgArea"><img id="title-img" src={team0?.filename} className="title-img"></img></div> */}
-          {!showMenu && renderNamePass()}
-          {showMenu && renderMenu()}
+          {titleMode === 'pass' && renderNamePass()}
+          {titleMode === 'menu' && renderMenu()}
         </div>
       </div>
     </div>

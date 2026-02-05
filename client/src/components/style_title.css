@@ -6,6 +6,7 @@
 
 
 .titleArea {
+    margin: 0 auto;
     background: lightblue;
     padding: 10px 20px;
     width: 300px;

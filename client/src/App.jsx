@@ -4,7 +4,7 @@ import './App.css'
 import Title from "./components/Title"
 import InputMenu from './components/InputMenu';
 import InputSheet from './components/InputSheet';
-import OutputFlow from './components/OutputFlow';
+import OutputMenu from './components/OutputMenu';
 
 
 // import MakeMatch from "./components/MakeMatch"
@@ -21,6 +21,7 @@ function App() {
   // 攻撃サイド（1 or 2）
   const [attackSide, setAttackSide] = useState(1);
   const [currentView, setCurrentView] = useState('title');
+  const [titleMode, setTitleMode] = useState('pass');
   const [teams, setTeams] = useState([null, null]);
   const [page, setPage] = useState('menu');
   const [currentSide, setCurrentSide] = useState(0);
@@ -32,6 +33,7 @@ function App() {
   const [recordTeam1, setRecordTeam1] = useState(null);
   const [recordTeam2, setRecordTeam2] = useState(null);
   const [selectedTeam1, setSelectedTeam1] = useState(null);
+  const [matchId, setMatchId] = useState(null);
 
   // データベースからteamsとplayersを取得
   useEffect(() => {
@@ -108,6 +110,8 @@ function App() {
       setView={(page) => setCurrentView(page)}
       teams={teams}
       setTeams={setTeams}
+      titleMode={titleMode}
+      setTitleMode={setTitleMode}
     />;
   } else if (currentView === "inputMenu") {
     if (page === "menu") {
@@ -120,19 +124,22 @@ function App() {
         setPlayers={setPlayers}
         setView={setCurrentView}
         setPage={setPage}
+        setMatchId={setMatchId}
       />;
     } else {
       content = <InputSheet
         teams={teams}
         players={players}
+        matchId={matchId}
         setPage={setPage}
       />;
     }
-  } else if (currentView === "outputFlow") {
-    content = <OutputFlow 
+  } else if (currentView === "outputMenu") {
+    content = <OutputMenu 
       allTeams={allTeams}
       allPlayers={allPlayers}
-      setView={(page) => setCurrentView(page)}
+      setPage={setPage}
+      setView={setCurrentView}
      />;
   }
   // } else if (currentView === "input") {

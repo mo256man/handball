@@ -152,18 +152,20 @@ export async function insertRecord(data) {
 /**
  * matchテーブルにデータを挿入
  * @param {string} date 日付
+ * @param {string} team0 チーム0
  * @param {string} team1 チーム1
- * @param {string} team2 チーム2
- * @returns {Promise<Object>} 実行結果
+ * @param {string} players0 チーム0の選手ID（コンマ区切り）
+ * @param {string} players1 チーム1の選手ID（コンマ区切り）
+ * @returns {Promise<Object>} { success, changes, matchId } matchIdはDBのmatchテーブルのid列
  */
-export async function insertMatch(date, team1, team2) {
+export async function insertMatch(date, team0, team1, players0 = '', players1 = '') {
     try {
         const response = await fetch(`${API_BASE_URL}/insertMatch`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ date, team1, team2 }),
+            body: JSON.stringify({ date, team0, team1, players0, players1 }),
         });
         
         const result = await response.json();
@@ -196,6 +198,61 @@ export async function getMatches(date) {
         return result.matches;
     } catch (error) {
         console.error('getMatches エラー:', error);
+        throw error;
+    }
+}
+
+/**
+ * matchテーブルの全ての試合日付を取得
+ * @returns {Promise<Array>} 日付の配列
+ */
+export async function getMatchDates() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/match-dates`);
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || '試合日付の取得に失敗しました');
+        }
+        
+        return result.dates || [];
+    } catch (error) {
+        console.error('getMatchDates エラー:', error);
+        throw error;
+    }
+}
+
+/**
+ * matchテーブルの重複チェック
+ * @param {string} date 日付
+ * @param {string} team0 チーム0
+ * @param {string} team1 チーム1
+ * @param {string} players0 チーム0の選手ID（コンマ区切り）
+ * @param {string} players1 チーム1の選手ID（コンマ区切り）
+ * @returns {Promise<Object>} { isDuplicate, matchId } matchIdはDBのmatchテーブルのid列
+ */
+export async function checkMatchDuplicate(date, team0, team1, players0, players1) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/check-match-duplicate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ date, team0, team1, players0, players1 }),
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'チェックに失敗しました');
+        }
+        
+        return {
+            isDuplicate: result.isDuplicate || false,
+            matchId: result.matchId || null
+        };
+    } catch (error) {
+        console.error('checkMatchDuplicate エラー:', error);
         throw error;
     }
 }

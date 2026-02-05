@@ -167,12 +167,12 @@ app.get('/api/resultCount', async (req, res) => {
 // APIエンドポイント: matchテーブルにデータを挿入
 app.post('/api/insertMatch', async (req, res) => {
     try {
-        const { date, team1, team2 } = req.body;
-        if (!date || !team1 || !team2) {
-            return res.status(400).json({ error: 'date, team1, team2が必要です' });
+        const { date, team0, team1, players0, players1 } = req.body;
+        if (!date || !team0 || !team1) {
+            return res.status(400).json({ error: 'date, team0, team1が必要です' });
         }
-        const query = `INSERT INTO match (date, team1, team2) VALUES (?, ?, ?)`;
-        const params = [date, team1, team2];
+        const query = `INSERT INTO match (date, team0, team1, players0, players1) VALUES (?, ?, ?, ?, ?)`;
+        const params = [date, team0, team1, players0 || '', players1 || ''];
         console.log('INSERT matchクエリ:', query, 'パラメータ:', params);
         const result = await queryRun(db, query, params);
         await saveDatabase(db); // 変更を保存
@@ -180,7 +180,8 @@ app.post('/api/insertMatch', async (req, res) => {
             message: '試合データが更新されました',
             timestamp: new Date().toISOString()
         });
-        res.json({ success: true, changes: result.changes });
+        // 挿入されたレコードのIDを返す
+        res.json({ success: true, changes: result.changes, matchId: result.lastID });
     } catch (error) {
         console.error('試合データ挿入エラー:', error);
         res.status(500).json({ error: error.message });
@@ -201,6 +202,42 @@ app.get('/api/getMatches', async (req, res) => {
         res.json({ success: true, matches: matches });
     } catch (error) {
         console.error('試合データ取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// APIエンドポイント: matchテーブルの全ての日付を取得
+app.get('/api/match-dates', async (req, res) => {
+    try {
+        if (!db) {
+            throw new Error('データベースが初期化されていません');
+        }
+        const query = `SELECT DISTINCT date FROM match ORDER BY date ASC`;
+        const rows = await queryAll(db, query);
+        const dates = rows.map(row => row.date);
+        res.json({ success: true, dates: dates });
+    } catch (error) {
+        console.error('matchテーブルの日付取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// APIエンドポイント: matchテーブルの重複チェック
+app.post('/api/check-match-duplicate', async (req, res) => {
+    try {
+        const { date, team0, team1, players0, players1 } = req.body;
+        if (!date || !team0 || !team1) {
+            return res.status(400).json({ error: 'date, team0, team1が必要です' });
+        }
+        const query = `SELECT id, COUNT(*) as count FROM match WHERE date = ? AND team0 = ? AND team1 = ? AND players0 = ? AND players1 = ?`;
+        const params = [date, team0, team1, players0 || '', players1 || ''];
+        console.log('重複チェッククエリ:', query, 'パラメータ:', params);
+        const result = await queryAll(db, query, params);
+        const count = result[0].count;
+        const matchId = result[0].id || null;
+        res.json({ success: true, isDuplicate: count > 0, matchId: matchId });
+    } catch (error) {
+        console.error('重複チェックエラー:', error);
         res.status(500).json({ error: error.message });
     }
 });
