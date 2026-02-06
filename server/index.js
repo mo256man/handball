@@ -164,6 +164,47 @@ app.get('/api/resultCount', async (req, res) => {
     }
 });
 
+// APIエンドポイント: recordテーブルにデータを挿入（新フォーマット）
+app.post('/api/record', async (req, res) => {
+    try {
+        const data = req.body;
+        const query = `INSERT INTO record (
+            matchId, teamId, playerId, playeNumberr, playerPosition, playerName,
+            half, situation, kind, result, gk, remarks, area, goal, isGS, isFB
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const params = [
+            data.matchId,
+            data.teamId,
+            data.playerId,
+            data.playeNumberr,
+            data.playerPosition,
+            data.playerName,
+            data.half,
+            data.situation,
+            data.kind,
+            data.result,
+            data.gk,
+            data.remarks || '',
+            data.area || '',
+            data.goal || '',
+            data.isGS || 0,
+            data.isFB || 0
+        ];
+        console.log('INSERT recordクエリ:', query);
+        console.log('パラメータ:', params);
+        const result = await queryRun(db, query, params);
+        await saveDatabase(db);
+        io.emit('data-updated', { 
+            message: 'レコードが更新されました',
+            timestamp: new Date().toISOString()
+        });
+        res.json({ success: true, changes: result.changes, recordId: result.lastID });
+    } catch (error) {
+        console.error('レコード挿入エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // APIエンドポイント: matchテーブルにデータを挿入
 app.post('/api/insertMatch', async (req, res) => {
     try {
@@ -225,12 +266,12 @@ app.get('/api/match-dates', async (req, res) => {
 // APIエンドポイント: matchテーブルの重複チェック
 app.post('/api/check-match-duplicate', async (req, res) => {
     try {
-        const { date, team0, team1, players0, players1 } = req.body;
+        const { date, team0, team1 } = req.body;
         if (!date || !team0 || !team1) {
             return res.status(400).json({ error: 'date, team0, team1が必要です' });
         }
-        const query = `SELECT id, COUNT(*) as count FROM match WHERE date = ? AND team0 = ? AND team1 = ? AND players0 = ? AND players1 = ?`;
-        const params = [date, team0, team1, players0 || '', players1 || ''];
+        const query = `SELECT id, COUNT(*) as count FROM match WHERE date = ? AND team0 = ? AND team1 = ?`;
+        const params = [date, team0, team1];
         console.log('重複チェッククエリ:', query, 'パラメータ:', params);
         const result = await queryAll(db, query, params);
         const count = result[0].count;

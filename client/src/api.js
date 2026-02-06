@@ -231,14 +231,14 @@ export async function getMatchDates() {
  * @param {string} players1 チーム1の選手ID（コンマ区切り）
  * @returns {Promise<Object>} { isDuplicate, matchId } matchIdはDBのmatchテーブルのid列
  */
-export async function checkMatchDuplicate(date, team0, team1, players0, players1) {
+export async function checkMatchDuplicate(date, team0, team1) {
     try {
         const response = await fetch(`${API_BASE_URL}/check-match-duplicate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ date, team0, team1, players0, players1 }),
+            body: JSON.stringify({ date, team0, team1 }),
         });
         
         const result = await response.json();

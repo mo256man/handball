@@ -90,7 +90,6 @@ export default function MakeMatch(
                 : new Player({ number: "", name: "", position: "", isOnBench: true })
         );
         
-        // match変数に関する部分は削除
         onShowInput({ 
             team1: team1Players, 
             team2: team2Players, 

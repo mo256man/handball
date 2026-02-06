@@ -99,6 +99,7 @@
 .btnsArea {
     background: lightyellow;
     width: 100%;
+    margin: 0 auto;
     padding: 5px;
     box-sizing: border-box;
     max-width: 600px;

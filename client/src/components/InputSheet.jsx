@@ -3,7 +3,7 @@ import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
 import "./style_input.css";
 
-export default function InputSheet({ teams, players, setPage}) {
+export default function InputSheet({ teams, players, setPage, matchId}) {
 
   // 相手GK選択値
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
@@ -14,7 +14,7 @@ export default function InputSheet({ teams, players, setPage}) {
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [keyboardType, setKeyboardType] = useState("");
   // 各ボタンの値を管理するstate
-  const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "" });
+  const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
   
   const btns = [
     { label: '状況', id: "situation" },
@@ -249,6 +249,62 @@ export default function InputSheet({ teams, players, setPage}) {
     setOppoTeam(prev => (prev === 0 ? 1 : 0));
   }
 
+  const handleSubmit = async () => {
+    try {
+      // 選手情報を取得
+      const player = players[selectedTeam].find(p => p.number === parseInt(inputValues.player));
+      if (!player) {
+        alert("選手を選択してください");
+        return;
+      }
+
+      // isGS: resultが"g"もしくは"s"ならば1、それ以外ならば0
+      const isGS = ["g", "s"].includes(inputValues.result) ? 1 : 0;
+      
+      // isFB: kindが"f1" or "f2" or "f3" ならば1、それ以外ならば0
+      const isFB = ["f1", "f2", "f3"].includes(inputValues.kind) ? 1 : 0;
+
+      // 登録データを作成
+      const recordData = {
+        matchId: matchId,
+        teamId: teams[selectedTeam].id,
+        playerId: player.id,
+        playeNumberr: player.number,
+        playerPosition: player.position,
+        playerName: player.name,
+        half: currentHalf,
+        situation: inputValues.situation,
+        kind: inputValues.kind,
+        result: inputValues.result,
+        gk: selectedOppoGK[oppoTeam],
+        remarks: inputValues.remarks,
+        area: inputValues.shootArea,
+        goal: inputValues.goal,
+        isGS: isGS,
+        isFB: isFB,
+      };
+
+      // サーバーに送信
+      const response = await fetch("/api/record", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(recordData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert("登録しました");
+        // 入力値をリセット
+        setInputValues({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
+      } else {
+        const error = await response.json();
+        alert("登録に失敗しました: " + (error.error || "不明なエラー"));
+      }
+    } catch (err) {
+      alert("通信エラー: " + err.message);
+    }
+  }
+
   const createUprBtns = () => {
     return (
       <div className="btnsArea upperBtns">
@@ -303,11 +359,7 @@ export default function InputSheet({ teams, players, setPage}) {
                   type="text" 
                   value={getValueByTeam(btn.id)}
                   onChange={(e) => {
-                    if (selectedTeam === 1) {
-                      setRemarks1(e.target.value);
-                    } else {
-                      setRemarks2(e.target.value);
-                    }
+                    setInputValues(prev => ({ ...prev, remarks: e.target.value }));
                   }}
                 />
               </div>
@@ -349,7 +401,7 @@ export default function InputSheet({ teams, players, setPage}) {
       </div>
       <div className="footer">
         <div className="btnStartContainer">
-          <div className="btnStart">登録</div>
+          <div className="btnStart" onClick={handleSubmit}>登録</div>
         </div>
       </div>
     </div>);

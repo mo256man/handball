@@ -50,7 +50,7 @@ export default function InputMenu(
       const players1 = benchPlayers1.map(p => p.id).join(',');
       
       // 重複チェック
-      const duplicateCheck = await checkMatchDuplicate(date, teams[0].id, teams[1].id, players0, players1);
+      const duplicateCheck = await checkMatchDuplicate(date, teams[0].id, teams[1].id);
       if (duplicateCheck.isDuplicate) {
         console.log('重複するレコードが既に存在します。DBのmatchテーブルのid:', duplicateCheck.matchId);
         setMatchId(duplicateCheck.matchId);

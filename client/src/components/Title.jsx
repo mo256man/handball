@@ -62,6 +62,7 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
   const renderMenu = () => (
     // メニュー画面
     <div id="menu" className="titleArea">
+      <div>ログインユーザー名：{username}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
         <div className="btnTitle" onClick={() => setView('inputMenu')}>📝</div>
         <div className="btnTitle" onClick={() => setView('outputMenu')}>📊</div>

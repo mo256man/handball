@@ -79,14 +79,18 @@ async function queryAll(db, query, params = []) {
  * @param {Object} db データベース接続オブジェクト
  * @param {string} query SQLクエリ
  * @param {Array} params パラメータ
- * @returns {Object} 実行結果
+ * @returns {Object} 実行結果 { changes, lastID }
  */
 async function queryRun(db, query, params = []) {
   return withTimeout(new Promise((resolve, reject) => {
     try {
-      db.run(query, params);
+      const stmt = db.prepare(query);
+      stmt.bind(params);
+      stmt.step();
+      stmt.free();
       const changes = db.getRowsModified();
-      resolve({ changes });
+      const lastID = db.exec("SELECT last_insert_rowid() as id")[0]?.values[0]?.[0] || null;
+      resolve({ changes, lastID });
     } catch (error) {
       console.error('クエリ実行エラー:', error.message);
       reject(error);
