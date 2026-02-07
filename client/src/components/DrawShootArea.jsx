@@ -16,7 +16,21 @@ const createSectorPath = (centerX, centerY, radius, startAngle, endAngle) => {
   return `M ${centerX} ${centerY} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
 };
 
-const DrawShootArea = ({ onClick, width = 200, height = 150 }) => {
+const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, values = [] }) => {
+  // ラベル定義と座標（辞書化）
+  const labelDefs = [
+    { id: 'LW', x: 15, y: 40, text: 'LW' },
+    { id: 'RW', x: 185, y: 40, text: 'RW' },
+    { id: 'L6', x: 50, y: 80, text: 'L6' },
+    { id: 'R6', x: 150, y: 80, text: 'R6' },
+    { id: 'L9', x: 40, y: 115, text: 'L9' },
+    { id: 'R9', x: 160, y: 115, text: 'R9' },
+    { id: 'M6', x: 100, y: 85, text: 'M6' },
+    { id: 'M9', x: 100, y: 120, text: 'M9' },
+  ];
+
+  const labelBox = (x, y, w = 48, h = 20) => ({ x: x - w / 2, y: y - h / 2, w, h });
+
   return (
     <svg width={width} height={height} viewBox="0 0 200 150">
       <path d={createSectorPath(85, 10, 130, 90, 135)} fill="lightyellow" onClick={() => onClick("area", "L9")} className="shootArea"/>
@@ -30,14 +44,41 @@ const DrawShootArea = ({ onClick, width = 200, height = 150 }) => {
       <path d="M 25 10 A 60 60 0 0 0 85 70 L 115 70 A 60 60 0 0 0 175 10 Z" fill="white" stroke="black" strokeWidth="1" />
       <path d="M 0 300 L 0 10 L 200 10 L 200 300" fill="none" stroke="black" strokeWidth="1" />
       <rect x="85" y="0" width="30" height="10" fill="white" stroke="black" strokeWidth="1" />
-      <text x="15" y="40" className="shootAreaText">LW</text>
-      <text x="185" y="40" className="shootAreaText">RW</text>
-      <text x="50" y="80" className="shootAreaText">L6</text>
-      <text x="150" y="80" className="shootAreaText">R6</text>
-      <text x="40" y="115" className="shootAreaText">L9</text>
-      <text x="160" y="115" className="shootAreaText">R9</text>
-      <text x="100" y="85" className="shootAreaText">M6</text>
-      <text x="100" y="120" className="shootAreaText">M9</text>
+      {labelDefs.map((lbl, idx) => {
+        const textValue = showValue ? (values && values[idx] !== undefined ? values[idx] : lbl.text) : lbl.text;
+        const box = labelBox(lbl.x, lbl.y);
+        const isZero = showValue && (String(textValue).trim() === '0' || String(textValue).trim() === '0%');
+        return (
+          <g key={`label-${lbl.id}`}>
+            {showValue && (
+              <rect
+                x={box.x}
+                y={box.y}
+                width={box.w}
+                height={box.h}
+                fill={isZero ? '#d3d3d3' : 'white'}
+                stroke="black"
+                strokeWidth={1}
+                rx={4}
+                ry={4}
+                onClick={onClick ? (e => { e.stopPropagation(); onClick('area', lbl.id); }) : undefined}
+                style={{ cursor: onClick ? 'pointer' : 'default' }}
+              />
+            )}
+            <text
+              x={lbl.x}
+              y={lbl.y}
+              className="shootAreaText"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              onClick={onClick ? (e => { e.stopPropagation(); onClick('area', lbl.id); }) : undefined}
+              style={{ cursor: onClick ? 'pointer' : 'default' }}
+            >
+              {textValue}
+            </text>
+          </g>
+        );
+      })}
     </svg>
   );
 };

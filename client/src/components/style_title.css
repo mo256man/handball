@@ -1,46 +1,39 @@
-.titleTitle {
-    font-size: xx-large;
-    font-weight: bold;
-}
-
-
-
 .titleArea {
-    margin: 0 auto;
-    background: lightblue;
-    padding: 10px 20px;
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  margin: 0 auto;
+  background: lightblue;
+  padding: 10px 20px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .btnTitle {
-    background: lightyellow;
-    border: yellow 3px solid;
-    border-radius: 10px;
-    font-size: xx-large;
-    height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-    cursor: pointer;
+  background: lightyellow;
+  border: yellow 3px solid;
+  border-radius: 10px;
+  font-size: xx-large;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
 }
 
 .imgArea {
-    border-radius: 20px;
-    padding: 10px;
-    background: white;
-    margin-bottom: 20px;
-    width: fit-content;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+  border-radius: 20px;
+  padding: 10px;
+  background: white;
+  margin-bottom: 20px;
+  width: fit-content;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .title-img {
-    max-width: 300px;
+  max-width: 300px;
 }
 
 input {
@@ -142,4 +135,13 @@ img.team-logo {
     align-self: flex-end;
     margin-bottom: 5px;
     margin-left: auto;
+}
+
+.errorMessage {
+    color: red;
+    font-weight: bold;
+    min-height: 1.2em;
+    line-height: 1.2em;
+    display: flex;
+    align-items: center;
 }

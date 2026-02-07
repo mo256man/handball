@@ -1,10 +1,11 @@
 import React, { useState, useEffect, createContext } from 'react';
 export const setCurrentViewContext = createContext(undefined);
-import './App.css'
+import "./components/style_common.css"
 import Title from "./components/Title"
 import InputMenu from './components/InputMenu';
 import InputSheet from './components/InputSheet';
 import OutputMenu from './components/OutputMenu';
+import OutputSheet from './components/OutputSheet';
 
 
 // import MakeMatch from "./components/MakeMatch"
@@ -65,6 +66,8 @@ function App() {
       players2: [],
       date: undefined,
     });
+
+    const [selectedMatch, setSelectedMatch] = useState(null);
 
     // allTeams/allPlayersが更新されたらmatchの初期値をセット
     useEffect(() => {
@@ -140,7 +143,16 @@ function App() {
       allPlayers={allPlayers}
       setPage={setPage}
       setView={setCurrentView}
+      setSelectedMatch={setSelectedMatch}
      />;
+  }
+  else if (currentView === "outputSheet") {
+    content = <OutputSheet
+      allTeams={allTeams}
+      allPlayers={allPlayers}
+      setView={setCurrentView}
+      selectedMatch={selectedMatch}
+    />;
   }
   // } else if (currentView === "input") {
   //   content = <Input

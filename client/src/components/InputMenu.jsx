@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import TeamSelection from "./TeamSelection";
 import { Player } from "../models/Player";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import Calendar from "./Calendar";
 import "./style_datepicker.css";
 import "./style_input.css";
 import { ja } from "date-fns/locale";
@@ -78,7 +77,40 @@ export default function InputMenu(
     ));
   };
 
+  // カレンダー専用の読み取り専用入力コンポーネント（InputMenu内で定義）
+  // キーボード入力を受け付けず、クリックでカレンダーを開けるようにする
+  const ReadOnlyInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
+    <input
+      ref={ref}
+      value={value}
+      onClick={onClick}
+      placeholder={placeholder}
+      readOnly
+      style={{ cursor: 'pointer' }}
+    />
+  ));
 
+  // 今日に戻すハンドラー
+  const handleTodayClick = () => {
+    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+    setDate(todayStr);
+  };
+
+  const datePickerRef = useRef(null);
+
+  const renderSelectTeams = () => {
+    return (
+      <div id="tab-area" className={`tab-area tab-area-${selectedTeam}`}>
+        <div className="tabs">
+          <button className={selectedTeam === 0 ? 'tab active' : 'tab'} onClick={() => setSelectedTeam(0)}>自チーム</button>
+          <button className={selectedTeam === 1 ? 'tab active' : 'tab'} onClick={() => setSelectedTeam(1)}>対戦チーム</button>
+        </div>
+        <div className="tab-content">
+          {renderTable(selectedTeam)}
+        </div>
+      </div>
+    );
+  }
 
   const renderTable = (teamIdx) => {
     const playersArr = players[teamIdx];
@@ -96,7 +128,7 @@ export default function InputMenu(
         className="team-select team-area-item"
         disabled={disabled[selectedTeam]}
       >
-        <option value="">-- 相手チームを選択してください --</option>
+        {/* <option value="">-- 相手チームを選択してください --</option> */}
         {AllTeamNames.map((name, index) => (
           <option key={index} value={name}>{name}</option>
         ))}
@@ -137,27 +169,15 @@ export default function InputMenu(
 
   const content = (
     <div className="base">
-    <div className="header">
-      <div className="titleTitle">チーム・出場選手選択</div>
-      <div className="main" onClick={() => setView("title")}>戻る</div>
+    <div className="header row">
+      <div className="header-title left">チーム・出場選手選択</div>
+      <div className="header-title right" onClick={() => setView("title")}>🔙</div>
     </div>
     <div className="main">
       <div className="date-picker-wrapper">
-        <DatePicker
-          selected={new Date(date)}
-          onChange={(selectedDate) => {
-            const formattedDate = selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-            setDate(formattedDate);
-          }}
-          dateFormat="yyyy-MM-dd"
-          locale={ja}
-        />
+        <Calendar value={date} onChange={setDate} />
       </div>
-      <div className="team-btns">
-        <div className={selectedTeam === 0 ? 'selected' : 'notSelected'} onClick={() => setSelectedTeam(0)}>{teams[0].teamname}</div>
-        <div className={selectedTeam === 1 ? 'selected' : 'notSelected'} onClick={() => setSelectedTeam(1)}>{teams[1].teamname}</div>
-      </div>
-      {renderTable(selectedTeam)}
+      {renderSelectTeams()}
     </div>
     <div className="footer">
     <div className="btnStart" onClick={handleStartClick}>START</div>

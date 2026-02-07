@@ -44,16 +44,34 @@
 
 .team-table-container {
     flex: 1 1 0;
-    overflow-y: auto;
+    overflow-y: scroll; /* 常時スクロールバーを表示 */
+    scrollbar-gutter: stable; /* 幅の変化を防ぐ */
+    -webkit-overflow-scrolling: touch;
     padding: 0 10px;
 }
 
+/* WebKit 系でスクロールバーの見た目を調整（任意） */
+.team-table-container::-webkit-scrollbar {
+  width: 12px;
+}
+.team-table-container::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.18);
+  border-radius: 6px;
+}
+.team-table-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.03);
+}
+
+/* Firefox の幅指定ヒント */
+.team-table-container { scrollbar-width: thin; }
+
 .team-table {
-    border-collapse: collapse;
-    font-size: medium;
-    user-select: none;
-    table-layout: fixed;
-    width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: medium;
+  user-select: none;
+  table-layout: fixed;
+width: 100%;
 }
 
 .team-table th {
@@ -61,11 +79,22 @@
     top: 0;
     background: white;
     font-size: small;
-    z-index: 1;
+  background-color: rgba(100,100,200,0.3);
+  z-index: 3;
 }
 
-.team-table th,td {
-    border: 1px solid #ccc;
+.team-table thead th {
+  /* ヘッダー固定時に境界線が消えないよう、box-shadow で区切りを付ける */
+  border: none;
+  box-shadow: 0 5px 0 #ccc; /* 下方向に太めの線を描画 */
+  background: white;
+  background-clip: padding-box;
+}
+
+.team-table td {
+  /* データ行は上罫線のみ表示 */
+  border: none;
+  border-top: 1px solid #ccc;
 }
 
 .team-table th:nth-child(1) {
@@ -146,6 +175,87 @@
   min-height: 1.5em;
   text-align: center;
 }
+
+/* タブ */
+.tab-area {
+  width: 100%;
+  box-sizing: border-box;
+  padding-inline: 5px;
+  margin: 5px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.tabs {
+  width: 95%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  align-items: end;
+  margin: 0 auto -3px;
+}
+
+.tab {
+  width: 100%;
+  padding: 6px;
+  border: 3px solid #c8c8c8;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  color: #333;
+  text-align: center;
+}
+
+.tab:not(.active) {
+  background: #efefef;
+}
+
+.tab.active {
+  background: #fff;
+  font-weight: bold;
+  color: #111;
+}
+
+.tab-content {
+  border: 3px solid #c8c8c8;
+  border-radius: 6px;
+  padding: 10px;
+  background: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+
+/* タブごとの色定義 */
+.tab-area.tab-area-0 {
+  --tab1-bg: lightblue;
+  --tab1-active-bg: lightblue;
+  --tab2-bg: lightgray;
+  --tab2-active-bg: lightgray;
+  --content-bg: lightblue;
+}
+.tab-area.tab-area-1 {
+  --tab1-bg: lightgray;
+  --tab1-active-bg: lightgray;
+  --tab2-bg: lightyellow;
+  --tab2-active-bg: lightyellow;
+  --content-bg: lightyellow;
+}
+
+/* タブ個別の背景色 */
+.tab-area .tabs .tab:nth-child(1) { background: var(--tab1-bg); }
+.tab-area .tabs .tab:nth-child(2) { background: var(--tab2-bg); }
+.tab-area .tabs .tab.active:nth-child(1) { background: var(--tab1-active-bg); }
+.tab-area .tabs .tab.active:nth-child(2) { background: var(--tab2-active-bg); }
+
+/* コンテンツ背景をタブごとに変える */
+.tab-area .tab-content { background: var(--content-bg); }
 
 /* ソフトウェアキーボードのスタイル */
 .keyboard-overlay {
@@ -265,18 +375,6 @@
 
 .keyboard-key.color6 {
     background-color: #ccffff;
-}
-
-img.backgroundImage {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
-    pointer-events: none;
-    max-width: 100vw;
-    max-height: 100vh;
-    opacity: 0.2;
 }
 
 .upperBtns {

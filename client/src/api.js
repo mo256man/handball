@@ -71,6 +71,22 @@ export async function executeQuery(query, params = []) {
 }
 
 /**
+ * matchId に紐づく record レコードを取得
+ * @param {number|string} matchId
+ * @returns {Promise<Array>} record の配列
+ */
+export async function getRecordsByMatchId(matchId) {
+    try {
+        const query = `SELECT * FROM record WHERE matchId = ?`;
+        const data = await executeQuery(query, [matchId]);
+        return data || [];
+    } catch (error) {
+        console.error('getRecordsByMatchId エラー:', error);
+        throw error;
+    }
+}
+
+/**
  * INSERT/UPDATE/DELETEクエリを実行
  * @param {string} query SQLクエリ
  * @param {Array} params パラメータ

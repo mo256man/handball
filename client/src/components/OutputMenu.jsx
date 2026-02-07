@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import Calendar from "./Calendar";
 import "./style_datepicker.css";
 import "./style_output.css";
-import { ja } from "date-fns/locale";
-import { getMatchDates, getMatches } from "../api";
+// カレンダーは `Calendar` コンポーネントを使用
+import { getMatchDates, getMatches, getRecordsByMatchId } from "../api";
+import { useSocket } from "../hooks/useSocket";
 
-export default function OutputMenu({ setView, allTeams }) {
+export default function OutputMenu({ setView, allTeams, setSelectedMatch }) {
+  const { socketRef } = useSocket();
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-  const [selectedDate, setSelectedDate] = useState(new Date(today));
+  const [selectedDate, setSelectedDate] = useState(today);
   const [matchDates, setMatchDates] = useState([]);
   const [matches, setMatches] = useState([]);
   const [loadingDates, setLoadingDates] = useState(false);
   const [loadingMatches, setLoadingMatches] = useState(false);
+  const [currentSelectedMatch, setCurrentSelectedMatch] = useState(null);
 
   // チームIDからチーム名を取得
   const getTeamName = (teamId) => {
@@ -42,7 +44,7 @@ export default function OutputMenu({ setView, allTeams }) {
     const loadMatches = async () => {
       try {
         setLoadingMatches(true);
-        const dateStr = selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+        const dateStr = typeof selectedDate === 'string' ? selectedDate : selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
         const matchData = await getMatches(dateStr);
         setMatches(matchData || []);
         console.log('取得したマッチデータ:', matchData);
@@ -55,15 +57,34 @@ export default function OutputMenu({ setView, allTeams }) {
     loadMatches();
   }, [selectedDate]);
 
-  // matchDatesを Date オブジェクトの配列に変換
-  const highlightedDates = matchDates.map(dateStr => new Date(dateStr));
+  // Socket.IO リスナー設定：recordが更新されたら、マッチと日付リストを再取得
+  useEffect(() => {
+    if (!socketRef.current) return;
 
-  // ハイライト日付のスタイル
-  const highlightDates = (date) => {
-    return highlightedDates.some(
-      d => d.toLocaleDateString("sv-SE") === date.toLocaleDateString("sv-SE")
-    );
-  };
+    const handleDataUpdated = async () => {
+      try {
+        console.log('データ更新イベント受信。マッチ日付リストを再取得します');
+        // 試合日付リストを再取得
+        const dates = await getMatchDates();
+        setMatchDates(dates);
+        
+        // 現在の選択日付のマッチデータを再取得
+        const dateStr = typeof selectedDate === 'string' ? selectedDate : selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+        const matchData = await getMatches(dateStr);
+        setMatches(matchData || []);
+      } catch (error) {
+        console.error('マッチデータ再取得エラー:', error);
+      }
+    };
+
+    socketRef.current.on('data-updated', handleDataUpdated);
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('data-updated', handleDataUpdated);
+      }
+    };
+  }, [socketRef, selectedDate]);
 
   const renderDatePicker = () => {
     return (
@@ -72,16 +93,12 @@ export default function OutputMenu({ setView, allTeams }) {
         {loadingDates ? (
           <div>読み込み中...</div>
         ) : (
-          <DatePicker
-            selected={selectedDate}
-            onChange={(date) => setSelectedDate(date)}
-            dateFormat="yyyy-MM-dd"
-            locale={ja}
-            filterDate={(date) => highlightDates(date)}
+          <Calendar
+            value={selectedDate}
+            onChange={setSelectedDate}
+            highlightedDates={matchDates}
+            onlyHighlightSelectable={true}
             calendarClassName="match-calendar"
-            dayClassName={(date) =>
-              highlightDates(date) ? "highlighted-date" : ""
-            }
           />
         )}
       </div>
@@ -100,7 +117,25 @@ export default function OutputMenu({ setView, allTeams }) {
     return (
       <div className="matches-container">
         {matches.map((match, index) => (
-          <div key={match.id || index} className="match-item">
+          <div
+            key={match.id || index}
+            className="match-item"
+            onClick={async () => {
+                try {
+                  const records = await getRecordsByMatchId(match.id);
+                  const selectedMatchData = { match, records };
+                  setCurrentSelectedMatch(selectedMatchData);
+                  if (setSelectedMatch) setSelectedMatch(selectedMatchData);
+                  setView('outputSheet');
+                } catch (err) {
+                  console.error('records取得エラー:', err);
+                  const selectedMatchData = { match, records: [] };
+                  setCurrentSelectedMatch(selectedMatchData);
+                  if (setSelectedMatch) setSelectedMatch(selectedMatchData);
+                  setView('outputSheet');
+                }
+              }}
+          >
             <div className="match-teams">
               {getTeamName(match.team0)} vs {getTeamName(match.team1)}
             </div>

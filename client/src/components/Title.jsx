@@ -7,6 +7,33 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
   const [passError, setPassError] = useState("");
   const [username, setUsername] = useState("");
 
+  // outlineデバッグ用のトグル
+  const [outlineOn, setOutlineOn] = useState(false);
+  useEffect(() => {
+    const styleId = 'debug-outline';
+    if (outlineOn) {
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.innerHTML = '* { outline: 1px solid red !important; }';
+        document.head.appendChild(style);
+      }
+    } else {
+      const style = document.getElementById(styleId);
+      if (style) style.remove();
+    }
+  }, [outlineOn]);
+
+  // 開発時に各要素に枠線を表示するボタン
+  const drawFrameBtn = () => (
+    <button
+        style={{ position: 'absolute', right: 10, top: 10, zIndex: 10 }}
+        onClick={() => setOutlineOn(v => !v)}
+    >
+      outline {outlineOn ? 'OFF' : 'ON'}
+    </button>
+  );
+
   const handlePassClick = async () => {
     // パスワード確認
     setPassError("");
@@ -46,7 +73,6 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
         placeholder="名前"
         value={username}
         onChange={e => setUsername(e.target.value)}
-        style={{ marginBottom: '8px' }}
       />
       <input
         type="password"
@@ -55,14 +81,16 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
         onChange={e => setPassword(e.target.value)}
       />
       <div className="btnConfirm" onClick={handlePassClick}>ログイン</div>
-      {passError && <div style={{ color: "red" }}>{passError}</div>}
+      <div className="errorMessage">{passError}</div>
     </div>
   );
 
   const renderMenu = () => (
     // メニュー画面
     <div id="menu" className="titleArea">
-      <div>ログインユーザー名：{username}</div>
+      <div className="row">
+        <div className="teamname-title center">{teams[0].teamname}</div>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
         <div className="btnTitle" onClick={() => setView('inputMenu')}>📝</div>
         <div className="btnTitle" onClick={() => setView('outputMenu')}>📊</div>
@@ -76,13 +104,12 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
       {showPopup && renderSelectTeams()}
       <div className="header">
         {/* {renderSettingBtn()} */}
-        <div className="titleTitle">ハンド入力支援</div>
+        <div className="header-title">ハンドスタッツ入力支援</div>
+        {drawFrameBtn()}
       </div>
       <div className="main">
         <img src={teams[0] ? teams[0].filename : "irasutoya.png"} className="backgroundImage" />
         <div className="align-bottom">
-        {/* <div>我々は<span className="teamname-title">{team0?.teamname}</span></div>
-        <div className="imgArea"><img id="title-img" src={team0?.filename} className="title-img"></img></div> */}
           {titleMode === 'pass' && renderNamePass()}
           {titleMode === 'menu' && renderMenu()}
         </div>

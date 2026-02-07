@@ -2,7 +2,7 @@ import { fi } from 'date-fns/locale';
 import React from 'react';
 
 
-const DrawGoal = ({ drawOut, onClick, width = 300, height = 200 }) => {
+const DrawGoal = ({ drawOut, onClick, width = 300, height = 200, showValue = false, values = [] }) => {
   // drawOutに応じて座標を調整
   const x0 = drawOut ? 30 : 0;
   const y0 = drawOut ? 30 : 0;
@@ -104,6 +104,33 @@ const DrawGoal = ({ drawOut, onClick, width = 300, height = 200 }) => {
               onClick={onClick ? (e => { e.stopPropagation(); onClick('goal', area.value); }) : undefined}
               style={{ cursor: onClick ? 'pointer' : 'default' }}
             />
+            {
+              // ラベル背景（showValue のときのみ表示）。値が "0" または "0%" の場合は灰色背景にする
+              showValue && (() => {
+                const labelWidth = width * 0.8;
+                const labelHeight = Math.min(height * 0.45, 30);
+                const labelX = x + (width - labelWidth) / 2;
+                const labelY = y + (height - labelHeight) / 2;
+                const rx = Math.min(labelWidth, labelHeight) * 0.12;
+                const displayText = (values && values[idx] !== undefined) ? values[idx] : area.text;
+                const isZero = String(displayText).trim() === '0' || String(displayText).trim() === '0%';
+                return (
+                  <rect
+                    x={labelX}
+                    y={labelY}
+                    width={labelWidth}
+                    height={labelHeight}
+                    fill={isZero ? '#d3d3d3' : 'white'}
+                    stroke="black"
+                    strokeWidth={1}
+                    rx={rx}
+                    ry={rx}
+                    onClick={onClick ? (e => { e.stopPropagation(); onClick('goal', area.value); }) : undefined}
+                    style={{ cursor: onClick ? 'pointer' : 'default' }}
+                  />
+                );
+              })()
+            }
             <text
               x={x + width / 2}
               y={y + height / 2}
@@ -114,7 +141,7 @@ const DrawGoal = ({ drawOut, onClick, width = 300, height = 200 }) => {
               onClick={onClick ? (e => { e.stopPropagation(); onClick('goal', area.value); }) : undefined}
               style={{ cursor: onClick ? 'pointer' : 'default' }}
             >
-              {area.text}
+              {showValue ? (values && values[idx] !== undefined ? values[idx] : area.text) : area.text}
             </text>
           </g>
         );
