@@ -3,10 +3,11 @@ import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
 import "./style_output.css";
 import "./style_input.css";
+import OutputBtns from "./OutputBtns";
 import { useSocket } from "../hooks/useSocket";
 import { getRecordsByMatchId } from "../api";
 
-export default function OutputSheet({ setView, allTeams, selectedMatch, allPlayers }) {
+export default function OutputSheet3({ setView, allTeams, selectedMatch, allPlayers }) {
   const { socketRef } = useSocket();
   const [records, setRecords] = useState([]);
 
@@ -406,13 +407,14 @@ export default function OutputSheet({ setView, allTeams, selectedMatch, allPlaye
 
   return (
     <div className="base">
-      <div className="header">
-        <div className="titleTitle">分析</div>
-        <div className="main" onClick={() => setView("title")}>戻る</div>
+      <div className="header row">
+        <div className="header-title left">分析3</div>
+        <div className="header-title right" onClick={() => setView("title")}>🔙</div>
       </div>
+      <OutputBtns onOpenKeyboard={showInputPopup} setView={setView} />
       <div className="row">
         <div>チーム：{selectedMatch ? getTeamName(selectedTeam === 0 ? selectedMatch.match.team0 : selectedMatch.match.team1) : ''}</div>
-        <div style={{cursor: 'pointer'}} onClick={changeTeam}>チーム切り替え</div>
+        <div style={{cursor: 'pointer'}} onClick={changeTeam}>🔁</div>
       </div>
       <div style={{ cursor: 'pointer' }} onClick={() => setShowRatio(prev => !prev)}>num ←→ ratio</div>
       <div>枠内シュート数（結果：g or s）＝{denom}</div>

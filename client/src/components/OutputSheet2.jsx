@@ -1,22 +1,63 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
+import "./style_output.css";
 import "./style_input.css";
+import OutputBtns from "./OutputBtns";
+import { useSocket } from "../hooks/useSocket";
+import { getRecordsByMatchId } from "../api";
 
-export default function InputSheet({ teams, players, setView, matchId}) {
+export default function OutputSheet2({ setView, allTeams, selectedMatch, allPlayers }) {
+  const { socketRef } = useSocket();
+  const [records, setRecords] = useState([]);
 
-  // 相手GK選択値
+  // 入力用状態（InputSheet から必要な部分をコピー）
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
   const [selectedTeam, setSelectedTeam] = useState(0);
   const [oppoTeam, setOppoTeam] = useState(1);
   const [currentHalf, setCurrentHalf] = useState("前半");
-  const [showPopup, setShowPopup] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [keyboardType, setKeyboardType] = useState("");
-  // 各ボタンの値を管理するstate
-  const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
-  const remarksInputRef = useRef(null);
-  
+  const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "" });
+  const [showRatio, setShowRatio] = useState(false);
+
+  // 親ページから遷移して selectedMatch がセットされたとき、初期表示として全員集計を表示する
+  useEffect(() => {
+    if (selectedMatch) {
+      setInputValues(prev => {
+        if (prev.player) return prev;
+        return { ...prev, player: 'ALL' };
+      });
+      // selectedMatchからrecordsを初期化
+      if (selectedMatch.records) {
+        setRecords(selectedMatch.records);
+      }
+    }
+  }, [selectedMatch]);
+
+  // Socket.IO リスナー設定：recordが更新されたら、recordを再取得
+  useEffect(() => {
+    if (!socketRef.current || !selectedMatch || !selectedMatch.match) return;
+
+    const handleDataUpdated = async () => {
+      try {
+        const updatedRecords = await getRecordsByMatchId(selectedMatch.match.id);
+        setRecords(updatedRecords);
+        console.log('record更新イベント受信。新しいrecords:', updatedRecords);
+      } catch (error) {
+        console.error('record再取得エラー:', error);
+      }
+    };
+
+    socketRef.current.on('data-updated', handleDataUpdated);
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('data-updated', handleDataUpdated);
+      }
+    };
+  }, [socketRef, selectedMatch]);
+
   const btns = [
     { label: '状況', id: "situation" },
     { label: '選手', id: "player" },
@@ -24,12 +65,17 @@ export default function InputSheet({ teams, players, setView, matchId}) {
     { label: 'エリア', id: "shootArea" },
     { label: 'ゴール', id: "goal" },
     { label: '結果', id: "result" },
-    { label: 'Remarks', id: "remarks", gridColumn: "span 3" },
   ];
 
-  if (!teams) {
-    return <div>Loading...</div>;
-  }
+  // players をチームごとの配列に変換
+  const playersByTeam = (() => {
+    if (!allPlayers || !selectedMatch) return [[], []];
+    const team0Id = selectedMatch.match.team0;
+    const team1Id = selectedMatch.match.team1;
+    const p0 = allPlayers.filter(p => p.teamId === team0Id);
+    const p1 = allPlayers.filter(p => p.teamId === team1Id);
+    return [p0, p1];
+  })();
 
   const showInputPopup = (btnID) => {
     setKeyboardType(btnID);
@@ -66,9 +112,12 @@ export default function InputSheet({ teams, players, setView, matchId}) {
   }
 
   const setKeyboardPlayers = (handleKeyboardClick) => {
+    const playerBtns = playersByTeam[selectedTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number }));
+    // 先頭に「全員」ボタンを追加（span 4）
+    const btnsWithAll = [{ label: '全員', value: 'ALL', gridColumn: 'span 4' }, ...playerBtns];
     const keyboardConfig = {
       title: "選手",
-      btns: players[selectedTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number })),
+      btns: btnsWithAll,
       grid: "repeat(4, 1fr)"
     };
     const result = {
@@ -76,8 +125,13 @@ export default function InputSheet({ teams, players, setView, matchId}) {
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => handleKeyboardClick(btn.value)}
-            dangerouslySetInnerHTML={{ __html: btn.label }} />
+          <button
+            key={idx}
+            className="keyboard-btn"
+            onClick={() => handleKeyboardClick(btn.value)}
+            dangerouslySetInnerHTML={{ __html: btn.label }}
+            style={btn.gridColumn ? { gridColumn: btn.gridColumn } : undefined}
+          />
         ))}
       </div>)
     }
@@ -180,7 +234,7 @@ export default function InputSheet({ teams, players, setView, matchId}) {
 
   const setKeyboardOppoGK = (handleKeyboardClick) => {
     // GKのみ抽出
-    const gkPlayers = players[oppoTeam].filter(p => p.position === "GK");
+    const gkPlayers = playersByTeam[oppoTeam].filter(p => p.position === "GK");
     const gridCols = `repeat(${gkPlayers.length || 1}, 1fr)`;
     return {
       title: "相手GK",
@@ -203,11 +257,9 @@ export default function InputSheet({ teams, players, setView, matchId}) {
     };
   }
 
-
   const renderKeyboard = () => {
     if (!showKeyboard) return null;
 
-    // キーボードボタン押下時の値セット処理
     const handleKeyboardClick = (value) => {
       setInputValues(prev => ({ ...prev, [keyboardType]: value }));
       setShowKeyboard(false);
@@ -240,7 +292,6 @@ export default function InputSheet({ teams, players, setView, matchId}) {
     );
   }
 
-
   const changeHalf = () => {
     setCurrentHalf(prev => prev === "前半" ? "後半" : "前半");
   }
@@ -248,81 +299,12 @@ export default function InputSheet({ teams, players, setView, matchId}) {
   const changeTeam = () => {
     setSelectedTeam(prev => (prev === 0 ? 1 : 0));
     setOppoTeam(prev => (prev === 0 ? 1 : 0));
+    setInputValues({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
   }
-
-  const handleSubmit = async () => {
-    try {
-      // 選手情報を取得
-      const player = players[selectedTeam].find(p => p.number === parseInt(inputValues.player));
-      if (!player) {
-        alert("選手を選択してください");
-        return;
-      }
-
-      // isGS: resultが"g"もしくは"s"ならば1、それ以外ならば0
-      const isGS = ["g", "s"].includes(inputValues.result) ? 1 : 0;
-      
-      // isFB: kindが"f1" or "f2" or "f3" ならば1、それ以外ならば0
-      const isFB = ["f1", "f2", "f3"].includes(inputValues.kind) ? 1 : 0;
-
-      // 登録データを作成
-      const recordData = {
-        matchId: matchId,
-        teamId: teams[selectedTeam].id,
-        playerId: player.id,
-        playeNumberr: player.number,
-        playerPosition: player.position,
-        playerName: player.name,
-        half: currentHalf,
-        situation: inputValues.situation,
-        kind: inputValues.kind,
-        result: inputValues.result,
-        gk: selectedOppoGK[oppoTeam],
-        remarks: inputValues.remarks,
-        area: inputValues.shootArea,
-        goal: inputValues.goal,
-        isGS: isGS,
-        isFB: isFB,
-      };
-
-      // サーバーに送信
-      const response = await fetch("/api/record", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(recordData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        // alert("登録しました");
-        // 入力値をリセット
-        setInputValues({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
-      } else {
-        const error = await response.json();
-        alert("登録に失敗しました: " + (error.error || "不明なエラー"));
-      }
-    } catch (err) {
-      alert("通信エラー: " + err.message);
-    }
-  }
-
-  const createUprBtns = () => {
-    return (
-      <div className="btnsArea upperBtns">
-        <button className="btnHalf" onClick={changeHalf}>
-          {currentHalf}
-        </button>
-        <button className="btnGk span2" id="oppoGK" onClick={() => showInputPopup('oppoGK')}>
-          <div className="labelSmall">{teams[oppoTeam].shortname}のGK</div>
-          <div className="btnLabel">{selectedOppoGK[oppoTeam]}</div>
-        </button>
-        <button className="btnFunc span3" onClick={changeTeam}><div className="btnLabel">{teams[selectedTeam].shortname}の攻撃</div></button>
-      </div>
-    );
-  }
-
 
   const createLwrBtns = () => {
+    
+
     // 各ボタンの値をinputValuesから取得
     const getValueByTeam = (id) => {
       return inputValues[id] || '';
@@ -341,29 +323,7 @@ export default function InputSheet({ teams, players, setView, matchId}) {
           const gridStyle = btn.gridColumn ? { gridColumn: btn.gridColumn } : {};
           const anStyle = btn.id === 'an' ? { cursor: 'default' } : {};
 
-          // Remarksボタンの場合は標準inputを使用
-          if (btn.id === 'remarks') {
-            return (
-              <div 
-                key={btn.id} 
-                id={btn.id} 
-                className="btnFunc"
-                style={{ ...gridStyle}}
-                onClick={() => remarksInputRef.current?.focus()}
-              >
-                <div>{btn.label}</div>
-                <input 
-                  className="inputedValue"
-                  ref={remarksInputRef}
-                  type="text" 
-                  value={getValueByTeam(btn.id)}
-                  onChange={(e) => {
-                    setInputValues(prev => ({ ...prev, remarks: e.target.value }));
-                  }}
-                />
-              </div>
-            );
-          }
+
           
           return (
             <div 
@@ -382,34 +342,99 @@ export default function InputSheet({ teams, players, setView, matchId}) {
       </div>
     );
   }
-  
-  const renderContent = () => {
-    const content = (
-      <div className="base">
-      {renderKeyboard()}
-      <div className="header row">
-        <div className="header-title left">{teams[0].shortname} vs {teams[1].shortname}</div>
-        <div className="header-title right" onClick={() => setView("title")}>🔙</div>
-      </div>
-      <div className="main">
-        <img src={teams[selectedTeam].filename} className="backgroundImage"/>
-        {createUprBtns()}
-        <div className="align-bottom">
-          {createLwrBtns()}
-        </div>
-      </div>
-      <div className="footer">
-        <div className="btnStartContainer">
-          <div className="btnStart" onClick={handleSubmit}>登録</div>
-        </div>
-      </div>
-    </div>);
-    return content;
-  }
 
-  const content =  renderContent();
+  const getTeamName = (teamId) => {
+    const team = allTeams ? allTeams.find(t => t.id === teamId) : null;
+    return team ? team.teamname : `Team ${teamId}`;
+  };
+
+  // 選択された選手の集計（DrawGoal / DrawShootArea 用）
+  const computePlayerAggregates = () => {
+    if (!selectedMatch || !records) return { goalCounts: [], shootCounts: [], denom: 0 };
+    // 選択プレイヤーの識別: inputValues.player は選手番号
+    const playerValue = inputValues.player;
+    const allSelected = playerValue === 'ALL';
+    const playerNumber = (!allSelected && playerValue) ? parseInt(playerValue) : null;
+    let playerId = null;
+    if (!allSelected && playerNumber && playersByTeam[selectedTeam]) {
+      const pl = playersByTeam[selectedTeam].find(p => p.number === playerNumber);
+      if (pl) playerId = pl.id;
+    }
+
+    const teamIdSelected = selectedTeam === 0 ? selectedMatch.match.team0 : selectedMatch.match.team1;
+
+    const filteredRecords = records.filter(r => {
+      if (allSelected) {
+        if (r.teamId !== undefined) return r.teamId === teamIdSelected;
+        if (r.team1 !== undefined) return r.team1 === teamIdSelected || r.team2 === teamIdSelected;
+        if (r.team !== undefined) return r.team === teamIdSelected;
+        return false;
+      }
+      if (!playerNumber && !playerId) return false;
+      if (playerId && r.playerId !== undefined) return r.playerId === playerId;
+      if (r.playeNumberr !== undefined) return Number(r.playeNumberr) === playerNumber;
+      if (r.playerId !== undefined && playerId) return r.playerId === playerId;
+      return false;
+    });
+
+    // 分母: 選択対象（チーム全体 or 選手）の isGS==1 の数
+    const denom = filteredRecords.filter(r => r.isGS == 1).length;
+
+    // DrawGoal の9エリア順（日本語ラベルに対応）
+    const goalAreas = ['左上','上','右上','左','中央','右','左下','下','右下'];
+    const goalCounts = goalAreas.map(area => filteredRecords.filter(r => r.goal === area).length || 0);
+
+    // DrawShootArea のラベル順
+    const shootAreas = ['LW','RW','L6','R6','L9','R9','M6','M9'];
+    const shootCounts = shootAreas.map(area => filteredRecords.filter(r => r.area === area).length || 0);
+
+    return { goalCounts, shootCounts, denom };
+  };
+
+  const { goalCounts, shootCounts, denom } = computePlayerAggregates();
+
+  // フォーマット: showRatio が true のときは整数%（分母0なら0%）、そうでなければカウント（0は空表示）
+  const formatCounts = (counts) => counts.map(c => {
+    if (showRatio) {
+      const pct = denom === 0 ? 0 : Math.round((c / denom) * 100);
+      return `${pct}%`;
+    }
+    return String(c);
+  });
+
+  const goalValues = formatCounts(goalCounts || []);
+  const shootValues = formatCounts(shootCounts || []);
 
   return (
-    content
+    <div className="base">
+      <div className="header row">
+        <div className="header-title left">分析2</div>
+        <div className="header-title right" onClick={() => setView("title")}>🔙</div>
+      </div>
+      <OutputBtns onOpenKeyboard={showInputPopup} setView={setView} />
+      <div className="row">
+        <div>チーム：{selectedMatch ? getTeamName(selectedTeam === 0 ? selectedMatch.match.team0 : selectedMatch.match.team1) : ''}</div>
+        <div style={{cursor: 'pointer'}} onClick={changeTeam}>🔁</div>
+      </div>
+      <div style={{ cursor: 'pointer' }} onClick={() => setShowRatio(prev => !prev)}>num ←→ ratio</div>
+      <div>枠内シュート数（結果：g or s）＝{denom}</div>
+      <div className="row">
+        <DrawGoal showValue={Boolean(inputValues.player)} values={goalValues} />
+        <DrawShootArea showValue={Boolean(inputValues.player)} values={shootValues} />
+      </div>
+      {renderKeyboard()}
+      <div className="main output-menu-main">
+        {selectedMatch ? (
+          <div className="selected-match">
+            <h3>試合詳細</h3>
+            <div>{getTeamName(selectedMatch.match.team0)} vs {getTeamName(selectedMatch.match.team1)}</div>
+            {selectedMatch.match.date && <div>日付: {selectedMatch.match.date}</div>}
+            {createLwrBtns()}
+          </div>
+        ) : (
+          <div>表示するマッチが選択されていません</div>
+        )}
+      </div>
+    </div>
   );
 }

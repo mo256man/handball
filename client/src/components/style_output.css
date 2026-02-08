@@ -23,10 +23,13 @@
 
 .match-item {
   background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
+  border: 3px solid #ddd;
+  text-align: center;
+  font-size: normal;
+  font-weight: bold;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -42,12 +45,6 @@
   margin-bottom: 10px;
 }
 
-.match-teams {
-  font-size: 18px;
-  font-weight: bold;
-  color: #2196F3;
-  margin-bottom: 12px;
-}
 
 .match-players {
   font-size: 13px;
@@ -69,4 +66,73 @@
   padding: 20px;
   background-color: #f0f0f0;
   border-radius: 8px;
+}
+
+/* Buttons used in Output components */
+.outputBtn {
+  padding: 2px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Darken non-active buttons consistently */
+.outputBtn:not(.active) {
+  filter: brightness(0.7);
+  font-weight: normal;
+}
+
+.outputBtn.active {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.outputPageBtnArea {
+  background: aqua;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px 10px;
+}
+
+.pageBtn {
+  background: lightyellow;
+  font-size: large;
+  font-weight: bold;
+}
+
+
+.outputTeamBtnArea {
+  background: greenyellow;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px 10px;
+}
+
+.teamBtn {
+  background: lightgreen;
+  font-size: large;
+  font-weight: bold;
+}
+
+.tglNumRatio {
+  cursor: pointer;
+  border-radius: 50%;
+  background: lightblue;
+  font-size: medium;
+  font-weight: bold;
+  padding: 5px 10px;
+}
+
+.svgArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-items: center;
+}
+
+.svgArea svg {
+  flex: 1;
+  min-height: 0;
 }

@@ -4,11 +4,9 @@ import React from 'react';
 
 const DrawGoal = ({ drawOut, onClick, width = 300, height = 200, showValue = false, values = [] }) => {
   // drawOutに応じて座標を調整
-  const x0 = drawOut ? 30 : 0;
-  const y0 = drawOut ? 30 : 0;
-
+  const x0 = 30;
+  const y0 = 30;
   const thickness = 30;
-
 
   // ゴールの多角形部分を描画する関数
   const renderGoalPolygon = (fill) => {
@@ -168,8 +166,8 @@ const DrawGoal = ({ drawOut, onClick, width = 300, height = 200, showValue = fal
   };
 
   return (
-    <svg width={width} height={height} viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-      {drawOut && renderBackgroundRect()}
+    <svg width={width} height={height} viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      {renderBackgroundRect()}
       {renderGoalPolygon("white")}
       {renderFrameLines()}
       {renderGoalPolygon("none")}

@@ -17,7 +17,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 100dvh;
+  height: 100dvh;
 }
 
 .header {
@@ -59,14 +59,16 @@ html, body, #root {
   margin-right: auto;
 }
 
+.row > .center {
+  margin: 0 auto;
+  white-space: nowrap;
+  text-align: center;
+}
+
 .row > .right {
   margin-left: auto;
 }
 
-.row > .center {
-  margin: 0 auto;
-  white-space: nowrap;
-}
 
 .MarkArea {
   display: flex;

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import TeamSelection from "./TeamSelection";
 import { Player } from "../models/Player";
 import Calendar from "./Calendar";
 import "./style_datepicker.css";
@@ -8,7 +7,7 @@ import { ja } from "date-fns/locale";
 import { insertMatch, checkMatchDuplicate } from "../api";
 
 export default function InputMenu(
-  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setPage, setMatchId}) {
+  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId}) {
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });   // sv-SEはYYYY-MM-DD形式
   const [date, setDate] = useState(today);
   const [selectedTeam, setSelectedTeam] = useState(0);
@@ -62,7 +61,7 @@ export default function InputMenu(
       
       // stateを更新
       setPlayers([benchPlayers0, benchPlayers1]);
-      setPage("inputSheet");
+      setView("inputSheet");
     } catch (error) {
       console.error('STARTボタンのエラー:', error);
     }
@@ -147,14 +146,10 @@ export default function InputMenu(
           </thead>
           <tbody>
             {playersArr.map((player, index) => (
-              <tr 
+              <tr
                 key={index}
                 onClick={() => toggleMemberSelection(teamIdx, index)}
-                style={{ 
-                    cursor: 'pointer',
-                    backgroundColor: player.isOnBench ? '#e3f2fd' : '#f5f5f5',
-                    opacity: player.isOnBench ? 1 : 0.5
-                }}
+                className={player.isOnBench ? 'on-bench' : 'off-bench'}
               >
                 <td>{player.number}</td>
                 <td>{player.position}</td>

@@ -67,7 +67,7 @@ export default function OutputMenu({ setView, allTeams, setSelectedMatch }) {
         // 試合日付リストを再取得
         const dates = await getMatchDates();
         setMatchDates(dates);
-        
+
         // 現在の選択日付のマッチデータを再取得
         const dateStr = typeof selectedDate === 'string' ? selectedDate : selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
         const matchData = await getMatches(dateStr);
@@ -89,7 +89,7 @@ export default function OutputMenu({ setView, allTeams, setSelectedMatch }) {
   const renderDatePicker = () => {
     return (
       <div className="date-picker-section">
-        <label>試合日付を選択：</label>
+        <label>試合日付を選択</label>
         {loadingDates ? (
           <div>読み込み中...</div>
         ) : (
@@ -126,13 +126,13 @@ export default function OutputMenu({ setView, allTeams, setSelectedMatch }) {
                   const selectedMatchData = { match, records };
                   setCurrentSelectedMatch(selectedMatchData);
                   if (setSelectedMatch) setSelectedMatch(selectedMatchData);
-                  setView('outputSheet');
+                  setView('outputSheet1');
                 } catch (err) {
                   console.error('records取得エラー:', err);
                   const selectedMatchData = { match, records: [] };
                   setCurrentSelectedMatch(selectedMatchData);
                   if (setSelectedMatch) setSelectedMatch(selectedMatchData);
-                  setView('outputSheet');
+                  setView('outputSheet1');
                 }
               }}
           >
@@ -147,11 +147,11 @@ export default function OutputMenu({ setView, allTeams, setSelectedMatch }) {
 
   return (
     <div className="base">
-      <div className="header">
-        <div className="titleTitle">分析メニュー</div>
-        <div className="main" onClick={() => setView("title")}>戻る</div>
+      <div className="header row">
+        <div className="header-title left">分析メニュー</div>
+        <div className="header-title right" onClick={() => setView("title")}>🔙</div>
       </div>
-      <div className="main output-menu-main">
+      <div className="main">
         {renderDatePicker()}
         {renderMatches()}
       </div>

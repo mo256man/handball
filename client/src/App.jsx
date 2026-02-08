@@ -5,7 +5,9 @@ import Title from "./components/Title"
 import InputMenu from './components/InputMenu';
 import InputSheet from './components/InputSheet';
 import OutputMenu from './components/OutputMenu';
-import OutputSheet from './components/OutputSheet';
+import OutputSheet1 from './components/OutputSheet1';
+import OutputSheet2 from './components/OutputSheet2';
+import OutputSheet3 from './components/OutputSheet3';
 
 
 // import MakeMatch from "./components/MakeMatch"
@@ -24,7 +26,7 @@ function App() {
   const [currentView, setCurrentView] = useState('title');
   const [titleMode, setTitleMode] = useState('pass');
   const [teams, setTeams] = useState([null, null]);
-  const [page, setPage] = useState('menu');
+  // `page` state removed — use `currentView`/`setCurrentView` for navigation
   const [currentSide, setCurrentSide] = useState(0);
   const [players, setPlayers] = useState([[], []]);
   const [allTeams, setAllTeams] = useState([]);
@@ -117,37 +119,49 @@ function App() {
       setTitleMode={setTitleMode}
     />;
   } else if (currentView === "inputMenu") {
-    if (page === "menu") {
-      content = <InputMenu
-        allTeams={allTeams}
-        allPlayers={allPlayers}
-        teams={teams}
-        setTeams={setTeams}
-        players={players}
-        setPlayers={setPlayers}
-        setView={setCurrentView}
-        setPage={setPage}
-        setMatchId={setMatchId}
-      />;
-    } else {
-      content = <InputSheet
-        teams={teams}
-        players={players}
-        matchId={matchId}
-        setPage={setPage}
-      />;
-    }
+    content = <InputMenu
+      allTeams={allTeams}
+      allPlayers={allPlayers}
+      teams={teams}
+      setTeams={setTeams}
+      players={players}
+      setPlayers={setPlayers}
+      setView={setCurrentView}
+      setMatchId={setMatchId}
+    />;
+  } else if (currentView === "inputSheet") {
+    content = <InputSheet
+      teams={teams}
+      players={players}
+      matchId={matchId}
+      setView={setCurrentView}
+    />;
   } else if (currentView === "outputMenu") {
     content = <OutputMenu 
       allTeams={allTeams}
       allPlayers={allPlayers}
-      setPage={setPage}
       setView={setCurrentView}
       setSelectedMatch={setSelectedMatch}
      />;
   }
-  else if (currentView === "outputSheet") {
-    content = <OutputSheet
+  else if (currentView === "outputSheet1") {
+    content = <OutputSheet1
+      allTeams={allTeams}
+      allPlayers={allPlayers}
+      setView={setCurrentView}
+      selectedMatch={selectedMatch}
+    />;
+  }
+  else if (currentView === "outputSheet2") {
+    content = <OutputSheet2
+      allTeams={allTeams}
+      allPlayers={allPlayers}
+      setView={setCurrentView}
+      selectedMatch={selectedMatch}
+    />;
+  }
+  else if (currentView === "outputSheet3") {
+    content = <OutputSheet3
       allTeams={allTeams}
       allPlayers={allPlayers}
       setView={setCurrentView}

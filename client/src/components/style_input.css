@@ -42,6 +42,14 @@
     border-radius: 5px;
 }
 
+/* 無効（disabled）状態のプルダウンの見た目を明示的に定義 */
+.team-select:disabled,
+.team-select[disabled] {
+  background-color: #eee;
+  color: black;
+  cursor: not-allowed;
+}
+
 .team-table-container {
     flex: 1 1 0;
     overflow-y: scroll; /* 常時スクロールバーを表示 */
@@ -71,7 +79,7 @@
   font-size: medium;
   user-select: none;
   table-layout: fixed;
-width: 100%;
+  width: 100%;
 }
 
 .team-table th {
@@ -95,6 +103,16 @@ width: 100%;
   /* データ行は上罫線のみ表示 */
   border: none;
   border-top: 1px solid #ccc;
+}
+
+/* 行の選択状態（ベンチ入り／非ベンチ）をCSSで管理 */
+.team-table tr.on-bench {
+  background-color: lightcyan; /* 選択時の背景 */
+  cursor: pointer;
+}
+.team-table tr.off-bench {
+  background-color: darkgray; /* 非選択時の背景 */
+  cursor: pointer;
 }
 
 .team-table th:nth-child(1) {
@@ -234,11 +252,11 @@ width: 100%;
 
 /* タブごとの色定義 */
 .tab-area.tab-area-0 {
-  --tab1-bg: lightblue;
-  --tab1-active-bg: lightblue;
+  --tab1-bg: lightgreen;
+  --tab1-active-bg: lightgreen;
   --tab2-bg: lightgray;
   --tab2-active-bg: lightgray;
-  --content-bg: lightblue;
+  --content-bg: lightgreen;
 }
 .tab-area.tab-area-1 {
   --tab1-bg: lightgray;
@@ -267,12 +285,12 @@ width: 100%;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    z-index: 10000;
+    align-items: center;
+    z-index: 100;
 }
 
 .keyboard-popup {
-    background: green;
+    background: lightskyblue;
     border-radius: 15px;
     padding: 20px;
     width: 100%;
@@ -294,7 +312,7 @@ width: 100%;
 
 .keyboard-btn {
   border-radius: 10px;
-  height: 35px;
+  height: 50px;
   color: white;
   background: darkblue;
   font-size: large;
@@ -417,4 +435,14 @@ width: 100%;
 .labelSmall {
   font-size: small;
   font-weight: bold;
+}
+
+.playerSelectBtn {
+  border-radius: 5px;
+  padding: 2px 5px;
+  margin-right: 5px;
+  color: white;
+  background: darkblue;
+  cursor: pointer;
+  user-select: none;
 }
