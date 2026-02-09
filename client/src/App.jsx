@@ -145,27 +145,75 @@ function App() {
      />;
   }
   else if (currentView === "outputSheet1") {
+    // players for OutputSheet1 are derived from selectedMatch.match.players0/players1
+    let playersForOutput = players;
+    let matchIdForOutput = matchId;
+    if (selectedMatch && selectedMatch.match) {
+      matchIdForOutput = selectedMatch.match.id;
+      const parsePlayersField = (str) => {
+        if (!str) return [];
+        return String(str).split(',').map(s => Number(s)).filter(n => !isNaN(n)).map(id => allPlayers.find(p => Number(p.id) === id)).filter(Boolean);
+      };
+      playersForOutput = [
+        parsePlayersField(selectedMatch.match.players0),
+        parsePlayersField(selectedMatch.match.players1),
+      ];
+    }
+
     content = <OutputSheet1
-      allTeams={allTeams}
-      allPlayers={allPlayers}
+      teams={teams}
+      players={playersForOutput}
       setView={setCurrentView}
-      selectedMatch={selectedMatch}
+      matchId={matchIdForOutput}
+      matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
     />;
   }
   else if (currentView === "outputSheet2") {
+    // players for OutputSheet2 are derived from selectedMatch.match.players0/players1 similar to OutputSheet1
+    let playersForOutput2 = players;
+    let matchIdForOutput2 = matchId;
+    if (selectedMatch && selectedMatch.match) {
+      matchIdForOutput2 = selectedMatch.match.id;
+      const parsePlayersField = (str) => {
+        if (!str) return [];
+        return String(str).split(',').map(s => Number(s)).filter(n => !isNaN(n)).map(id => allPlayers.find(p => Number(p.id) === id)).filter(Boolean);
+      };
+      playersForOutput2 = [
+        parsePlayersField(selectedMatch.match.players0),
+        parsePlayersField(selectedMatch.match.players1),
+      ];
+    }
+
     content = <OutputSheet2
-      allTeams={allTeams}
-      allPlayers={allPlayers}
+      teams={teams}
+      players={playersForOutput2}
       setView={setCurrentView}
-      selectedMatch={selectedMatch}
+      matchId={matchIdForOutput2}
+      matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
     />;
   }
   else if (currentView === "outputSheet3") {
+    // prepare players and matchId similar to OutputSheet2
+    let playersForOutput3 = players;
+    let matchIdForOutput3 = matchId;
+    if (selectedMatch && selectedMatch.match) {
+      matchIdForOutput3 = selectedMatch.match.id;
+      const parsePlayersField = (str) => {
+        if (!str) return [];
+        return String(str).split(',').map(s => Number(s)).filter(n => !isNaN(n)).map(id => allPlayers.find(p => Number(p.id) === id)).filter(Boolean);
+      };
+      playersForOutput3 = [
+        parsePlayersField(selectedMatch.match.players0),
+        parsePlayersField(selectedMatch.match.players1),
+      ];
+    }
+
     content = <OutputSheet3
-      allTeams={allTeams}
-      allPlayers={allPlayers}
+      teams={teams}
+      players={playersForOutput3}
       setView={setCurrentView}
-      selectedMatch={selectedMatch}
+      matchId={matchIdForOutput3}
+      matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
     />;
   }
   // } else if (currentView === "input") {

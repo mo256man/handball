@@ -7,9 +7,8 @@ import OutputBtns from "./OutputBtns";
 import OutputTeamBtns from "./OutputTeamBtns";
 import { useSocket } from "../hooks/useSocket";
 import { getRecordsByMatchId } from "../api";
-import { tr } from "date-fns/locale";
 
-export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlayers }) {
+export default function OutputSheet1({ teams, players, setView, matchId, matchDate }) {
   const { socketRef } = useSocket();
   const [records, setRecords] = useState([]);
 
@@ -24,30 +23,34 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
   const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "" });
   const [showRatio, setShowRatio] = useState(false);
 
-  console.log(selectedMatch);
 
-  // 親ページから遷移して selectedMatch がセットされたとき、初期表示として全員集計を表示する
+  // 親ページから遷移して matchId がセットされたとき、初期表示として全員集計を表示し、recordsを取得する
   useEffect(() => {
-    if (selectedMatch) {
-      setInputValues(prev => {
-        if (prev.player) return prev;
-        return { ...prev, player: 'ALL' };
-      });
-      // selectedMatchからrecordsを初期化
-      if (selectedMatch.records) {
-        setRecords(selectedMatch.records);
+    if (!matchId) return;
+    setInputValues(prev => {
+      if (prev.player) return prev;
+      return { ...prev, player: 'ALL' };
+    });
+
+    const init = async () => {
+      try {
+        const recs = await getRecordsByMatchId(matchId);
+        setRecords(recs || []);
+      } catch (err) {
+        console.error('records取得エラー:', err);
       }
-    }
-  }, [selectedMatch, selectedTeam]);
+    };
+    init();
+  }, [matchId, selectedTeam]);
 
   // Socket.IO リスナー設定：recordが更新されたら、recordを再取得
   useEffect(() => {
-    if (!socketRef.current || !selectedMatch || !selectedMatch.match) return;
+    if (!socketRef.current || !matchId) return;
 
     const handleDataUpdated = async () => {
       try {
-        const updatedRecords = await getRecordsByMatchId(selectedMatch.match.id);
-        setRecords(updatedRecords);
+        const updatedRecords = await getRecordsByMatchId(matchId);
+        setRecords(updatedRecords || []);
         console.log('record更新イベント受信。新しいrecords:', updatedRecords);
       } catch (error) {
         console.error('record再取得エラー:', error);
@@ -61,7 +64,7 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
         socketRef.current.off('data-updated', handleDataUpdated);
       }
     };
-  }, [socketRef, selectedMatch]);
+  }, [socketRef, matchId]);
 
   const btns = [
     { label: '状況', id: "situation" },
@@ -72,15 +75,8 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
     { label: '結果', id: "result" },
   ];
 
-  // players をチームごとの配列に変換
-  const playersByTeam = (() => {
-    if (!allPlayers || !selectedMatch) return [[], []];
-    const team0Id = selectedMatch.match.team0;
-    const team1Id = selectedMatch.match.team1;
-    const p0 = allPlayers.filter(p => p.teamId === team0Id);
-    const p1 = allPlayers.filter(p => p.teamId === team1Id);
-    return [p0, p1];
-  })();
+  // `players` は InputSheet と同じ形式（[team0Players, team1Players]）を想定
+  const playersByTeam = players || [[], []];
 
   const showInputPopup = (btnID) => {
     setKeyboardType(btnID);
@@ -117,9 +113,10 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
   }
 
   const setKeyboardPlayers = (handleKeyboardClick) => {
-    const playerBtns = playersByTeam[selectedTeam].map((p) => ({
-      label: "<div style='font-size: small;'>" + p.number + "</div>" + p.shortname + "</span>",
-      value: p.id
+    const playerBtns = (playersByTeam[selectedTeam] || []).map((p) => ({
+      label: "<div style='font-size: small;'>" + p.number + "</div>" + p.shortname,
+      // InputSheet と同様に番号を値として扱う（プレイヤー選択は背番号ベース）
+      value: p.number
     }));
     // 先頭に「全員」ボタンを追加（span 4）
     const btnsWithAll = [{ label: '全員', value: 'ALL', gridColumn: 'span 4' }, ...playerBtns];
@@ -345,38 +342,42 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
   }
 
   const getTeamName = (teamId) => {
-    const team = allTeams ? allTeams.find(t => t.id === teamId) : null;
+    if (!teams) return `Team ${teamId}`;
+    const team = teams.find(t => t.id === teamId);
     return team ? team.teamname : `Team ${teamId}`;
   };
 
   // 選択された選手の集計（DrawGoal / DrawShootArea 用）
   const computePlayerAggregates = () => {
-    if (!selectedMatch || !records) return { goalCounts: [], shootCounts: [], denom: 0 };
-    // 選択プレイヤーの識別: inputValues.player は選手番号
+    if (!teams || !records) return { goalCounts: [], shootCounts: [], denom: 0 };
+    // 選択プレイヤーの識別: inputValues.player は背番号（または 'ALL'）
     const playerValue = inputValues.player;
     const allSelected = playerValue === 'ALL';
     let playerId = null;
     let playerNumber = null;
     if (!allSelected && playerValue) {
-      playerId = Number(playerValue);
-      if (playersByTeam[selectedTeam]) {
-        const pl = playersByTeam[selectedTeam].find(p => String(p.id) === String(playerValue) || p.id === playerValue);
-        if (pl) playerNumber = pl.number;
+      const pl = (playersByTeam[selectedTeam] || []).find(p => String(p.number) === String(playerValue) || String(p.id) === String(playerValue));
+      if (pl) {
+        playerId = pl.id;
+        playerNumber = pl.number;
+      } else if (!isNaN(Number(playerValue))) {
+        playerNumber = Number(playerValue);
       }
     }
 
-    const teamIdSelected = selectedTeam === 0 ? selectedMatch.match.team0 : selectedMatch.match.team1;
+    const teamIdSelected = teams && teams[selectedTeam] ? teams[selectedTeam].id : null;
 
     const filteredRecords = records.filter(r => {
       if (allSelected) {
+        if (teamIdSelected === null) return false;
         if (r.teamId !== undefined) return r.teamId === teamIdSelected;
         if (r.team1 !== undefined) return r.team1 === teamIdSelected || r.team2 === teamIdSelected;
         if (r.team !== undefined) return r.team === teamIdSelected;
         return false;
       }
-      if (!playerId) return false;
-      if (r.playerId !== undefined) return r.playerId === playerId;
-      if (r.playeNumberr !== undefined && playerNumber !== null) return Number(r.playeNumberr) === playerNumber;
+      if (playerNumber === null && playerId === null) return false;
+      if (playerId !== null && r.playerId !== undefined && r.playerId === playerId) return true;
+      if (r.playeNumberr !== undefined && playerNumber !== null) return Number(r.playeNumberr) === Number(playerNumber);
       return false;
     });
 
@@ -409,16 +410,15 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
   const shootValues = formatCounts(shootCounts || []);
 
   // チームの shortname と id を親で解決して子に渡す
-  const teamId0 = selectedMatch && selectedMatch.match ? selectedMatch.match.team0 : null;
-  const teamId1 = selectedMatch && selectedMatch.match ? selectedMatch.match.team1 : null;
-  const team0Obj = allTeams ? allTeams.find(t => t.id === teamId0) : null;
-  const team1Obj = allTeams ? allTeams.find(t => t.id === teamId1) : null;
-  const team0Short = team0Obj ? team0Obj.shortname : (teamId0 !== null && teamId0 !== undefined ? `Team ${teamId0}` : "");
-  const team1Short = team1Obj ? team1Obj.shortname : (teamId1 !== null && teamId1 !== undefined ? `Team ${teamId1}` : "");
+  const team0Obj = teams && teams[0] ? teams[0] : null;
+  const team1Obj = teams && teams[1] ? teams[1] : null;
+  const team0Short = team0Obj ? team0Obj.shortname : (team0Obj && team0Obj.id ? `Team ${team0Obj.id}` : "");
+  const team1Short = team1Obj ? team1Obj.shortname : (team1Obj && team1Obj.id ? `Team ${team1Obj.id}` : "");
+  const teamId0 = team0Obj ? team0Obj.id : null;
+  const teamId1 = team1Obj ? team1Obj.id : null;
 
   const renderOutputBtns = () => (
     <OutputBtns
-      onOpenKeyboard={showInputPopup}
       setView={setView}
       selectedBtn={selectedOutputBtn}
       onSelect={(idx) => setSelectedOutputBtn(idx)}
@@ -449,8 +449,8 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
     if (playerValue === "ALL") {
       playerLabel = "全員";
     } else if (playerValue) {
-      const pl = players.find(p => String(p.id) === String(playerValue));
-      playerLabel = pl.name;
+      const pl = players.find(p => String(p.number) === String(playerValue) || String(p.id) === String(playerValue));
+      playerLabel = pl ? (pl.name || pl.shortname || '') : '';
     }
 
     return (
@@ -464,7 +464,7 @@ export default function OutputSheet1({ setView, allTeams, selectedMatch, allPlay
   return (
     <div className="base">
       <div className="header row">
-        <div className="header-title left">{selectedMatch.match.date}&nbsp;&nbsp;&nbsp;{team0Short} vs {team1Short}</div>
+        <div className="header-title left">{matchDate ? matchDate : ""}&nbsp;&nbsp;&nbsp;{team0Short} vs {team1Short}</div>
         <div className="header-title right" onClick={() => setView("title")}>🔙</div>
       </div>
       {renderOutputBtns()}

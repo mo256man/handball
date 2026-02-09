@@ -4,7 +4,6 @@ import "./style_output.css";
 export default function OutputBtns({
 	ids = ["player", "team", "summary"],
 	labels = ["個人", "チーム", "サマリ"],
-	onOpenKeyboard = () => {},
 	setView = null,
 	selectedBtn = null,
 	onSelect = null,
@@ -12,8 +11,6 @@ export default function OutputBtns({
 	const handleClick = (idx, id) => {
 		if (typeof setView === "function") {
 			setView(`outputSheet${idx + 1}`);
-		} else {
-			onOpenKeyboard(id);
 		}
 		if (typeof onSelect === "function") onSelect(idx, id);
 	};

@@ -2,7 +2,6 @@ import React from "react";
 import "./style_output.css";
 
 export default function OutputTeamBtns({ team0Short = "", team1Short = "", teamId0 = null, teamId1 = null, selectedTeam = null, onClickTeam = () => {} }) {
-	console.log("OutputTeamBtns rendered with:", { team0Short, team1Short, teamId0, teamId1, selectedTeam });
   return (
     <div className="outputTeamBtnArea" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
       <button className={"outputBtn teamBtn" + (selectedTeam === 0 ? " active" : "")} onClick={() => onClickTeam(0, teamId0)}>{team0Short}</button>
