@@ -8,7 +8,7 @@ import OutputTeamBtns from "./OutputTeamBtns";
 import { useSocket } from "../hooks/useSocket";
 import { getRecordsByMatchId } from "../api";
 
-export default function OutputSheet1({ teams, players, setView, matchId, matchDate }) {
+export default function OutputSheet1({ teams, players, setView, matchId, matchDate, isEditor }) {
   const { socketRef } = useSocket();
   const [records, setRecords] = useState([]);
 
@@ -465,6 +465,7 @@ export default function OutputSheet1({ teams, players, setView, matchId, matchDa
     <div className="base">
       <div className="header row">
         <div className="header-title left">{matchDate ? matchDate : ""}&nbsp;&nbsp;&nbsp;{team0Short} vs {team1Short}</div>
+        {isEditor && <div className="header-title right" onClick={() => setView("inputSheet")}>●</div>}
         <div className="header-title right" onClick={() => setView("title")}>🔙</div>
       </div>
       {renderOutputBtns()}

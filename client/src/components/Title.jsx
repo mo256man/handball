@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./style_title.css";
 
-export default function Title({allTeams, setView, teams, setTeams, titleMode, setTitleMode}) {
+export default function Title({allTeams, setView, teams, setTeams, titleMode, setTitleMode, setIsEditor, setMatchId}) {
   const [showPopup, setShowPopup] = useState(false);        // チーム選択ポップアップ表示フラグ
   const [password, setPassword] = useState("");
   const [passError, setPassError] = useState("");
@@ -92,10 +92,10 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
         <div className="teamname-title center">{teams[0].teamname}</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-        <div className="btnTitle" onClick={() => setView('inputMenu')}>📝</div>
-        <div className="btnTitle" onClick={() => setView('outputMenu')}>📊</div>
+        <div className="btnTitle" onClick={() => { setView('inputMenu'); setIsEditor(true); }}>📝</div>
+        <div className="btnTitle" onClick={() => { setView('outputMenu'); setIsEditor(false); }}>📊</div>
       </div>
-      <div className="btnConfirm" onClick={() => { setTitleMode('pass'); setTeams([null, null]); }}>ログアウト</div>
+      <div className="btnConfirm" onClick={() => { setTitleMode('pass'); setTeams([null, null]); setIsEditor(null); setMatchId(null); }}>ログアウト</div>
     </div>
   );
 

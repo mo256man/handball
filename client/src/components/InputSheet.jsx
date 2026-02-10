@@ -3,7 +3,7 @@ import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
 import "./style_input.css";
 
-export default function InputSheet({ teams, players, setView, matchId}) {
+export default function InputSheet({ teams, players, setView, matchId, isEditor}) {
 
   // 相手GK選択値
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
@@ -15,7 +15,14 @@ export default function InputSheet({ teams, players, setView, matchId}) {
   const [keyboardType, setKeyboardType] = useState("");
   // 各ボタンの値を管理するstate
   const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
+  const [isConfirmAvailable, setIsConfirmAvailable] = useState(false);
   const remarksInputRef = useRef(null);
+  
+  // 必須項目のチェック
+  useEffect(() => {
+    const isComplete = inputValues.player && inputValues.kind && inputValues.shootArea && inputValues.goal && inputValues.result;
+    setIsConfirmAvailable(!!isComplete);
+  }, [inputValues]);
   
   const btns = [
     { label: '状況', id: "situation" },
@@ -39,6 +46,70 @@ export default function InputSheet({ teams, players, setView, matchId}) {
   const closeKeyboard = () => {
     setShowKeyboard(false);
     setKeyboardType("");
+  }
+
+  // ランダム入力関数群
+  const getRandomSituation = () => {
+    const btns = [
+      { label: "▲", value: "+" },
+      { label: "7", value: "7" },
+      { label: "▼", value: "-" },
+      { label: "（消）", value: "" },
+    ];
+    return btns[Math.floor(Math.random() * btns.length)].value;
+  }
+
+  const getRandomPlayer = () => {
+    const playerBtns = players[selectedTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number }));
+    return playerBtns[Math.floor(Math.random() * playerBtns.length)].value;
+  }
+
+  const getRandomKind = () => {
+    const btns = [
+      { label: '6', value: '6' },
+      { label: 'B', value: 'B' },
+      { label: 'P', value: 'P' },
+      { label: 'W', value: 'W' },
+      { label: '9', value: '9' },
+      { label: 'f', value: 'f' },
+      { label: 'f1', value: 'f1' },
+      { label: 'f2', value: 'f2' },
+      { label: 'f3', value: 'f3' },
+      { label: 'ag', value: 'ag' },
+      { label: '7', value: '7' },
+      { label: '（消）', value: '' },
+    ];
+    return btns[Math.floor(Math.random() * btns.length)].value;
+  }
+
+  const getRandomResult = () => {
+    const btns = [
+      { label: 'g (ゴール)', value: 'g' },
+      { label: 'm (ミス)', value: 'm' },
+      { label: 's (セーブ)', value: 's' },
+      { label: 'p (7mをとった)', value: 'p' },
+      { label: 'f (ファールとられた)', value: 'f' },
+      { label: 'r (わからない)', value: 'r' },
+      { label: 'o (Out Goal)', value: 'o' },
+      { label: '（消）', value: '' },
+    ];
+    return btns[Math.floor(Math.random() * btns.length)].value;
+  }
+
+  const getRandomOppoGK = () => {
+    const gkPlayers = players[oppoTeam].filter(p => p.position === "GK");
+    if (gkPlayers.length === 0) return "";
+    return gkPlayers[Math.floor(Math.random() * gkPlayers.length)].number;
+  }
+
+  const getRandomShootArea = () => {
+    const areas = ['LW', 'RW', 'L6', 'R6', 'L9', 'R9', 'M6', 'M9'];
+    return areas[Math.floor(Math.random() * areas.length)];
+  }
+
+  const getRandomGoal = () => {
+    const goals = ['左上', '上', '右上', '左', '中央', '右', '左下', '下', '右下', 'Post', 'Out'];
+    return goals[Math.floor(Math.random() * goals.length)];
   }
 
   const setKeyboardSituation = (handleKeyboardClick) => {
@@ -250,7 +321,30 @@ export default function InputSheet({ teams, players, setView, matchId}) {
     setOppoTeam(prev => (prev === 0 ? 1 : 0));
   }
 
+  const autoFill = () => {
+    setInputValues({
+      situation: getRandomSituation(),
+      player: getRandomPlayer(),
+      kind: getRandomKind(),
+      result: getRandomResult(),
+      shootArea: getRandomShootArea(),
+      goal: getRandomGoal(),
+      remarks: ""
+    });
+    const randomGK = getRandomOppoGK();
+    if (randomGK) {
+      setSelectedOppoGK(prev => {
+        const newArr = [...prev];
+        newArr[oppoTeam] = randomGK;
+        return newArr;
+      });
+    }
+  }
+
   const handleSubmit = async () => {
+    if (!isConfirmAvailable) {
+      return;
+    }
     try {
       // 選手情報を取得
       const player = players[selectedTeam].find(p => p.number === parseInt(inputValues.player));
@@ -261,9 +355,14 @@ export default function InputSheet({ teams, players, setView, matchId}) {
 
       // isGS: resultが"g"もしくは"s"ならば1、それ以外ならば0
       const isGS = ["g", "s"].includes(inputValues.result) ? 1 : 0;
-      
-      // isFB: kindが"f1" or "f2" or "f3" ならば1、それ以外ならば0
-      const isFB = ["f1", "f2", "f3"].includes(inputValues.kind) ? 1 : 0;
+
+      // isAtk: resultが g, s, o, m のいずれか => isAtk=1 さもなくば0
+      const isAtk = ["g", "s", "o", "m"].includes(inputValues.result) ? 1 : 0;
+      // isSht: resultが g, s, o のいずれか => isSht=1 さもなくば0
+      const isSht = ["g", "s", "o"].includes(inputValues.result) ? 1 : 0;
+
+      // isFB: kindが f1, f2, f3, ag のいずれか => isFB=1 さもなくば0
+      const isFB = ["f1", "f2", "f3", "ag"].includes(inputValues.kind) ? 1 : 0;
 
       // 登録データを作成
       const recordData = {
@@ -282,6 +381,8 @@ export default function InputSheet({ teams, players, setView, matchId}) {
         area: inputValues.shootArea,
         goal: inputValues.goal,
         isGS: isGS,
+        isAtk: isAtk,
+        isSht: isSht,
         isFB: isFB,
       };
 
@@ -297,6 +398,9 @@ export default function InputSheet({ teams, players, setView, matchId}) {
         // alert("登録しました");
         // 入力値をリセット
         setInputValues({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
+        setIsConfirmAvailable(false);
+        // チームを反転
+        changeTeam();
       } else {
         const error = await response.json();
         alert("登録に失敗しました: " + (error.error || "不明なエラー"));
@@ -389,12 +493,14 @@ export default function InputSheet({ teams, players, setView, matchId}) {
       {renderKeyboard()}
       <div className="header row">
         <div className="header-title left">{teams[0].shortname} vs {teams[1].shortname}</div>
-        <div className="header-title right" onClick={() => setView("title")}>🔙</div>
+        <div className="header-title right" onClick={() => setView("outputSheet1")}>●</div>
+        <div className="header-title right" onClick={() => setView("inputMenu")}>🔙</div>
       </div>
       <div className="main">
         <img src={teams[selectedTeam].filename} className="backgroundImage"/>
         {createUprBtns()}
         <div className="align-bottom">
+          <div className="row"><div onClick={autoFill}>ランダム生成</div></div>
           {createLwrBtns()}
         </div>
       </div>

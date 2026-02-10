@@ -6,7 +6,7 @@ import "./style_output.css";
 import { getMatchDates, getMatches, getRecordsByMatchId } from "../api";
 import { useSocket } from "../hooks/useSocket";
 
-export default function OutputMenu({ setView, allTeams, setSelectedMatch }) {
+export default function OutputMenu({ setView, allTeams, setSelectedMatch, isEditor }) {
   const { socketRef } = useSocket();
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
   const [selectedDate, setSelectedDate] = useState(today);

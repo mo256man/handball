@@ -272,3 +272,18 @@ export async function checkMatchDuplicate(date, team0, team1) {
         throw error;
     }
 }
+
+export async function getMatchById(matchId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/getMatch?id=${matchId}`);
+        
+        if (!response.ok) {
+            throw new Error('マッチデータ取得に失敗しました');
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('getMatchById エラー:', error);
+        throw error;
+    }
+}

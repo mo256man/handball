@@ -170,8 +170,8 @@ app.post('/api/record', async (req, res) => {
         const data = req.body;
         const query = `INSERT INTO record (
             matchId, teamId, playerId, playeNumberr, playerPosition, playerName,
-            half, situation, kind, result, gk, remarks, area, goal, isGS, isFB
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            half, situation, kind, result, gk, remarks, area, goal, isGS, isAtk, isSht, isFB
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const params = [
             data.matchId,
             data.teamId,
@@ -188,6 +188,8 @@ app.post('/api/record', async (req, res) => {
             data.area || '',
             data.goal || '',
             data.isGS || 0,
+            data.isAtk || 0,
+            data.isSht || 0,
             data.isFB || 0
         ];
         console.log('INSERT recordクエリ:', query);
@@ -243,6 +245,59 @@ app.get('/api/getMatches', async (req, res) => {
         res.json({ success: true, matches: matches });
     } catch (error) {
         console.error('試合データ取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/getMatch', async (req, res) => {
+    try {
+        const { id } = req.query;
+        if (!id) {
+            return res.status(400).json({ error: 'idが指定されていません' });
+        }
+        const query = `SELECT * FROM match WHERE id = ?`;
+        const params = [id];
+        console.log('SELECT match (by id) クエリ:', query, 'パラメータ:', params);
+        
+        // queryAllを使用し、パラメータを渡す
+        const results = await queryAll(db, query, params);
+        const match = results && results.length > 0 ? results[0] : null;
+        
+        console.log('query結果:', match);
+        if (!match) {
+            return res.status(404).json({ error: 'マッチが見つかりません' });
+        }
+        res.json(match);
+    } catch (error) {
+        console.error('マッチデータ取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// APIエンドポイント: matchテーブルのレコードを更新
+app.put('/api/updateMatch', async (req, res) => {
+    try {
+        const { id, date, team0, team1, players0, players1 } = req.body;
+        if (!id) {
+            return res.status(400).json({ error: 'idが指定されていません' });
+        }
+        const query = `UPDATE match SET date = ?, team0 = ?, team1 = ?, players0 = ?, players1 = ? WHERE id = ?`;
+        const params = [date, team0, team1, players0, players1, id];
+        console.log('UPDATE match クエリ:', query, 'パラメータ:', params);
+        
+        const result = await queryRun(db, query, params);
+        console.log('query結果:', result);
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'マッチが見つかりません' });
+        }
+        
+        // データベースをファイルに保存
+        await saveDatabase(db);
+        
+        res.json({ success: true, message: 'マッチを更新しました' });
+    } catch (error) {
+        console.error('マッチ更新エラー:', error);
         res.status(500).json({ error: error.message });
     }
 });

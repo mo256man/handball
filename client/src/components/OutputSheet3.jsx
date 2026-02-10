@@ -8,7 +8,7 @@ import OutputTeamBtns from "./OutputTeamBtns";
 import { useSocket } from "../hooks/useSocket";
 import { getRecordsByMatchId } from "../api";
 
-export default function OutputSheet3({ teams, players, setView, matchId, matchDate }) {
+export default function OutputSheet3({ teams, players, setView, matchId, matchDate, isEditor }) {
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
   const [selectedTeam, setSelectedTeam] = useState(0);
   const [oppoTeam, setOppoTeam] = useState(1);
@@ -37,13 +37,13 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
   const renderPlayersTable = () => {
     const list = playersByTeam[selectedTeam] || [];
     const countsByPlayer = {};
-    const needFirst = toggles[0] === "前半";
-    const needSecond = toggles[0] === "後半";
-    const needTotal = toggles[0] === "全体";
-    // toggles[1] による追加フィルタ: 全体 / セットプレイ / 速攻
-    const needFBAll = toggles[1] === "全体";
-    const needFastBreak = toggles[1] === "速攻";
-    const needSetPlay = toggles[1] === "セットプレイ";
+    const needFirst = toggles[0] === labelOptions0[1];
+    const needSecond = toggles[0] === labelOptions0[2];
+    const needTotal = toggles[0] === labelOptions0[0];
+    // toggles[1] による追加フィルタ: 全体 / セット攻撃 / 速攻
+    const needFBAll = toggles[1] === labelOptions1[0];
+    const needFastBreak = toggles[1] === labelOptions1[2];
+    const needSetPlay = toggles[1] === labelOptions1[1];
 
     // 出力カウンタを初期化（他はとりあえず0）
     let cntAtk0 = 0, cntAtk1 = 0;
@@ -62,7 +62,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
 
       // cntAtk は isAtk==1 のレコードのみカウント（かつ toggles[0] による半期フィルタ適用）
       if (r.isAtk === 1) {
-        if ((needTotal || (needFirst && r.half === '前半') || (needSecond && r.half === '後半')) &&
+        if ((needTotal || (needFirst && r.half === labelOptions0[1]) || (needSecond && r.half === labelOptions0[2])) &&
             (needFBAll || (needFastBreak && r.isFB === 1) || (needSetPlay && r.isFB === 0))) {
           if (r.teamId == teamId0) cntAtk0++;
           else if (r.teamId == teamId1) cntAtk1++;
@@ -71,7 +71,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
 
       // cntGoal: result === 'g' のレコードをチーム・半期条件でカウント
       if (r.result === 'g') {
-        if ((needTotal || (needFirst && r.half === '前半') || (needSecond && r.half === '後半')) &&
+        if ((needTotal || (needFirst && r.half === labelOptions0[1]) || (needSecond && r.half === labelOptions0[2])) &&
             (needFBAll || (needFastBreak && r.isFB === 1) || (needSetPlay && r.isFB === 0))) {
           if (r.teamId == teamId0) cntGoal0++;
           else if (r.teamId == teamId1) cntGoal1++;
@@ -79,7 +79,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
       }
       // cntShoot: isSht === 1 のレコードをチーム・半期条件でカウント
       if (r.isSht === 1) {
-        if ((needTotal || (needFirst && r.half === '前半') || (needSecond && r.half === '後半')) &&
+        if ((needTotal || (needFirst && r.half === labelOptions0[1]) || (needSecond && r.half === labelOptions0[2])) &&
             (needFBAll || (needFastBreak && r.isFB === 1) || (needSetPlay && r.isFB === 0))) {
           if (r.teamId == teamId0) cntShoot0++;
           else if (r.teamId == teamId1) cntShoot1++;
@@ -87,7 +87,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
       }
       // cntFoul: result === 'f' のレコードをチーム・半期条件でカウント
       if (r.result === 'f') {
-        if ((needTotal || (needFirst && r.half === '前半') || (needSecond && r.half === '後半')) &&
+        if ((needTotal || (needFirst && r.half === labelOptions0[1]) || (needSecond && r.half === labelOptions0[2])) &&
             (needFBAll || (needFastBreak && r.isFB === 1) || (needSetPlay && r.isFB === 0))) {
           if (r.teamId == teamId0) cntFoul0++;
           else if (r.teamId == teamId1) cntFoul1++;
@@ -95,7 +95,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
       }
       // cnt7mShoot: result === '7' のレコードをチーム・半期条件でカウント
       if (r.result === '7') {
-        if ((needTotal || (needFirst && r.half === '前半') || (needSecond && r.half === '後半')) &&
+        if ((needTotal || (needFirst && r.half === labelOptions0[1]) || (needSecond && r.half === labelOptions0[2])) &&
             (needFBAll || (needFastBreak && r.isFB === 1) || (needSetPlay && r.isFB === 0))) {
           if (r.teamId == teamId0) cnt7mShoot0++;
           else if (r.teamId == teamId1) cnt7mShoot1++;
@@ -103,7 +103,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
       }
       // cntMiss: result === 'm' のレコードをチーム・半期条件でカウント
       if (r.result === 'm') {
-        if ((needTotal || (needFirst && r.half === '前半') || (needSecond && r.half === '後半')) &&
+        if ((needTotal || (needFirst && r.half === labelOptions0[1]) || (needSecond && r.half === labelOptions0[2])) &&
             (needFBAll || (needFastBreak && r.isFB === 1) || (needSetPlay && r.isFB === 0))) {
           if (r.teamId == teamId0) cntMiss0++;
           else if (r.teamId == teamId1) cntMiss1++;
@@ -127,7 +127,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
     let goalPerShoot0Display;
     let goalPerShoot1Display;
 
-    if (toggles[2] === "％") {
+    if (toggles[2] === labelOptions2[1]) {
       const fmtPct = (num, denom) => {
         if (!denom || denom === 0) return "0.0%";
         return `${((num / denom) * 100).toFixed(1)}%`;
@@ -150,21 +150,21 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
       atk1Display = "";
     }
     return (
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>{team0Short}</th>
+            <th>{team1Short}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>攻撃数</td><td>{atk0Display}</td><td>{atk1Display}</td></tr>
+          {toggles[2] === labelOptions2[0] ? 
             <>
-              <tr className="double-row">
-                <td rowSpan={2}>ゴール数</td>
+              <tr>
+                <td>ゴール数</td>
                 <td>{goal0Display}</td>
-                <td>{goal1Display}</td>
-              </tr>
-              <tr className="double-row">
-                <td></td>
-                <td></td>
-              </tr>
-            </> :
-            <>
-              <tr className="double-row"><td>ゴール/攻撃</td><td>{goal0Display}</td><td>{goal1Display}</td></tr>
-              <tr className="double-row"><td>ゴール/シュート</td><td>{goalPerShoot0Display}</td><td>{goalPerShoot1Display}</td></tr>
-            </> }
                 <td>{goal1Display}</td>
               </tr>
               <tr></tr>
@@ -253,6 +253,7 @@ export default function OutputSheet3({ teams, players, setView, matchId, matchDa
     <div className="base">
       <div className="header row">
         <div className="header-title left">{matchDate ? matchDate : ""}&nbsp;&nbsp;&nbsp;{team0Short} vs {team1Short}</div>
+        {isEditor && <div className="header-title right" onClick={() => setView("inputSheet")}>●</div>}
         <div className="header-title right" onClick={() => setView("title")}>🔙</div>
       </div>
       {renderOutputBtns()}

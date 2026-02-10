@@ -25,6 +25,7 @@ function App() {
   const [attackSide, setAttackSide] = useState(1);
   const [currentView, setCurrentView] = useState('title');
   const [titleMode, setTitleMode] = useState('pass');
+  const [isEditor, setIsEditor] = useState(null);
   const [teams, setTeams] = useState([null, null]);
   // `page` state removed — use `currentView`/`setCurrentView` for navigation
   const [currentSide, setCurrentSide] = useState(0);
@@ -117,6 +118,8 @@ function App() {
       setTeams={setTeams}
       titleMode={titleMode}
       setTitleMode={setTitleMode}
+      setIsEditor={setIsEditor}
+      setMatchId={setMatchId}
     />;
   } else if (currentView === "inputMenu") {
     content = <InputMenu
@@ -128,6 +131,8 @@ function App() {
       setPlayers={setPlayers}
       setView={setCurrentView}
       setMatchId={setMatchId}
+      isEditor={isEditor}
+      matchId={matchId}
     />;
   } else if (currentView === "inputSheet") {
     content = <InputSheet
@@ -135,6 +140,7 @@ function App() {
       players={players}
       matchId={matchId}
       setView={setCurrentView}
+      isEditor={isEditor}
     />;
   } else if (currentView === "outputMenu") {
     content = <OutputMenu 
@@ -142,6 +148,7 @@ function App() {
       allPlayers={allPlayers}
       setView={setCurrentView}
       setSelectedMatch={setSelectedMatch}
+      isEditor={isEditor}
      />;
   }
   else if (currentView === "outputSheet1") {
@@ -166,6 +173,7 @@ function App() {
       setView={setCurrentView}
       matchId={matchIdForOutput}
       matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
+      isEditor={isEditor}
     />;
   }
   else if (currentView === "outputSheet2") {
@@ -190,6 +198,7 @@ function App() {
       setView={setCurrentView}
       matchId={matchIdForOutput2}
       matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
+      isEditor={isEditor}
     />;
   }
   else if (currentView === "outputSheet3") {
@@ -214,6 +223,7 @@ function App() {
       setView={setCurrentView}
       matchId={matchIdForOutput3}
       matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
+      isEditor={isEditor}
     />;
   }
   // } else if (currentView === "input") {
