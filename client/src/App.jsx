@@ -38,6 +38,8 @@ function App() {
   const [recordTeam2, setRecordTeam2] = useState(null);
   const [selectedTeam1, setSelectedTeam1] = useState(null);
   const [matchId, setMatchId] = useState(null);
+  const [matchDate, setMatchDate] = useState(null);
+  const [outputSelectedTab, setOutputSelectedTab] = useState(0);
 
   // データベースからteamsとplayersを取得
   useEffect(() => {
@@ -131,6 +133,7 @@ function App() {
       setPlayers={setPlayers}
       setView={setCurrentView}
       setMatchId={setMatchId}
+      setMatchDate={setMatchDate}
       isEditor={isEditor}
       matchId={matchId}
     />;
@@ -139,6 +142,7 @@ function App() {
       teams={teams}
       players={players}
       matchId={matchId}
+      matchDate={matchDate}
       setView={setCurrentView}
       isEditor={isEditor}
     />;
@@ -173,6 +177,8 @@ function App() {
       setView={setCurrentView}
       matchId={matchIdForOutput}
       matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
+      appSelectedOutputTab={outputSelectedTab}
+      setAppSelectedOutputTab={setOutputSelectedTab}
       isEditor={isEditor}
     />;
   }
@@ -198,6 +204,8 @@ function App() {
       setView={setCurrentView}
       matchId={matchIdForOutput2}
       matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
+      appSelectedOutputTab={outputSelectedTab}
+      setAppSelectedOutputTab={setOutputSelectedTab}
       isEditor={isEditor}
     />;
   }
@@ -223,6 +231,8 @@ function App() {
       setView={setCurrentView}
       matchId={matchIdForOutput3}
       matchDate={selectedMatch && selectedMatch.match ? selectedMatch.match.date : undefined}
+      appSelectedOutputTab={outputSelectedTab}
+      setAppSelectedOutputTab={setOutputSelectedTab}
       isEditor={isEditor}
     />;
   }

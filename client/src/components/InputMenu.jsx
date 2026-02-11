@@ -7,7 +7,7 @@ import { ja } from "date-fns/locale";
 import { insertMatch, getMatchById } from "../api";
 
 export default function InputMenu(
-  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, isEditor, matchId}) {
+  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, setMatchDate, isEditor, matchId}) {
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });   // sv-SEはYYYY-MM-DD形式
   const [date, setDate] = useState(today);
   const [selectedTeam, setSelectedTeam] = useState(0);
@@ -104,6 +104,7 @@ export default function InputMenu(
         const result = await insertMatch(date, teams[0].id, teams[1].id, players0, players1);
         console.log('新しいmatchを作成しました。DBのmatchテーブルのid:', result.matchId);
         setMatchId(result.matchId);
+        setMatchDate(date);
         setPlayers([benchPlayers0, benchPlayers1]);
       } else {
         // matchIdがある場合はアップデート
@@ -124,6 +125,7 @@ export default function InputMenu(
           throw new Error('matchの更新に失敗しました');
         }
         console.log('matchを更新しました。id:', matchId);
+        setMatchDate(date);
       }
       
       // InputSheetへ移動
@@ -232,8 +234,12 @@ export default function InputMenu(
   const content = (
     <div className="base">
     <div className="header row">
-      <div className="header-title left">チーム・出場選手選択</div>
-      <div className="header-title right" onClick={() => setView("title")}>🔙</div>
+      <div className="header-title left">
+        <div>チーム・出場選手選択</div>
+      </div>
+      <div className="header-title right" style={{display: "flex"}}>
+        <div onClick={() => setView("title")} className="header-icon header-btn">🔙</div>
+      </div>
     </div>
     <div className="main">
       <div className="date-picker-wrapper">

@@ -136,3 +136,102 @@
   flex: 1;
   min-height: 0;
 }
+
+/* players table: use same styles as InputMenu's team-table */
+.players-table-container {
+  flex: 1 1 0;
+  overflow-y: scroll; /* 常時スクロールバーを表示 */
+  scrollbar-gutter: stable; /* 幅の変化を防ぐ */
+  -webkit-overflow-scrolling: touch;
+  padding: 0 10px;
+}
+
+/* WebKit 系でスクロールバーの見た目を調整（任意） */
+.players-table-container::-webkit-scrollbar {
+  width: 12px;
+}
+.players-table-container::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.18);
+  border-radius: 6px;
+}
+.players-table-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.03);
+}
+
+/* Firefox の幅指定ヒント */
+.players-table-container { scrollbar-width: thin; }
+
+.playersTable {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: medium;
+  user-select: none;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.playersTable th {
+  position: sticky;
+  top: 0;
+  background: white;
+  font-size: small;
+  background-color: rgba(100,100,200,0.3);
+  z-index: 3;
+}
+
+.playersTable thead th {
+  /* ヘッダー固定時に境界線が消えないよう、box-shadow で区切りを付ける */
+  border: none;
+  box-shadow: 0 5px 0 #ccc; /* 下方向に太めの線を描画 */
+  background: white;
+  background-clip: padding-box;
+}
+
+.playersTable td {
+  /* データ行は上罫線のみ表示 */
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+.playersTable tr.on-bench {
+  background-color: lightcyan;
+  cursor: pointer;
+}
+.playersTable tr.off-bench {
+  background-color: darkgray;
+  cursor: pointer;
+}
+
+.playersTable th:nth-child(1) {
+  width: 40px;
+}
+
+.playersTable th:nth-child(2) {
+  width: 80px;
+}
+
+.playersTable th:nth-child(3) {
+  width: 80px;
+}
+
+.playersTable th:nth-child(4) {
+  width: 80px;
+}
+
+.playersTable td:nth-child(1) {
+  text-align: center;
+}
+
+.playersTable td:nth-child(2) {
+  text-align: center;
+}
+
+.playersTable td:nth-child(3) {
+  text-align: center;
+}
+
+.playersTable td:nth-child(4) {
+  text-align: right;
+  padding-right: 10px;
+}
+

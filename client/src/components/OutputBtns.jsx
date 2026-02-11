@@ -9,10 +9,10 @@ export default function OutputBtns({
 	onSelect = null,
 }) {
 	const handleClick = (idx, id) => {
+		if (typeof onSelect === "function") onSelect(idx, id);
 		if (typeof setView === "function") {
 			setView(`outputSheet${idx + 1}`);
 		}
-		if (typeof onSelect === "function") onSelect(idx, id);
 	};
 
 	return (

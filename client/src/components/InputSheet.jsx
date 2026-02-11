@@ -3,7 +3,7 @@ import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
 import "./style_input.css";
 
-export default function InputSheet({ teams, players, setView, matchId, isEditor}) {
+export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate }) {
 
   // 相手GK選択値
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
@@ -492,9 +492,14 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor}
       <div className="base">
       {renderKeyboard()}
       <div className="header row">
-        <div className="header-title left">{teams[0].shortname} vs {teams[1].shortname}</div>
-        <div className="header-title right" onClick={() => setView("outputSheet1")}>●</div>
-        <div className="header-title right" onClick={() => setView("inputMenu")}>🔙</div>
+        <div className="header-title left">
+          <div>{teams[0].shortname} vs {teams[1].shortname}</div>
+          <div>{matchDate}</div>
+        </div>
+        <div className="header-title right" style={{display: "flex"}}>
+          <div onClick={() => setView("outputSheet1")} className="header-icon header-btn">📋</div>
+          <div onClick={() => setView("inputMenu")} className="header-icon header-btn">🔙</div>
+        </div>
       </div>
       <div className="main">
         <img src={teams[selectedTeam].filename} className="backgroundImage"/>

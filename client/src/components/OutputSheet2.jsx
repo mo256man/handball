@@ -8,7 +8,7 @@ import OutputTeamBtns from "./OutputTeamBtns";
 import { useSocket } from "../hooks/useSocket";
 import { getRecordsByMatchId } from "../api";
 
-export default function OutputSheet2({ teams, players, setView, matchId, matchDate, isEditor }) {
+export default function OutputSheet2({ teams, players, setView, matchId, matchDate, isEditor, appSelectedOutputTab, setAppSelectedOutputTab }) {
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
   const [selectedTeam, setSelectedTeam] = useState(0);
   const [oppoTeam, setOppoTeam] = useState(1);
@@ -104,8 +104,11 @@ export default function OutputSheet2({ teams, players, setView, matchId, matchDa
   const renderOutputBtns = () => (
     <OutputBtns
       setView={setView}
-      selectedBtn={selectedOutputBtn}
-      onSelect={(idx) => setSelectedOutputBtn(idx)}
+      selectedBtn={typeof appSelectedOutputTab !== 'undefined' && appSelectedOutputTab !== null ? appSelectedOutputTab : selectedOutputBtn}
+      onSelect={(idx) => {
+        setSelectedOutputBtn(idx);
+        if (typeof setAppSelectedOutputTab === 'function') setAppSelectedOutputTab(idx);
+      }}
     />
   );
 
@@ -158,9 +161,14 @@ export default function OutputSheet2({ teams, players, setView, matchId, matchDa
   return (
     <div className="base">
       <div className="header row">
-        <div className="header-title left">{matchDate ? matchDate : ""}&nbsp;&nbsp;&nbsp;{team0Short} vs {team1Short}</div>
-        {isEditor && <div className="header-title right" onClick={() => setView("inputSheet")}>●</div>}
-        <div className="header-title right" onClick={() => setView("title")}>🔙</div>
+        <div className="header-title left">
+          <div>{matchDate ? matchDate : ""}</div>
+          <div>{team0Short} vs {team1Short}</div>
+        </div>
+        <div className="header-title right" style={{display: "flex"}}>
+          {isEditor && <div onClick={() => setView("inputSheet")} className="header-icon header-btn">📋</div>}
+          <div onClick={() => setView("title")} className="header-icon header-btn">🔙</div>
+        </div>
       </div>
       {renderOutputBtns()}
       {renderOutputTeamBtns()}

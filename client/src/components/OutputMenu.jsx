@@ -148,8 +148,12 @@ export default function OutputMenu({ setView, allTeams, setSelectedMatch, isEdit
   return (
     <div className="base">
       <div className="header row">
-        <div className="header-title left">分析メニュー</div>
-        <div className="header-title right" onClick={() => setView("title")}>🔙</div>
+        <div className="header-title left">
+          <div>分析メニュー</div>
+        </div>
+        <div className="header-title right" style={{display: "flex"}}>
+          <div onClick={() => setView("title")} className="header-icon header-btn">🔙</div>
+        </div>
       </div>
       <div className="main">
         {renderDatePicker()}
