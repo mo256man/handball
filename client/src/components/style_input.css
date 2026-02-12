@@ -107,23 +107,30 @@
 
 /* 行の選択状態（ベンチ入り／非ベンチ）をCSSで管理 */
 .team-table tr.on-bench {
-  background-color: lightcyan; /* 選択時の背景 */
+  background-color: #ddd; /* 選択時の背景 */
   cursor: pointer;
 }
 .team-table tr.off-bench {
-  background-color: darkgray; /* 非選択時の背景 */
+  background-color: #888; /* 非選択時の背景 */
   cursor: pointer;
 }
 
 .team-table th:nth-child(1) {
     width: 40px;
-    text-align: center;
 }
 
 .team-table th:nth-child(2) {
-    text-align: center;
     width: 80px;
 }
+
+.team-table td:nth-child(1) {
+    text-align: right;
+}
+
+.team-table td:nth-child(2) {
+    text-align: center;
+}
+
 
 .btnStartContainer {
   box-sizing: border-box;
@@ -222,16 +229,14 @@
   border-bottom: none;
   border-radius: 6px 6px 0 0;
   cursor: pointer;
-  color: #333;
   text-align: center;
 }
 
 .tab:not(.active) {
-  background: #efefef;
+  font-weight: normal
 }
 
 .tab.active {
-  background: #fff;
   font-weight: bold;
   color: #111;
 }
@@ -240,7 +245,6 @@
   border: 3px solid #c8c8c8;
   border-radius: 6px;
   padding: 10px;
-  background: #fff;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -249,31 +253,6 @@
   overflow: visible;
 }
 
-
-/* タブごとの色定義 */
-.tab-area.tab-area-0 {
-  --tab1-bg: lightgreen;
-  --tab1-active-bg: lightgreen;
-  --tab2-bg: lightgray;
-  --tab2-active-bg: lightgray;
-  --content-bg: lightgreen;
-}
-.tab-area.tab-area-1 {
-  --tab1-bg: lightgray;
-  --tab1-active-bg: lightgray;
-  --tab2-bg: lightyellow;
-  --tab2-active-bg: lightyellow;
-  --content-bg: lightyellow;
-}
-
-/* タブ個別の背景色 */
-.tab-area .tabs .tab:nth-child(1) { background: var(--tab1-bg); }
-.tab-area .tabs .tab:nth-child(2) { background: var(--tab2-bg); }
-.tab-area .tabs .tab.active:nth-child(1) { background: var(--tab1-active-bg); }
-.tab-area .tabs .tab.active:nth-child(2) { background: var(--tab2-active-bg); }
-
-/* コンテンツ背景をタブごとに変える */
-.tab-area .tab-content { background: var(--content-bg); }
 
 /* ソフトウェアキーボードのスタイル */
 .keyboard-overlay {

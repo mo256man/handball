@@ -9,25 +9,18 @@ import OutputSheet1 from './components/OutputSheet1';
 import OutputSheet2 from './components/OutputSheet2';
 import OutputSheet3 from './components/OutputSheet3';
 
-
-// import MakeMatch from "./components/MakeMatch"
-// import Input from "./components/Input"
-// import Input2 from "./components/Input2"
-// import AnalysisMenu from "./components/AnalysisMenu";
-// import Analysis from "./components/Analysis";
 import { getTeams, getPlayers } from "./api";
 import { insertMatch } from "./api";
 import { TeamData } from "./models/TeamData";
 import { Player } from "./models/Player";
+import InputMatch from './components/InputMatch';
 
 function App() {
   // 攻撃サイド（1 or 2）
-  const [attackSide, setAttackSide] = useState(1);
   const [currentView, setCurrentView] = useState('title');
   const [titleMode, setTitleMode] = useState('pass');
   const [isEditor, setIsEditor] = useState(null);
   const [teams, setTeams] = useState([null, null]);
-  // `page` state removed — use `currentView`/`setCurrentView` for navigation
   const [currentSide, setCurrentSide] = useState(0);
   const [players, setPlayers] = useState([[], []]);
   const [allTeams, setAllTeams] = useState([]);
@@ -36,10 +29,11 @@ function App() {
   const [recordDate, setRecordDate] = useState(null);
   const [recordTeam1, setRecordTeam1] = useState(null);
   const [recordTeam2, setRecordTeam2] = useState(null);
-  const [selectedTeam1, setSelectedTeam1] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(0);
   const [matchId, setMatchId] = useState(null);
   const [matchDate, setMatchDate] = useState(null);
   const [outputSelectedTab, setOutputSelectedTab] = useState(0);
+  const [selectedMatch, setSelectedMatch] = useState(null);
 
   // データベースからteamsとplayersを取得
   useEffect(() => {
@@ -72,7 +66,6 @@ function App() {
       date: undefined,
     });
 
-    const [selectedMatch, setSelectedMatch] = useState(null);
 
     // allTeams/allPlayersが更新されたらmatchの初期値をセット
     useEffect(() => {
@@ -87,10 +80,9 @@ function App() {
         teamData1,
         teamData2,
         date: new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' }),
-        attackSide: attackSide
       });
         }
-    }, [allTeams, allPlayers, attackSide]);
+    }, [allTeams, allPlayers]);
 
   // const handleShowMakeMatch = () => setCurrentView('makeMatch');
   // const onShowInputFlow = () => setCurrentView('inputFlow');
@@ -136,6 +128,22 @@ function App() {
       setMatchDate={setMatchDate}
       isEditor={isEditor}
       matchId={matchId}
+      setSelectedMatch={setSelectedMatch}
+    />;
+  } else if (currentView === "inputMatch") {
+    content = <InputMatch
+      allTeams={allTeams}
+      allPlayers={allPlayers}
+      teams={teams}
+      setTeams={setTeams}
+      players={players}
+      setPlayers={setPlayers}
+      setView={setCurrentView}
+      setMatchId={setMatchId}
+      setMatchDate={setMatchDate}
+      isEditor={isEditor}
+      matchId={selectedMatch?.matchId ?? matchId}
+      matchDate={selectedMatch?.matchDate}
     />;
   } else if (currentView === "inputSheet") {
     content = <InputSheet

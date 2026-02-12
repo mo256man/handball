@@ -498,10 +498,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         </div>
         <div className="header-title right" style={{display: "flex"}}>
           <div onClick={() => setView("outputSheet1")} className="header-icon header-btn">📋</div>
-          <div onClick={() => setView("inputMenu")} className="header-icon header-btn">🔙</div>
+          <div onClick={() => setView("inputMatch")} className="header-icon header-btn">🔙</div>
         </div>
       </div>
-      <div className="main">
+      <div className={ selectedTeam ? "main bgTeam1" : "main bgTeam0" }>
         <img src={teams[selectedTeam].filename} className="backgroundImage"/>
         {createUprBtns()}
         <div className="align-bottom">
