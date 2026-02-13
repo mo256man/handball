@@ -17,7 +17,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
   const [isConfirmAvailable, setIsConfirmAvailable] = useState(false);
   const remarksInputRef = useRef(null);
-  
+
+  const [items, setItems] = useState([]);
+
+
+
   // 必須項目のチェック
   useEffect(() => {
     const isComplete = inputValues.player && inputValues.kind && inputValues.shootArea && inputValues.goal && inputValues.result;
@@ -487,6 +491,18 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     );
   }
   
+  const append = (char) => {
+    setItems(prev => [...prev, char]);
+  };
+
+  const backspace = () => {
+    setItems(prev => prev.slice(0, -1));
+  };
+
+  const clear = () => {
+    setItems([]);
+  };
+  
   const renderContent = () => {
     const content = (
       <div className="base">
@@ -509,6 +525,32 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           {createLwrBtns()}
         </div>
       </div>
+
+    <div>
+      <div>
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+
+          return (
+            <span key={index}>
+              {index !== 0 && <span>→</span>}
+              {isLast ? (
+                <span className="last">{item}</span>
+              ) : (
+                item
+              )}
+            </span>
+          );
+        })}
+      </div>
+
+      <button onClick={() => append("A")}>A</button>
+      <button onClick={() => append("B")}>B</button>
+      <button onClick={() => append("C")}>C</button>
+      <button onClick={backspace}>Backspace</button>
+      <button onClick={clear}>Clear</button>
+    </div>
+
       <div className="footer">
         <div className="btnStartContainer">
           <div className="btnStart" onClick={handleSubmit}>登録</div>
