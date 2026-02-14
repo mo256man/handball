@@ -465,4 +465,15 @@ async function startApp() {
     }
 }
 
+
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../client/dist')));
+// Fallback to index.html for client-side routing (only for GET requests that accept HTML)
+app.use((req, res, next) => {
+    if (req.method !== 'GET') return next();
+    const accept = req.headers.accept || '';
+    if (accept.indexOf('text/html') === -1) return next();
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
 startApp();
