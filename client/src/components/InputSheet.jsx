@@ -518,7 +518,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         </div>
       </div>
       <div className={ selectedTeam ? "main bgTeam1" : "main bgTeam0" }>
-        <img src={teams[selectedTeam].filename} className="backgroundImage"/>
+        <img src={teams[selectedTeam]?.image || ""} className="backgroundImage"/>
         {createUprBtns()}
         <div className="align-bottom">
           <div className="row"><div onClick={autoFill}>ランダム生成</div></div>

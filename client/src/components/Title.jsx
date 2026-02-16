@@ -8,6 +8,7 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
   const [username, setUsername] = useState("");
 
   console.log(teams);
+  
   // outlineデバッグ用のトグル
   const [outlineOn, setOutlineOn] = useState(false);
   useEffect(() => {
@@ -47,15 +48,20 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
       });
       const result = await response.json();
       if (response.ok && result.success) {
-        // サーバーから返るteamレコードをteams[0]に格納
-        if (result.team) {
-          const newTeams = [...(teams || [null, null])];
-          newTeams[0] = result.team;
-          // teams[1]がnullなら仮の値としてallTeams[1]を設定
-          if (!newTeams[1]) {
-            newTeams[1] = allTeams[1];
+        // サーバーから返るteamIdをもとに、allTeamsから該当チームを探す
+        if (result.teamId && allTeams) {
+          const selectedTeam = allTeams.find(team => team.id === result.teamId);
+          if (selectedTeam) {
+            const newTeams = [...(teams || [null, null])];
+            newTeams[0] = selectedTeam;
+            // teams[1]がnullなら仮の値としてallTeams[1]を設定
+            if (!newTeams[1]) {
+              newTeams[1] = allTeams[1];
+            }
+            setTeams(newTeams);
+          } else {
+            setPassError("該当チームが見つかりません");
           }
-          setTeams(newTeams);
         }
         setTitleMode('menu');
       } else {
@@ -117,7 +123,7 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
         </div>
       </div>
       <div className={teams[0] ? "main bgTeam0" : "main"}>
-        <img src={teams[0] ? teams[0].filename : "irasutoya.png"} className="backgroundImage" />
+        <img src={teams[0]?.image || "irasutoya.png"} className="backgroundImage" />
         <div className="align-bottom">
           {titleMode === 'pass' && renderNamePass()}
           {titleMode === 'menu' && renderMenu()}

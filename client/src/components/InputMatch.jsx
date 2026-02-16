@@ -215,6 +215,7 @@ export default function InputMatch(
       </div>
     </div>
     <div className="main">
+      <img src={teams[selectedTeam]?.image} className="backgroundImage" />
       <div id="matchDate">{matchDate}</div>
       {errorMessage && (
         <div style={{ color: 'red', padding: '10px', marginBottom: '10px', border: '1px solid red', borderRadius: '4px' }}>

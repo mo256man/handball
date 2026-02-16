@@ -21,6 +21,7 @@ export default function InputMenu(
         </div>
       </div>
       <div className="main bgTeam0">
+        <img src={teams[0]?.image} className="backgroundImage" />
         <SearchMatch setView={setView} allTeams={allTeams} setSelectedMatch={setSelectedMatch} isEditor={isEditor} />
       </div>
     </div>

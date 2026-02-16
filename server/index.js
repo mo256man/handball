@@ -27,7 +27,7 @@ async function initDatabase() {
         console.log('データベースを初期化しました');
         
         // テーブル一覧を表示
-        const tables = queryAll(db, "SELECT name FROM sqlite_master WHERE type='table'");
+        const tables = await queryAll(db, "SELECT name FROM sqlite_master WHERE type='table'");
         console.log('データベース内のテーブル:', tables);
     } catch (error) {
         console.error('データベース初期化エラー:', error);
@@ -97,7 +97,60 @@ app.get('/api/teams', async (req, res) => {
         }
         const teams = await queryAll(db, "SELECT * FROM teams WHERE isAvailable = 1");
         console.log('チーム数:', teams.length);
-        res.json({ success: true, teams: teams });
+        
+        // imageカラムをBase64エンコードして返す
+        const teamsWithImage = teams.map(team => {
+            const result = {
+                teamid: team.teamid,
+                teamname: team.teamname,
+                isAvailable: team.isAvailable,
+                color: team.color,
+                // その他のフィールドをコピー
+                ...Object.keys(team).reduce((acc, key) => {
+                    if (!['teamid', 'teamname', 'isAvailable', 'color', 'image'].includes(key)) {
+                        acc[key] = team[key];
+                    }
+                    return acc;
+                }, {})
+            };
+            
+            // imageの処理
+            if (team.image) {
+                let imageBuffer = team.image;
+                
+                console.log(`[${team.teamname}] image type:`, typeof imageBuffer);
+                console.log(`[${team.teamname}] image instanceof Uint8Array:`, imageBuffer instanceof Uint8Array);
+                console.log(`[${team.teamname}] image length:`, imageBuffer?.length);
+                
+                // Uint8Arrayやオブジェクト型の場合、Bufferに変換
+                if (imageBuffer instanceof Uint8Array) {
+                    console.log(`[${team.teamname}] Converting Uint8Array to Buffer`);
+                    imageBuffer = Buffer.from(imageBuffer);
+                } else if (typeof imageBuffer === 'object' && imageBuffer !== null) {
+                    console.log(`[${team.teamname}] Converting object to Buffer`);
+                    const values = Object.values(imageBuffer);
+                    imageBuffer = Buffer.from(values);
+                    console.log(`[${team.teamname}] Buffer created, length:`, imageBuffer.length);
+                }
+                
+                const base64String = imageBuffer.toString('base64');
+                result.image = 'data:image/png;base64,' + base64String;
+                
+                console.log(`[${team.teamname}] Base64 assigned, type:`, typeof result.image);
+                console.log(`[${team.teamname}] Base64 preview:`, result.image.substring(0, 50));
+            } else {
+                result.image = null;
+            }
+            
+            return result;
+        });
+        
+        // 返す前に確認
+        console.log('=== 返すデータ確認 ===');
+        console.log('teamsWithImage[0].image type:', typeof teamsWithImage[0]?.image);
+        console.log('teamsWithImage[0].image preview:', teamsWithImage[0]?.image?.substring(0, 50));
+        
+        res.json({ success: true, teams: teamsWithImage });
     } catch (error) {
         console.error('チーム取得エラー:', error);
         res.status(500).json({ error: error.message });
@@ -380,19 +433,14 @@ app.post('/api/checkpass', async (req, res) => {
         if (!db) {
             throw new Error('データベースが初期化されていません');
         }
-        // まずuserテーブルからourTeamIdを取得
-        const query = "SELECT ourTeamId FROM user WHERE userName = ? AND password = ?";
+        // userテーブルからチームIDを取得
+        const query = "SELECT teamId FROM user WHERE userName = ? AND password = ?";
         const params = [username, password];
         const result = await queryAll(db, query, params);
         if (result.length > 0) {
-            const ourTeamId = result[0].ourTeamId;
-            // allTeamsから該当チームのレコードを取得
-            const teamRows = await queryAll(db, "SELECT * FROM teams WHERE id = ?", [ourTeamId]);
-            if (teamRows.length > 0) {
-                return res.json({ success: true, team: teamRows[0] });
-            } else {
-                return res.json({ success: false, error: "該当チームが見つかりません" });
-            }
+            const teamId = result[0].teamId;
+            console.log("ログイン成功 - teamId:", teamId);
+            return res.json({ success: true, teamId: teamId });
         } else {
             return res.json({ success: false, error: "名前またはパスワードが違います" });
         }
@@ -466,14 +514,14 @@ async function startApp() {
 }
 
 
-const path = require('path');
-app.use(express.static(path.join(__dirname, '../client/dist')));
-// Fallback to index.html for client-side routing (only for GET requests that accept HTML)
-app.use((req, res, next) => {
-    if (req.method !== 'GET') return next();
-    const accept = req.headers.accept || '';
-    if (accept.indexOf('text/html') === -1) return next();
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
+// const path = require('path');
+// app.use(express.static(path.join(__dirname, '../client/dist')));
+// // Fallback to index.html for client-side routing (only for GET requests that accept HTML)
+// app.use((req, res, next) => {
+//     if (req.method !== 'GET') return next();
+//     const accept = req.headers.accept || '';
+//     if (accept.indexOf('text/html') === -1) return next();
+//     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+// });
 
 startApp();
