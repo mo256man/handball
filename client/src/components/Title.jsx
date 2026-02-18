@@ -76,12 +76,14 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
     // 名前とパスワード入力画面
     <div id="pass" className="titleArea">
       <input
+        className="passName"
         type="text"
         placeholder="名前"
         value={username}
         onChange={e => setUsername(e.target.value)}
       />
       <input
+        className="passName"
         type="password"
         placeholder="パスワード"
         value={password}
@@ -108,12 +110,9 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
 
   return (
     <div className="base">
+      <img src={teams[0]?.image || "irasutoya.png"} className="backgroundImage" />
       {showPopup && renderSelectTeams()}
-      <div className="header">
-        {/* {renderSettingBtn()} */}
-        <div className="header-title"></div>
         {drawFrameBtn()}
-      </div>
       <div className="header row">
         <div className="header-title left">
           <div>ハンドスタッツ入力支援</div>
@@ -123,7 +122,6 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
         </div>
       </div>
       <div className={teams[0] ? "main bgTeam0" : "main"}>
-        <img src={teams[0]?.image || "irasutoya.png"} className="backgroundImage" />
         <div className="align-bottom">
           {titleMode === 'pass' && renderNamePass()}
           {titleMode === 'menu' && renderMenu()}

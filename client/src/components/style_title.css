@@ -1,6 +1,6 @@
 .titleArea {
   margin: 0 auto;
-  background: lightblue;
+  background: rgba(173, 216, 230, 0.5);
   padding: 10px 20px;
   width: 300px;
   display: flex;

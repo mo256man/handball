@@ -197,6 +197,39 @@ export async function insertMatch(date, team0, team1, players0 = '', players1 = 
     }
 }
 
+    /**
+     * 既存の match レコードを更新
+     * @param {number} id マッチのID
+     * @param {string} date 日付
+     * @param {string|number} team0
+     * @param {string|number} team1
+     * @param {string} players0
+     * @param {string} players1
+     * @returns {Promise<Object>} サーバの応答
+     */
+    export async function updateMatch(id, date, team0, team1, players0 = '', players1 = '') {
+        try {
+            const response = await fetch(`${API_BASE_URL}/updateMatch`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id, date, team0, team1, players0, players1 }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || '試合データの更新に失敗しました');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('updateMatch エラー:', error);
+            throw error;
+        }
+    }
+
 /**
  * 指定日付の試合データを取得
  * @param {string} date 日付

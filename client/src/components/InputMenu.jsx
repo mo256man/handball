@@ -12,6 +12,7 @@ export default function InputMenu(
 
   return (
     <div className="base">
+      <img src={teams[0]?.image} className="backgroundImage" />
       <div className="header row">
         <div className="header-title left">
           <div>試合選択</div>
@@ -21,7 +22,6 @@ export default function InputMenu(
         </div>
       </div>
       <div className="main bgTeam0">
-        <img src={teams[0]?.image} className="backgroundImage" />
         <SearchMatch setView={setView} allTeams={allTeams} setSelectedMatch={setSelectedMatch} isEditor={isEditor} />
       </div>
     </div>

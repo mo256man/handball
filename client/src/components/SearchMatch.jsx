@@ -88,7 +88,7 @@ export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEdi
   const renderDatePicker = () => {
     return (
       <div className="date-picker-section">
-        <label>試合日付を選択</label>
+        <label>試合日</label>
         {loadingDates ? (
           <div>読み込み中...</div>
         ) : (

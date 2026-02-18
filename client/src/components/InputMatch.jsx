@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Player } from "../models/Player";
 import "./style_input.css";
 import { ja } from "date-fns/locale";
-import { insertMatch, getMatchById } from "../api";
+import { insertMatch, updateMatch, getMatchById } from "../api";
 
 export default function InputMatch(
-  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, setMatchDate, isEditor, matchId, matchDate}) {
-  const [selectedTeam, setSelectedTeam] = useState(0);
+  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, setMatchDate, isEditor, matchId, matchDate, offenseTeam, setOffenseTeam}) {
   const [disabled, setDisabled] = useState([true, false]);
   const [canSelectPlayers, setCanSelectPlayers] = useState(true);
   const [playerLocked, setPlayerLocked] = useState(true);
@@ -118,6 +117,24 @@ export default function InputMatch(
         setMatchDate(matchDate);
         setPlayers([benchPlayers0, benchPlayers1]);
       }
+      else {
+        // 既存マッチを更新
+        const benchPlayers0 = players[0].filter(p => p.isOnBench);
+        const benchPlayers1 = players[1].filter(p => p.isOnBench);
+        const players0 = benchPlayers0.map(p => p.id).join(',');
+        const players1 = benchPlayers1.map(p => p.id).join(',');
+
+        console.log('既存マッチを更新します。id:', matchId);
+        const result = await updateMatch(matchId, matchDate, teams[0].id, teams[1].id, players0, players1);
+        console.log('マッチ更新結果:', result);
+
+        if (!result || !result.success) {
+          setErrorMessage('マッチの更新に失敗しました');
+          return;
+        }
+
+        setPlayers([benchPlayers0, benchPlayers1]);
+      }
       
       // InputSheetへ移動
       setView("inputSheet");
@@ -140,13 +157,13 @@ export default function InputMatch(
 
   const renderSelectTeams = () => {
     return (
-      <div id="tab-area" className={`tab-area tab-area-${selectedTeam}`}>
+      <div id="tab-area" className={`tab-area tab-area-${offenseTeam}`}>
         <div className="tabs">
-          <button className="tab bgTeam0" onClick={() => setSelectedTeam(0)}>自チーム</button>
-          <button className="tab bgTeam1" onClick={() => setSelectedTeam(1)}>対戦チーム</button>
+          <button className="tab bgTeam0" onClick={() => setOffenseTeam(0)}>自チーム</button>
+          <button className="tab bgTeam1" onClick={() => setOffenseTeam(1)}>対戦チーム</button>
         </div>
-        <div className={ selectedTeam ? "tab-content bgTeam1" : "tab-content bgTeam0" }>
-          {renderTable(selectedTeam)}
+        <div className={ offenseTeam ? "tab-content bgTeam1" : "tab-content bgTeam0" }>
+          {renderTable(offenseTeam)}
         </div>
       </div>
     );
@@ -158,15 +175,15 @@ export default function InputMatch(
     const teamName = teams[teamIdx].teamname;
     return (<>
       <select
-        id={`teamName${selectedTeam}`}
+        id={`teamName${offenseTeam}`}
         value={teamName}
         onChange={e => {
           const newTeams = [...teams];
-          newTeams[selectedTeam] = allTeams.find(t => t.teamname === e.target.value);
+          newTeams[offenseTeam] = allTeams.find(t => t.teamname === e.target.value);
           setTeams(newTeams);
         }}
         className="team-select team-area-item"
-        disabled={selectedTeam === 0 || playerLocked}
+        disabled={offenseTeam === 0 || playerLocked}
       >
         {/* <option value="">-- 相手チームを選択してください --</option> */}
         {AllTeamNames.map((name, index) => (
@@ -215,7 +232,7 @@ export default function InputMatch(
       </div>
     </div>
     <div className="main">
-      <img src={teams[selectedTeam]?.image} className="backgroundImage" />
+      <img src={teams[offenseTeam]?.image} className="backgroundImage" />
       <div id="matchDate">{matchDate}</div>
       {errorMessage && (
         <div style={{ color: 'red', padding: '10px', marginBottom: '10px', border: '1px solid red', borderRadius: '4px' }}>

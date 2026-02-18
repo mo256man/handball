@@ -481,6 +481,7 @@ table.resultTable, table.resultTable td {
 }
 
 .align-bottom {
+  z-index: 2;
   margin-top: auto;
   width: 100%;
 }
@@ -506,9 +507,15 @@ table.resultTable, table.resultTable td {
 }
 
 .bgTeam0 {
-  background-color: azure;
+  background-color: rgba(240, 255, 255, 0.5);
 }
 
 .bgTeam1 {
-  background-color: lemonchiffon
+  background-color: rgba(255, 250, 205, 0.5);
 }
+
+input.passName {
+  background: white;
+  font-size: x-large;
+  margin: 0 20px;
+  text-align: left;}

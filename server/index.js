@@ -223,8 +223,8 @@ app.post('/api/record', async (req, res) => {
         const data = req.body;
         const query = `INSERT INTO record (
             matchId, teamId, playerId, playeNumberr, playerPosition, playerName,
-            half, situation, kind, result, gk, remarks, area, goal, isGS, isAtk, isSht, isFB
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            half, situation, kind, result, gk, remarks, area, goal, setPlay, isGS, isGSO, isAtk, isSht, isFB
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const params = [
             data.matchId,
             data.teamId,
@@ -240,7 +240,9 @@ app.post('/api/record', async (req, res) => {
             data.remarks || '',
             data.area || '',
             data.goal || '',
+            data.setPlay || '',
             data.isGS || 0,
+            data.isGSO || 0,
             data.isAtk || 0,
             data.isSht || 0,
             data.isFB || 0

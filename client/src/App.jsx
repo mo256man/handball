@@ -30,6 +30,8 @@ function App() {
   const [recordTeam1, setRecordTeam1] = useState(null);
   const [recordTeam2, setRecordTeam2] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(0);
+  const [appOutputSheet, setAppOutputSheet] = useState('outputSheet1');
+  const [offenseTeam, setOffenseTeam] = useState(0);
   const [matchId, setMatchId] = useState(null);
   const [matchDate, setMatchDate] = useState(null);
   const [outputSelectedTab, setOutputSelectedTab] = useState(0);
@@ -56,6 +58,13 @@ function App() {
     };
     loadData();
   }, []);
+
+  // currentView が outputSheetX に移動したら appOutputSheet を同期する
+  useEffect(() => {
+    if (currentView && currentView.startsWith && currentView.startsWith('outputSheet')) {
+      setAppOutputSheet(currentView);
+    }
+  }, [currentView]);
 
 
     const [match, setMatch] = useState({
@@ -141,6 +150,8 @@ function App() {
       setView={setCurrentView}
       setMatchId={setMatchId}
       setMatchDate={setMatchDate}
+      offenseTeam={offenseTeam}
+      setOffenseTeam={setOffenseTeam}
       isEditor={isEditor}
       matchId={selectedMatch?.matchId ?? matchId}
       matchDate={selectedMatch?.matchDate}
@@ -152,6 +163,10 @@ function App() {
       matchId={matchId}
       matchDate={matchDate}
       setView={setCurrentView}
+      offenseTeam={offenseTeam}
+      setOffenseTeam={setOffenseTeam}
+      appOutputSheet={appOutputSheet}
+      setAppOutputSheet={setAppOutputSheet}
       isEditor={isEditor}
     />;
   } else if (currentView === "outputMenu") {
@@ -188,6 +203,9 @@ function App() {
       appSelectedOutputTab={outputSelectedTab}
       setAppSelectedOutputTab={setOutputSelectedTab}
       isEditor={isEditor}
+      appOffenseTeam={offenseTeam}
+      appOutputSheet={appOutputSheet}
+      setAppOutputSheet={setAppOutputSheet}
     />;
   }
   else if (currentView === "outputSheet2") {
@@ -215,6 +233,9 @@ function App() {
       appSelectedOutputTab={outputSelectedTab}
       setAppSelectedOutputTab={setOutputSelectedTab}
       isEditor={isEditor}
+      appOffenseTeam={offenseTeam}
+      appOutputSheet={appOutputSheet}
+      setAppOutputSheet={setAppOutputSheet}
     />;
   }
   else if (currentView === "outputSheet3") {
@@ -242,6 +263,9 @@ function App() {
       appSelectedOutputTab={outputSelectedTab}
       setAppSelectedOutputTab={setOutputSelectedTab}
       isEditor={isEditor}
+      appOffenseTeam={offenseTeam}
+      appOutputSheet={appOutputSheet}
+      setAppOutputSheet={setAppOutputSheet}
     />;
   }
   // } else if (currentView === "input") {

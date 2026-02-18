@@ -473,7 +473,7 @@ export default function OutputSheet1({ teams, players, setView, matchId, matchDa
         </div>
         <div className="header-title right" style={{display: "flex"}}>
           {isEditor && <div onClick={() => setView("inputSheet")} className="header-icon header-btn">📋</div>}
-          <div onClick={() => setView("title")} className="header-icon header-btn">🔙</div>
+          {! isEditor &&<div onClick={() => setView("outputMenu")} className="header-icon header-btn">🔙</div>}
         </div>
       </div>
       {renderOutputBtns()}

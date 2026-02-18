@@ -3,11 +3,10 @@ import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
 import "./style_input.css";
 
-export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate }) {
+export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet }) {
 
   // 相手GK選択値
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
-  const [selectedTeam, setSelectedTeam] = useState(0);
   const [oppoTeam, setOppoTeam] = useState(1);
   const [currentHalf, setCurrentHalf] = useState("前半");
   const [showPopup, setShowPopup] = useState(false);
@@ -19,6 +18,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const remarksInputRef = useRef(null);
 
   const [items, setItems] = useState([]);
+  const [setPlayStr, setSetPlayStr] = useState("");
 
 
 
@@ -64,7 +64,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   }
 
   const getRandomPlayer = () => {
-    const playerBtns = players[selectedTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number }));
+    const playerBtns = players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number }));
     return playerBtns[Math.floor(Math.random() * playerBtns.length)].value;
   }
 
@@ -143,7 +143,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const setKeyboardPlayers = (handleKeyboardClick) => {
     const keyboardConfig = {
       title: "選手",
-      btns: players[selectedTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number })),
+      btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number })),
       grid: "repeat(4, 1fr)"
     };
     const result = {
@@ -157,6 +157,27 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       </div>)
     }
     return result
+  }
+
+  // setKeyboardPlayers を変更せずコピーして、常時表示用の選手ボタンを生成する関数
+  const setPersistentPlayers = () => {
+    const keyboardConfig = {
+      title: "選手（常時表示）",
+      btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number })),
+      grid: "repeat(4, 1fr)"
+    };
+
+    return (
+      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+        {keyboardConfig.btns.map((btn, idx) => (
+          <button key={idx} className="keyboard-btn" onClick={() => {
+              setInputValues(prev => ({ ...prev, player: btn.value }));
+              append(String(btn.value));
+            }}
+            dangerouslySetInnerHTML={{ __html: btn.label }} />
+        ))}
+      </div>
+    );
   }
 
   const setKeyboardKind = (handleKeyboardClick) => {
@@ -321,7 +342,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   }
 
   const changeTeam = () => {
-    setSelectedTeam(prev => (prev === 0 ? 1 : 0));
+    setOffenseTeam(prev => (prev === 0 ? 1 : 0));
     setOppoTeam(prev => (prev === 0 ? 1 : 0));
   }
 
@@ -351,7 +372,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     }
     try {
       // 選手情報を取得
-      const player = players[selectedTeam].find(p => p.number === parseInt(inputValues.player));
+      const player = players[offenseTeam].find(p => p.number === parseInt(inputValues.player));
       if (!player) {
         alert("選手を選択してください");
         return;
@@ -359,6 +380,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
       // isGS: resultが"g"もしくは"s"ならば1、それ以外ならば0
       const isGS = ["g", "s"].includes(inputValues.result) ? 1 : 0;
+
+      // isGSO: resultが"g", "s", "o"のいずれかならば1、それ以外ならば0
+      const isGSO = ["g", "s", "o"].includes(inputValues.result) ? 1 : 0;
 
       // isAtk: resultが g, s, o, m のいずれか => isAtk=1 さもなくば0
       const isAtk = ["g", "s", "o", "m"].includes(inputValues.result) ? 1 : 0;
@@ -368,10 +392,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       // isFB: kindが f1, f2, f3, ag のいずれか => isFB=1 さもなくば0
       const isFB = ["f1", "f2", "f3", "ag"].includes(inputValues.kind) ? 1 : 0;
 
+
       // 登録データを作成
       const recordData = {
         matchId: matchId,
-        teamId: teams[selectedTeam].id,
+        teamId: teams[offenseTeam].id,
         playerId: player.id,
         playeNumberr: player.number,
         playerPosition: player.position,
@@ -384,7 +409,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         remarks: inputValues.remarks,
         area: inputValues.shootArea,
         goal: inputValues.goal,
+        setPlay: setPlayStr,
         isGS: isGS,
+        isGSO: isGSO,
         isAtk: isAtk,
         isSht: isSht,
         isFB: isFB,
@@ -424,7 +451,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           <div className="labelSmall">{teams[oppoTeam].shortname}のGK</div>
           <div className="btnLabel">{selectedOppoGK[oppoTeam]}</div>
         </button>
-        <button className="btnFunc span3" onClick={changeTeam}><div className="btnLabel">{teams[selectedTeam].shortname}の攻撃</div></button>
+        <button className="btnFunc span3" onClick={changeTeam}><div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div></button>
       </div>
     );
   }
@@ -492,42 +519,30 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   }
   
   const append = (char) => {
-    setItems(prev => [...prev, char]);
+    setItems(prev => {
+      const newItems = [...prev, char];
+      setSetPlayStr(newItems.join(','));
+      return newItems;
+    });
   };
 
   const backspace = () => {
-    setItems(prev => prev.slice(0, -1));
+    setItems(prev => {
+      const newItems = prev.slice(0, -1);
+      setSetPlayStr(newItems.join(','));
+      return newItems;
+    });
   };
 
   const clear = () => {
     setItems([]);
+    setSetPlayStr("");
   };
   
-  const renderContent = () => {
-    const content = (
-      <div className="base">
-      {renderKeyboard()}
-      <div className="header row">
-        <div className="header-title left">
-          <div>{teams[0].shortname} vs {teams[1].shortname}</div>
-          <div>{matchDate}</div>
-        </div>
-        <div className="header-title right" style={{display: "flex"}}>
-          <div onClick={() => setView("outputSheet1")} className="header-icon header-btn">📋</div>
-          <div onClick={() => setView("inputMatch")} className="header-icon header-btn">🔙</div>
-        </div>
-      </div>
-      <div className={ selectedTeam ? "main bgTeam1" : "main bgTeam0" }>
-        <img src={teams[selectedTeam]?.image || ""} className="backgroundImage"/>
-        {createUprBtns()}
-        <div className="align-bottom">
-          <div className="row"><div onClick={autoFill}>ランダム生成</div></div>
-          {createLwrBtns()}
-        </div>
-      </div>
-
-    <div>
-      <div>
+  // setPlay の表示を返す関数（JSX内に関数を置かないために抽出）
+  const renderSetPlay = () => {
+    return (
+      <>
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
 
@@ -542,14 +557,40 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             </span>
           );
         })}
+      </>
+    );
+  }
+  
+  const renderContent = () => {
+    const content = (
+      <div className="base">
+      {renderKeyboard()}
+      <div className="header row">
+        <div className="header-title left">
+          <div>{teams[0].shortname} vs {teams[1].shortname}</div>
+          <div>{matchDate}</div>
+        </div>
+        <div className="header-title right" style={{display: "flex"}}>
+          <div onClick={() => setView(appOutputSheet)} className="header-icon header-btn">📋</div>
+          <div onClick={() => setView("inputMatch")} className="header-icon header-btn">🔙</div>
+        </div>
+      </div>
+      <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" }>
+        <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
+        {createUprBtns()}
+        <div className="align-bottom">
+            <div>セットプレイ</div>
+            <div id="setPlay">{renderSetPlay()}</div>
+            <div id="btnPlayers">{setPersistentPlayers()}</div>
+            <div className="row"><div onClick={autoFill}>ランダム生成</div></div>
+            {createLwrBtns()}
+        </div>
       </div>
 
-      <button onClick={() => append("A")}>A</button>
-      <button onClick={() => append("B")}>B</button>
-      <button onClick={() => append("C")}>C</button>
-      <button onClick={backspace}>Backspace</button>
-      <button onClick={clear}>Clear</button>
-    </div>
+      <div>
+        <button onClick={backspace}>Backspace</button>
+        <button onClick={clear}>Clear</button>
+      </div>
 
       <div className="footer">
         <div className="btnStartContainer">
