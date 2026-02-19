@@ -164,6 +164,7 @@ export default function OutputSheet2({ teams, players, setView, matchId, matchDa
         <div className="header-title left">
           <div>{matchDate ? matchDate : ""}</div>
           <div>{team0Short} vs {team1Short}</div>
+          <div id="matchId">{matchId ? `ID: ${matchId}` : ""}</div>
         </div>
         <div className="header-title right" style={{display: "flex"}}>
           {isEditor && <div onClick={() => setView("inputSheet")} className="header-icon header-btn">📋</div>}

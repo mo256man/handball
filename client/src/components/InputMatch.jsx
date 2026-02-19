@@ -14,6 +14,7 @@ export default function InputMatch(
   // matchIdが値を持つ場合（既存の試合データから初期化）
   useEffect(() => {
     if (matchId) {
+      if (typeof setMatchId === 'function') setMatchId(matchId);
       console.log('InputMenu: matchIdがあります。matchId=', matchId);
       setCanSelectPlayers(false);
       const loadMatch = async () => {
@@ -84,7 +85,7 @@ export default function InputMatch(
   };
 
   // STARTボタンのクリックハンドラー
-  const handleStartClick = async () => {
+  const handleStartClick = async (targetView = "inputSheet") => {
     setErrorMessage(null);
     
     try {
@@ -134,10 +135,11 @@ export default function InputMatch(
         }
 
         setPlayers([benchPlayers0, benchPlayers1]);
+        if (typeof setMatchId === 'function') setMatchId(matchId);
       }
       
-      // InputSheetへ移動
-      setView("inputSheet");
+      // 指定のビューへ移動
+      setView(targetView);
     } catch (error) {
       console.error('STARTボタンのエラー:', error);
       setErrorMessage(`エラーが発生しました: ${error.message}`);
@@ -249,7 +251,8 @@ export default function InputMatch(
       {renderSelectTeams()}
     </div>
     <div className="footer">
-    <div className="btnStart" onClick={handleStartClick}>START</div>
+    <div className="btnStart" onClick={() => handleStartClick()}>START</div>
+    <div className="btnStart" onClick={() => handleStartClick("inputTable")}>START_TAB</div>
   </div>
   </div>
   )

@@ -14,6 +14,7 @@ import { insertMatch } from "./api";
 import { TeamData } from "./models/TeamData";
 import { Player } from "./models/Player";
 import InputMatch from './components/InputMatch';
+import InputTable from './components/InputTable';
 
 function App() {
   // 攻撃サイド（1 or 2）
@@ -160,8 +161,21 @@ function App() {
     content = <InputSheet
       teams={teams}
       players={players}
-      matchId={matchId}
-      matchDate={matchDate}
+      matchId={selectedMatch?.matchId ?? matchId}
+      matchDate={selectedMatch?.matchDate ?? matchDate}
+      setView={setCurrentView}
+      offenseTeam={offenseTeam}
+      setOffenseTeam={setOffenseTeam}
+      appOutputSheet={appOutputSheet}
+      setAppOutputSheet={setAppOutputSheet}
+      isEditor={isEditor}
+    />;
+  } else if (currentView === "inputTable") {
+    content = <InputTable
+      teams={teams}
+      players={players}
+      matchId={selectedMatch?.matchId ?? matchId}
+      matchDate={selectedMatch?.matchDate ?? matchDate}
       setView={setCurrentView}
       offenseTeam={offenseTeam}
       setOffenseTeam={setOffenseTeam}

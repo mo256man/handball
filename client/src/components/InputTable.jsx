@@ -164,15 +164,40 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     const keyboardConfig = {
       title: "選手（常時表示）",
       btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number })),
-      grid: "repeat(4, 1fr)"
+      grid: "repeat(8, 1fr)" // 8列固定
+    };
+
+    return (
+      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, auto)', gap: '10px', marginTop: '10px' }}>
+        {keyboardConfig.btns.map((btn, idx) => (
+          <button key={idx} className="keyboard-btn" onClick={() => {
+              setInputValues(prev => ({ ...prev, player: btn.value }));
+              append(String(btn.value));
+            }}
+            dangerouslySetInnerHTML={{ __html: btn.label }} />
+        ))}
+      </div>
+    );
+  }
+
+  // setKeyboardSituation をコピーして、常時表示用のSituationボタンを生成する関数
+  const setPersistentSituation = () => {
+    const keyboardConfig = {
+      title: "状況（常時表示）",
+      btns: [
+        { label: "▲", value: "+" },
+        { label: "7", value: "7" },
+        { label: "▼", value: "-" },
+        { label: "（消）", value: "" },
+      ],
+      grid: "1fr"
     };
 
     return (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
           <button key={idx} className="keyboard-btn" onClick={() => {
-              setInputValues(prev => ({ ...prev, player: btn.value }));
-              append(String(btn.value));
+              setInputValues(prev => ({ ...prev, situation: btn.value }));
             }}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
@@ -272,6 +297,21 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       )
     }
     return result;
+  }
+
+  const setPersistentGoal = () => {
+    return (
+      <div className="keyboard-body" style={{ marginTop: '10px' }}>
+        <DrawGoal
+          drawOut={true}
+          onClick={(_type, value) => {
+            setInputValues(prev => ({ ...prev, goal: value }));
+          }}
+          width="100%"
+          height="auto"
+        />
+      </div>
+    );
   }
 
   const setKeyboardOppoGK = (handleKeyboardClick) => {
@@ -582,8 +622,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         {createUprBtns()}
         <div className="align-bottom">
             <div>セットプレイ</div>
-            <div id="setPlay">{renderSetPlay()}</div>
-            <div id="btnPlayers">{setPersistentPlayers()}</div>
+          <div id="setPlay">{renderSetPlay()}</div>
+          <div id="areaSitu">{setPersistentSituation()}</div>
+          <div id="btnPlayers">{setPersistentPlayers()}</div>
             <div className="row"><div onClick={autoFill}>ランダム生成</div></div>
             {createLwrBtns()}
         </div>
@@ -603,7 +644,46 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     return content;
   }
 
-  const content =  renderContent();
+  // const content =  renderContent();
+
+  const renderTablet = () => {
+    const content = (
+      <div className="base">
+      <div className="header row">
+        <div className="header-title left">
+          <div>{teams[0].shortname} vs {teams[1].shortname}</div>
+          <div>{matchDate}</div>
+          <div id="matchId">{matchId ? `ID: ${matchId}` : ""}</div>
+        </div>
+        <div className="header-title right" style={{display: "flex"}}>
+          <div onClick={() => setView(appOutputSheet)} className="header-icon header-btn">📋</div>
+          <div onClick={() => setView("inputMatch")} className="header-icon header-btn">🔙</div>
+        </div>
+      </div>
+      <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" }>
+        <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
+        <div className="row">
+          <div style={{border: "1px solid red", padding: "10px", borderRadius: "4px", margin: "10px", backgroundColor: "rgba(255, 255, 255, 0.8)", width:"100%", height:"100%"}}>
+            <div className="row">
+              <div id="areaSitu" style={{border: "1px solid red"}}>{setPersistentSituation()}</div>
+              <div id="areaNumber" style={{border: "1px solid red"}}>{setPersistentPlayers()}</div>
+              <div id="areaGoal" style={{border: "1px solid red"}}>{setPersistentGoal()}</div>
+            </div>
+            <div className="row"></div>
+        </div>
+        </div>
+      </div>
+      <div className="footer">
+        <div className="btnStartContainer">
+          <div className="btnStart" onClick={handleSubmit}>登録</div>
+        </div>
+      </div>
+    </div>);
+    return content;
+  }
+
+  const content = renderTablet();
+
 
   return (
     content
