@@ -16,7 +16,7 @@ const createSectorPath = (centerX, centerY, radius, startAngle, endAngle) => {
   return `M ${centerX} ${centerY} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
 };
 
-const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, values = [], drawOut = false }) => {
+const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, showText = true, values = [], drawOut = false }) => {
   const x0 = drawOut ? 15 : 0;
   const y0 = drawOut ? 10 : 0;
   const svgWidth = typeof width === 'number' ? width + 2 * x0 : width;
@@ -72,17 +72,19 @@ const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, 
                 style={{ cursor: onClick ? 'pointer' : 'default' }}
               />
             )}
-            <text
-              x={lbl.x + x0}
-              y={lbl.y + y0}
-              className="shootAreaText"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              onClick={onClick ? (e => { e.stopPropagation(); onClick('area', lbl.id); }) : undefined}
-              style={{ cursor: onClick ? 'pointer' : 'default' }}
-            >
-              {textValue}
-            </text>
+            {showText && (
+              <text
+                x={lbl.x + x0}
+                y={lbl.y + y0}
+                className="shootAreaText"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                onClick={onClick ? (e => { e.stopPropagation(); onClick('area', lbl.id); }) : undefined}
+                style={{ cursor: onClick ? 'pointer' : 'default' }}
+              >
+                {textValue}
+              </text>
+            )}
           </g>
         );
       })}

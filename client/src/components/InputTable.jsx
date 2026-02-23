@@ -237,6 +237,36 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     return result
   }
 
+  // setKeyboardKind を変更せずコピーして、常時表示用のKindボタンを生成する関数
+  const setPersistentKind = () => {
+    const keyboardConfig = {
+      title: "攻撃種類（常時表示）",
+      btns: [
+            { label: '6', value: '6' },
+            { label: 'B', value: 'B' },
+            { label: 'P', value: 'P' },
+            { label: 'W', value: 'W' },
+            { label: '9', value: '9' },
+            { label: 'f', value: 'f' },
+            { label: 'f1', value: 'f1' },
+            { label: 'f2', value: 'f2' },
+            { label: 'f3', value: 'f3' },
+            { label: 'ag', value: 'ag' },
+            { label: '7', value: '7' },
+            { label: '（消）', value: '' },
+      ],
+      grid: "repeat(2, 1fr)"
+    }
+    return (
+      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+        {keyboardConfig.btns.map((btn, idx) => (
+          <button key={idx} className="keyboard-btn" onClick={() => setInputValues(prev => ({ ...prev, kind: btn.value }))}
+            dangerouslySetInnerHTML={{ __html: btn.label }} />
+        ))}
+      </div>
+    )
+  }
+
   const setKeyboardResult = (handleKeyboardClick) => {
     const keyboardConfig = {
       title: "結果",
@@ -312,6 +342,32 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         />
       </div>
     );
+  }
+
+  // 結果用の常時表示キーボード（setKeyboardResult を変更せずにコピー）
+  const setPersistentResult = () => {
+    const keyboardConfig = {
+      title: "結果（常時表示）",
+      btns: [
+            { label: 'g (ゴール)', value: 'g' },
+            { label: 'm (ミス)', value: 'm' },
+            { label: 's (セーブ)', value: 's' },
+            { label: 'p (7mをとった)', value: 'p' },
+            { label: 'f (ファールとられた)', value: 'f' },
+            { label: 'r (わからない)', value: 'r' },
+            { label: 'o (Out Goal)', value: 'o' },
+            { label: '（消）', value: '' },
+      ],
+      grid: "repeat(2, 1fr)"
+    }
+    return (
+      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+        {keyboardConfig.btns.map((btn, idx) => (
+          <button key={idx} className="keyboard-btn" onClick={() => setInputValues(prev => ({ ...prev, result: btn.value }))}
+            dangerouslySetInnerHTML={{ __html: btn.label }} />
+        ))}
+      </div>
+    )
   }
 
   const setKeyboardOppoGK = (handleKeyboardClick) => {
@@ -663,13 +719,64 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" }>
         <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
         <div className="row">
+          <table id="inputedValues" style={{border: "1px solid red", margin: "10px", backgroundColor: "rgba(255, 255, 255, 0.8)", width:"100%"}}>
+            <thead>
+              <tr>
+                <th>Situation</th>
+                <th>Player</th>
+                <th>Kind</th>
+                <th>Result</th>
+                <th>Shoot Area</th>
+                <th>Goal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="value_situ">{inputValues.situation}</td>
+                <td id="value_player">{inputValues.player}</td>
+                <td id="value_kind">{inputValues.kind}</td>
+                <td id="value_result">{inputValues.result}</td>
+                <td id="value_shoot_area">{inputValues.shootArea}</td>
+                <td id="value_goal">{inputValues.goal}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="row">
           <div style={{border: "1px solid red", padding: "10px", borderRadius: "4px", margin: "10px", backgroundColor: "rgba(255, 255, 255, 0.8)", width:"100%", height:"100%"}}>
             <div className="row">
               <div id="areaSitu" style={{border: "1px solid red"}}>{setPersistentSituation()}</div>
               <div id="areaNumber" style={{border: "1px solid red"}}>{setPersistentPlayers()}</div>
+              <div id="areaArea" style={{ width: '100%' }}>
+                  <div style={{ display: 'inline-block' }}>
+                  <DrawShootArea
+                    width="100%"
+                    height="auto"
+                    onClick={(type, value) => {
+                      if (type === "area") {
+                        setInputValues(prev => ({ ...prev, shootArea: value }));
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="row" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <div id="areaKindWrapper" style={{ position: 'relative', width: '100%', minHeight: '320px' }}>
+                  <div id="areaKindBack" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
+                    <div style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', width: '90%', height: '90%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <DrawShootArea width="100%" height="100%" showText={false} />
+                    </div>
+                  </div>
+                  <div id="areaKind" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+                    {setPersistentKind()}
+                  </div>
+                </div>
+              </div>
+              <div id="areaResult">{setPersistentResult()}</div>
               <div id="areaGoal" style={{border: "1px solid red"}}>{setPersistentGoal()}</div>
             </div>
-            <div className="row"></div>
         </div>
         </div>
       </div>
