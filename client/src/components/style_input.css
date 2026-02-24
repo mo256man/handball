@@ -400,6 +400,30 @@
   user-select: none;
 }
 
+/* Active key styles per keyboard type */
+.keyboard-btn.active {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35) inset;
+  transform: translateY(0);
+}
+
+/* popup keyboard color variants */
+.keyboard-popup[data-keyboard-type="situation"] .keyboard-btn.active { background: #fdd835; color: #000; }
+.keyboard-popup[data-keyboard-type="player"] .keyboard-btn.active { background: #42a5f5; color: #fff; }
+.keyboard-popup[data-keyboard-type="kind"] .keyboard-btn.active { background: #66bb6a; color: #fff; }
+.keyboard-popup[data-keyboard-type="result"] .keyboard-btn.active { background: #ec407a; color: #fff; }
+.keyboard-popup[data-keyboard-type="oppoGK"] .keyboard-btn.active { background: #ab47bc; color: #fff; }
+
+/* persistent keyboards (in-layout) */
+.keyboard-body.persistent.situation .keyboard-btn.active { background: #fdd835; color: #000; }
+.keyboard-body.persistent.players .keyboard-btn.active { background: #42a5f5; color: #fff; }
+.keyboard-body.persistent.kind .keyboard-btn.active { background: #66bb6a; color: #fff; }
+.keyboard-body.persistent.result .keyboard-btn.active { background: #ec407a; color: #fff; }
+
+/* ensure keyboard buttons have visible focus/active transitions */
+.keyboard-btn {
+  transition: background 0.12s ease, color 0.12s ease, transform 0.06s ease;
+}
+
 .btnGk {
   border-radius: 5px;
   height: 60px;

@@ -132,7 +132,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -151,7 +151,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -163,19 +163,22 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const setPersistentPlayers = () => {
     const keyboardConfig = {
       title: "選手（常時表示）",
-      btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number })),
+      btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p })),
       grid: "repeat(8, 1fr)" // 8列固定
     };
 
     return (
-      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, auto)', gap: '10px', marginTop: '10px' }}>
-        {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => {
-              setInputValues(prev => ({ ...prev, player: btn.value }));
-              append(String(btn.value));
-            }}
-            dangerouslySetInnerHTML={{ __html: btn.label }} />
-        ))}
+      <div className="keyboard-body persistent players" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, auto)', gap: '10px', marginTop: '10px' }}>
+        {keyboardConfig.btns.map((btn, idx) => {
+          const isActive = (typeof inputValues.player === 'object') ? String(inputValues.player.number) === String(btn.value.number) : String(inputValues.player) === String(btn.value.number);
+          return (
+            <button key={idx} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
+                setInputValues(prev => ({ ...prev, player: btn.value }));
+                append(String(btn.value.number));
+              }}
+              dangerouslySetInnerHTML={{ __html: btn.label }} />
+          );
+        })}
       </div>
     );
   }
@@ -194,9 +197,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     };
 
     return (
-      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent situation" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => {
+          <button key={idx} className={"keyboard-btn " + (String(inputValues.situation) === String(btn.value) ? 'active' : '')} onClick={() => {
               setInputValues(prev => ({ ...prev, situation: btn.value }));
             }}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
@@ -229,7 +232,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -258,9 +261,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       grid: "repeat(2, 1fr)"
     }
     return (
-      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent kind" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => setInputValues(prev => ({ ...prev, kind: btn.value }))}
+          <button key={idx} className={"keyboard-btn " + (String(inputValues.kind) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, kind: btn.value }))}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>
@@ -287,7 +290,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -361,9 +364,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       grid: "repeat(2, 1fr)"
     }
     return (
-      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent result" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className="keyboard-btn" onClick={() => setInputValues(prev => ({ ...prev, result: btn.value }))}
+          <button key={idx} className={"keyboard-btn " + (String(inputValues.result) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, result: btn.value }))}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>
@@ -378,18 +381,21 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       title: "相手GK",
       component: (
         <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '10px', marginTop: '10px' }}>
-          {gkPlayers.map((p, idx) => (
-            <button key={idx} className="keyboard-btn" onClick={() => {
-              handleKeyboardClick(p.number);
-              setSelectedOppoGK(prev => {
-                const newArr = [...prev];
-                newArr[oppoTeam] = p.number;
-                return newArr;
-              });
-            }}>
-              <div>{p.number}<br />{p.shortname}</div>
-            </button>
-          ))}
+          {gkPlayers.map((p, idx) => {
+            const isActive = String(selectedOppoGK[oppoTeam]) === String(p.number);
+            return (
+              <button key={idx} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
+                handleKeyboardClick(p.number);
+                setSelectedOppoGK(prev => {
+                  const newArr = [...prev];
+                  newArr[oppoTeam] = p.number;
+                  return newArr;
+                });
+              }}>
+                <div>{p.number}<br />{p.shortname}</div>
+              </button>
+            );
+          })}
         </div>
       )
     };
@@ -421,7 +427,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
     return (
       <div className="keyboard-overlay" onClick={closeKeyboard}>
-        <div className="keyboard-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="keyboard-popup" data-keyboard-type={keyboardType} onClick={(e) => e.stopPropagation()}>
           <div className="keyboard-header">
             <div>{keyborad.title}</div>
             <button className="keyboard-close" onClick={closeKeyboard}>✕</button>
@@ -719,28 +725,21 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" }>
         <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
         <div className="row">
-          <table id="inputedValues" style={{border: "1px solid red", margin: "10px", backgroundColor: "rgba(255, 255, 255, 0.8)", width:"100%"}}>
-            <thead>
-              <tr>
-                <th>Situation</th>
-                <th>Player</th>
-                <th>Kind</th>
-                <th>Result</th>
-                <th>Shoot Area</th>
-                <th>Goal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td id="value_situ">{inputValues.situation}</td>
-                <td id="value_player">{inputValues.player}</td>
-                <td id="value_kind">{inputValues.kind}</td>
-                <td id="value_result">{inputValues.result}</td>
-                <td id="value_shoot_area">{inputValues.shootArea}</td>
-                <td id="value_goal">{inputValues.goal}</td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', gap: '6px', border: '1px solid red', margin: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
+            <div className="cell header">Situation</div>
+            <div className="cell header">Player</div>
+            <div className="cell header">Kind</div>
+            <div className="cell header">Result</div>
+            <div className="cell header">Shoot Area</div>
+            <div className="cell header">Goal</div>
+
+            <div className="cell value" id="value_situ">{inputValues.situation}</div>
+            <div className="cell value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
+            <div className="cell value" id="value_kind">{inputValues.kind}</div>
+            <div className="cell value" id="value_result">{inputValues.result}</div>
+            <div className="cell value" id="value_shoot_area">{inputValues.shootArea}</div>
+            <div className="cell value" id="value_goal">{inputValues.goal}</div>
+          </div>
         </div>
         <div className="row">
           <div style={{border: "1px solid red", padding: "10px", borderRadius: "4px", margin: "10px", backgroundColor: "rgba(255, 255, 255, 0.8)", width:"100%", height:"100%"}}>
