@@ -389,16 +389,6 @@
   grid-column: span 3;
 }
 
-.btnHalf {
-  border-radius: 5px;
-  height: 60px;
-  color: white;
-  background: darkblue;
-  font-size: large;
-  font-weight: bold;
-  cursor: pointer;
-  user-select: none;
-}
 
 /* Active key styles per keyboard type */
 .keyboard-btn.active {

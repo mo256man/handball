@@ -2,7 +2,7 @@
  * プレイヤークラス
  */
 export class Player {
-    constructor({ id = null, number = "", name = "", position = "", teamId = null, shortname = "", isOnBench = true } = {}) {
+    constructor({ id = null, number = "", name = "", position = "", teamId = null, shortname = "", isOnBench = true, isPnalty = false, penaltyTime = 0 } = {}) {
         this.id = id;
         this.number = number;
         this.name = name;
@@ -10,6 +10,8 @@ export class Player {
         this.teamId = teamId;
         this.shortname = shortname;
         this.isOnBench = isOnBench;
+        this.isPnalty = isPnalty;
+        this.penaltyTime = penaltyTime;
     }
 
     /**
@@ -26,7 +28,9 @@ export class Player {
             position: memberData.position || "",
             teamId: memberData.teamId ?? null,
             shortname: memberData.shortname || "",
-            isOnBench: isOnBench
+            isOnBench: isOnBench,
+            isPnalty: false,
+            penaltyTime: memberData.penaltyTime ?? 0
         });
     }
 
@@ -42,7 +46,9 @@ export class Player {
             position: this.position,
             teamId: this.teamId,
             shortname: this.shortname,
-            isOnBench: this.isOnBench
+            isOnBench: this.isOnBench,
+            isPnalty: this.isPnalty,
+            penaltyTime: this.penaltyTime
         };
     }
 }

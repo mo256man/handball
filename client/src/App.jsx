@@ -37,6 +37,9 @@ function App() {
   const [matchDate, setMatchDate] = useState(null);
   const [outputSelectedTab, setOutputSelectedTab] = useState(0);
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [score1st, setScore1st] = useState([0, 0]);
+  const [score2nd, setScore2nd] = useState([0, 0]);
+  const [score, setScore] = useState([0, 0]);
 
   // データベースからteamsとplayersを取得
   useEffect(() => {
@@ -66,6 +69,11 @@ function App() {
       setAppOutputSheet(currentView);
     }
   }, [currentView]);
+
+  // score = score1st + score2nd
+  useEffect(() => {
+    setScore([score1st[0] + score2nd[0], score1st[1] + score2nd[1]]);
+  }, [score1st, score2nd]);
 
 
     const [match, setMatch] = useState({
@@ -156,6 +164,12 @@ function App() {
       isEditor={isEditor}
       matchId={selectedMatch?.matchId ?? matchId}
       matchDate={selectedMatch?.matchDate}
+      score1st={score1st}
+      setScore1st={setScore1st}
+      score2nd={score2nd}
+      setScore2nd={setScore2nd}
+      score={score}
+      setScore={setScore}
     />;
   } else if (currentView === "inputSheet") {
     content = <InputSheet
@@ -169,6 +183,12 @@ function App() {
       appOutputSheet={appOutputSheet}
       setAppOutputSheet={setAppOutputSheet}
       isEditor={isEditor}
+      score1st={score1st}
+      setScore1st={setScore1st}
+      score2nd={score2nd}
+      setScore2nd={setScore2nd}
+      score={score}
+      setScore={setScore}
     />;
   } else if (currentView === "inputTable") {
     content = <InputTable
@@ -182,6 +202,12 @@ function App() {
       appOutputSheet={appOutputSheet}
       setAppOutputSheet={setAppOutputSheet}
       isEditor={isEditor}
+      score1st={score1st}
+      setScore1st={setScore1st}
+      score2nd={score2nd}
+      setScore2nd={setScore2nd}
+      score={score}
+      setScore={setScore}
     />;
   } else if (currentView === "outputMenu") {
     content = <OutputMenu 

@@ -3,6 +3,15 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 const { loadDatabase, closeDatabase, queryAll, queryRun, saveDatabase } = require('./database');
+const path = require('path');
+const { exec } = require('child_process');
+// try to load node-wifi for cross-platform WiFi info if available
+let nodeWifi = null;
+try {
+    nodeWifi = require('node-wifi');
+} catch (e) {
+    nodeWifi = null;
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +26,14 @@ const PORT = 3001;
 // ミドルウェア設定
 app.use(cors());
 app.use(express.json());
+// 静的ファイルを配信（クライアントの index.html 等）
+// サーバーディレクトリ内の静的ファイルを配信（index.html を server フォルダに置く）
+app.use(express.static(path.join(__dirname)));
+
+// ルートアクセス時は server/index.html を返す
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 let db; // グローバルなデータベース接続
 
@@ -326,6 +343,104 @@ app.get('/api/getMatch', async (req, res) => {
     } catch (error) {
         console.error('マッチデータ取得エラー:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// API: WiFi / AP モードと SSID を返す（最良推定）
+app.get('/api/wifi', async (req, res) => {
+    try {
+        let mode = 'unknown';
+        let ssid = '';
+
+        // If node-wifi is available, try it first (cross-platform)
+        if (nodeWifi) {
+            try {
+                nodeWifi.init({ iface: null });
+                const connections = await new Promise((resolve, reject) => {
+                    nodeWifi.getCurrentConnections((err, current) => {
+                        if (err) return reject(err);
+                        resolve(current || []);
+                    });
+                });
+                if (connections && connections.length > 0) {
+                    mode = 'wifi';
+                    ssid = connections[0].ssid || '';
+                }
+            } catch (e) {
+                console.warn('node-wifi lookup failed, falling back to platform commands:', e && e.message);
+            }
+        }
+
+        // If node-wifi didn't find anything, fall back to platform-specific commands
+        if (mode === 'unknown') {
+            const platform = process.platform;
+
+            const run = (cmd) => new Promise((resolve) => {
+                exec(cmd, { timeout: 2000 }, (err, stdout, stderr) => {
+                    if (err) return resolve({ ok: false, out: '' });
+                    resolve({ ok: true, out: String(stdout || '') });
+                });
+            });
+
+            if (platform === 'win32') {
+                // Windows: try netsh
+                const r = await run('netsh wlan show interfaces');
+                if (r.ok && /State\s*:\s*connected/i.test(r.out)) {
+                    mode = 'wifi';
+                    const m = r.out.match(/SSID\s*:\s*(.+)/i);
+                    if (m) ssid = m[1].trim();
+                } else {
+                    const h = await run('netsh wlan show hostednetwork');
+                    if (h.ok && /Status\s*:\s*Started/i.test(h.out)) {
+                        mode = 'ap';
+                        const m2 = h.out.match(/SSID name\s*:\s*"?([^"\r\n]+)"?/i);
+                        if (m2) ssid = m2[1].trim();
+                    }
+                }
+            } else if (platform === 'linux') {
+                // Linux: try iwgetid for connected SSID
+                const r = await run('iwgetid -r');
+                if (r.ok && r.out.trim()) {
+                    mode = 'wifi';
+                    ssid = r.out.trim();
+                } else {
+                    // check for hostapd process
+                    const h = await run('pgrep hostapd');
+                    if (h.ok && h.out.trim()) {
+                        mode = 'ap';
+                        // attempt to read /etc/hostapd/hostapd.conf SSID
+                        const c = await run('grep -i "^ssid=" /etc/hostapd/hostapd.conf || true');
+                        const m = c.ok && c.out.match(/ssid\s*=\s*(.+)/i);
+                        if (m) ssid = m[1].trim();
+                    }
+                }
+            } else if (platform === 'darwin') {
+                // macOS: try airport
+                const r = await run('/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I');
+                if (r.ok && /SSID:\s*([^\n]+)/.test(r.out)) {
+                    mode = 'wifi';
+                    const m = r.out.match(/SSID:\s*([^\n]+)/);
+                    if (m) ssid = m[1].trim();
+                }
+            }
+        }
+
+        // gather local IPv4 addresses
+        const os = require('os');
+        const networkInterfaces = os.networkInterfaces();
+        const ips = [];
+        Object.keys(networkInterfaces).forEach((name) => {
+            networkInterfaces[name].forEach((iface) => {
+                if (iface.family === 'IPv4' && !iface.internal) {
+                    ips.push(iface.address);
+                }
+            });
+        });
+
+        res.json({ success: true, mode, ssid, ips });
+    } catch (error) {
+        console.error('wifi info error:', error);
+        res.json({ success: false, mode: 'unknown', ssid: '' });
     }
 });
 

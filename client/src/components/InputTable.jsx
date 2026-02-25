@@ -3,7 +3,7 @@ import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
 import "./style_input.css";
 
-export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet }) {
+export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet, score1st, setScore1st, score2nd, setScore2nd, score, setScore }) {
 
   // 相手GK選択値
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
@@ -19,6 +19,60 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   const [items, setItems] = useState([]);
   const [setPlayStr, setSetPlayStr] = useState("");
+
+  // Timer state
+  const [timerSec, setTimerSec] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const timerRef = useRef(null);
+
+  const formatTime = (sec) => {
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = (sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const startTimer = () => {
+    if (isTimerRunning) return;
+    setIsTimerRunning(true);
+    timerRef.current = setInterval(() => {
+      setTimerSec(prev => prev + 1);
+    }, 1000);
+  };
+
+  const pauseTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsTimerRunning(false);
+  };
+
+  const toggleTimer = () => {
+    if (isTimerRunning) {
+      pauseTimer();
+    } else {
+      startTimer();
+    }
+  };
+
+  const resetTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsTimerRunning(false);
+    setTimerSec(0);
+  };
+
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, []);
 
 
 
@@ -517,6 +571,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         isAtk: isAtk,
         isSht: isSht,
         isFB: isFB,
+        time: formatTime(timerSec),
       };
 
       // サーバーに送信
@@ -530,6 +585,22 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       if (response.ok) {
         const result = await response.json();
         // alert("登録しました");
+        // スコアを更新（result="g"の場合）
+        if (inputValues.result === 'g') {
+          if (currentHalf === "前半") {
+            setScore1st(prev => {
+              const newScore = [...prev];
+              newScore[offenseTeam] += 1;
+              return newScore;
+            });
+          } else {
+            setScore2nd(prev => {
+              const newScore = [...prev];
+              newScore[offenseTeam] += 1;
+              return newScore;
+            });
+          }
+        }
         // 入力値をリセット
         setInputValues({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
         setIsConfirmAvailable(false);
@@ -708,6 +779,58 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   // const content =  renderContent();
 
+  const renderTimer = () => {
+    return (
+      <div id="timer">
+        <div className="btnHalf" onClick={changeHalf}>{currentHalf}</div>
+        <div className="time">{formatTime(timerSec)}</div>
+        <div className="btns">
+          <div className="btn" onClick={toggleTimer}>{isTimerRunning ? "⏸" : "▶"}</div>
+          <div className="btn" onClick={resetTimer}>■</div>
+        </div>
+      </div>
+    );
+  }
+
+  const renderScore = () => {
+    return (
+      <div id="score">
+        <table className="tableTeamName">
+          <tr><td style={{"textAlign":"left"}}>{teams[0].shortname}</td><td style={{"textAlign":"right"}}>{teams[1].shortname}</td></tr>
+        </table>
+        <table className="tableScore">
+          <tr><th>{score[0]}</th><th></th><th>{score[1]}</th></tr>
+          <tr><td className="text">{score1st[0]}</td><td className="text">前半</td><td className="text">{score1st[1]}</td></tr>
+          <tr><td className="text">{score2nd[0]}</td><td className="text">後半</td><td className="text">{score2nd[1]}</td></tr>
+        </table>
+      </div>
+    );
+  }
+
+  const renderPenalty = () => {
+    return (
+      <div id="penalty">
+        <div>Penalty</div>
+        {teams[0].shortname}<br />
+        <div id="penalty0">
+        </div>
+        {teams[1].shortname}<br />
+        <div id="penalty1">
+        </div>
+      </div>
+    );
+  }
+
+  const renderPenaltyBtns = () => {
+    return (
+      <div id="penaltyBtns">
+        <div onClick={() => {}}>🟨</div>
+        <div onClick={() => {}}>✌</div>
+        <div onClick={() => {}}>⏲</div>
+      </div>
+    );
+  }
+
   const renderTablet = () => {
     const content = (
       <div className="base">
@@ -715,15 +838,28 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         <div className="header-title left">
           <div>{teams[0].shortname} vs {teams[1].shortname}</div>
           <div>{matchDate}</div>
-          <div id="matchId">{matchId ? `ID: ${matchId}` : ""}</div>
         </div>
         <div className="header-title right" style={{display: "flex"}}>
           <div onClick={() => setView(appOutputSheet)} className="header-icon header-btn">📋</div>
           <div onClick={() => setView("inputMatch")} className="header-icon header-btn">🔙</div>
         </div>
       </div>
-      <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" }>
+      <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" } style={{background: "lightpink"}}>
         <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
+        <div className="mainContainer">
+          <div className="column">
+            {renderTimer()}
+            {renderScore()}
+            {renderPenalty()}
+            {renderPenaltyBtns()}
+          </div>
+          <div className="column">
+            222
+          </div>
+
+
+        </div>
+        {/* コメント 
         <div className="row">
           <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', gap: '6px', border: '1px solid red', margin: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
             <div className="cell header">Situation</div>
@@ -778,6 +914,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             </div>
         </div>
         </div>
+        */}
       </div>
       <div className="footer">
         <div className="btnStartContainer">

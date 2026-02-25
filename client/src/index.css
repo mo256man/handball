@@ -519,3 +519,115 @@ input.passName {
   font-size: x-large;
   margin: 0 20px;
   text-align: left;}
+
+.mainContainer {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 8fr; /* 幅比率 */
+  gap: 10px;
+}
+
+.mainContainer > .column {
+  background: lightgray;
+  height: 100%;
+}
+
+#timer {
+  border-radius: 10px;
+  background: lightgreen;
+  margin: 5px 2px;
+  text-align: center;
+}
+
+#timer > .btnHalf {
+  border-radius: 5px;
+  color: white;
+  background: darkblue;
+  font-size: x-large;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  margin: 4px;
+}
+
+#timer > .time {
+  font-size: xx-large;
+  padding: 2px 2px;
+  background: lightgray;
+  font-family: "Consolas", "Courier New", monospace;
+}
+
+#timer > .btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 4px;
+}
+
+#timer > .btns > .btn {
+  border-radius: 5px;
+  color: white;
+  background: darkslategray;
+  font-size: large;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  margin: 4px;
+  white-space: nowrap;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 32px;
+  aspect-ratio: 1 / 1;
+}
+
+#score {
+  border-radius: 10px;
+  background: lightgreen;
+  margin: 5px 2px;
+  text-align: center;
+}
+
+#score > table.tableTeamName {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#score > table.tableTeamName > tr > td {
+  width: 50%;
+  font-size: large;
+  font-weight: bold;
+}
+
+#score > table.tableScore {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#score > table.tableScore > tr > th {
+  font-size: large;
+  font-weight: bold;
+  border: none;
+}
+
+#score > table.tableScore > tr > td.score {
+  width: 40%;
+  font-size: normal;
+}
+
+#score > table.tableScore > tr > td.text {
+  font-size: normal;
+}
+
+#penalty {
+  border-radius: 10px;
+  background: lightgreen;
+  margin: 5px 2px;
+}
+
+#penaltyBtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}

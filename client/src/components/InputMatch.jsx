@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Player } from "../models/Player";
 import "./style_input.css";
 import { ja } from "date-fns/locale";
-import { insertMatch, updateMatch, getMatchById } from "../api";
+import { insertMatch, updateMatch, getMatchById, getRecordsByMatchId } from "../api";
 
 export default function InputMatch(
-  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, setMatchDate, isEditor, matchId, matchDate, offenseTeam, setOffenseTeam}) {
+  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, setMatchDate, isEditor, matchId, matchDate, offenseTeam, setOffenseTeam, score1st, setScore1st, score2nd, setScore2nd, score, setScore}) {
   const [disabled, setDisabled] = useState([true, false]);
   const [canSelectPlayers, setCanSelectPlayers] = useState(true);
   const [playerLocked, setPlayerLocked] = useState(true);
@@ -41,6 +41,19 @@ export default function InputMatch(
             .map(p => new Player({ ...p, isOnBench: playerIds1.includes(p.id) }));
           
           setPlayers([playersForTeam0, playersForTeam1]);
+
+          // スコアを初期化（result="g"のレコード数をカウント）
+          const records = await getRecordsByMatchId(matchId);
+          const team0Goals = records.filter(r => r.teamId === match.team0 && r.result === 'g');
+          const team1Goals = records.filter(r => r.teamId === match.team1 && r.result === 'g');
+          
+          const team0Goals1st = team0Goals.filter(r => r.half === '前半').length;
+          const team0Goals2nd = team0Goals.filter(r => r.half === '後半').length;
+          const team1Goals1st = team1Goals.filter(r => r.half === '前半').length;
+          const team1Goals2nd = team1Goals.filter(r => r.half === '後半').length;
+          
+          setScore1st([team0Goals1st, team1Goals1st]);
+          setScore2nd([team0Goals2nd, team1Goals2nd]);
         } catch (error) {
           console.error('match データ取得エラー:', error);
         }
@@ -117,6 +130,10 @@ export default function InputMatch(
         setMatchId(result.matchId);
         setMatchDate(matchDate);
         setPlayers([benchPlayers0, benchPlayers1]);
+        // スコアを初期化
+        setScore1st([0, 0]);
+        setScore2nd([0, 0]);
+        setScore([0, 0]);
       }
       else {
         // 既存マッチを更新

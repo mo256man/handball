@@ -3,7 +3,7 @@ import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
 import "./style_input.css";
 
-export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet }) {
+export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet, score1st, setScore1st, score2nd, setScore2nd, score, setScore }) {
 
   // 相手GK選択値
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
@@ -19,6 +19,16 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   const [items, setItems] = useState([]);
   const [setPlayStr, setSetPlayStr] = useState("");
+
+  // Timer state
+  const [timerSec, setTimerSec] = useState(0);
+  const timerRef = useRef(null);
+
+  const formatTime = (sec) => {
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = (sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
 
 
@@ -415,6 +425,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         isAtk: isAtk,
         isSht: isSht,
         isFB: isFB,
+        time: formatTime(timerSec),
       };
 
       // サーバーに送信
@@ -428,6 +439,22 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       if (response.ok) {
         const result = await response.json();
         // alert("登録しました");
+        // スコアを更新（result="g"の場合）
+        if (inputValues.result === 'g') {
+          if (currentHalf === "前半") {
+            setScore1st(prev => {
+              const newScore = [...prev];
+              newScore[offenseTeam] += 1;
+              return newScore;
+            });
+          } else {
+            setScore2nd(prev => {
+              const newScore = [...prev];
+              newScore[offenseTeam] += 1;
+              return newScore;
+            });
+          }
+        }
         // 入力値をリセット
         setInputValues({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
         setIsConfirmAvailable(false);

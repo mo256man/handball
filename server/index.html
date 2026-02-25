@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WiFi / AP Status</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; padding: 20px; }
+    .card { border: 1px solid #ddd; padding: 16px; border-radius: 8px; max-width: 480px; }
+    .label { color: #666; font-size: 14px; }
+    .value { font-size: 20px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Network Mode / SSID</h1>
+  <div class="card">
+    <div class="label">Mode</div>
+    <div id="mode" class="value">--</div>
+    <div class="label" style="margin-top:12px;">SSID</div>
+    <div id="ssid" class="value">--</div>
+    <div class="label" style="margin-top:12px;">IPs</div>
+    <div id="ips" class="value">--</div>
+    <div style="margin-top:12px;"><button id="refresh">Refresh</button></div>
+  </div>
+
+  <script>
+    async function update() {
+      try {
+        const r = await fetch('/api/wifi');
+        const j = await r.json();
+        if (j && j.success) {
+          document.getElementById('mode').textContent = j.mode || 'unknown';
+          document.getElementById('ssid').textContent = j.ssid || '-';
+          document.getElementById('ips').textContent = (j.ips && j.ips.length) ? j.ips.join(', ') : '-';
+        } else {
+          document.getElementById('mode').textContent = 'unknown';
+          document.getElementById('ssid').textContent = '-';
+          document.getElementById('ips').textContent = '-';
+        }
+      } catch (e) {
+        document.getElementById('mode').textContent = 'error';
+        document.getElementById('ssid').textContent = '-';
+        document.getElementById('ips').textContent = '-';
+      }
+    }
+    document.getElementById('refresh').addEventListener('click', update);
+    update();
+  </script>
+</body>
+</html>
