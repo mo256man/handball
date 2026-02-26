@@ -20,6 +20,8 @@
     <div id="ssid" class="value">--</div>
     <div class="label" style="margin-top:12px;">IPs</div>
     <div id="ips" class="value">--</div>
+    <div class="label" style="margin-top:12px;">ここにアクセス</div>
+    <div id="access" class="value">--</div>
     <div style="margin-top:12px;"><button id="refresh">Refresh</button></div>
   </div>
 
@@ -31,16 +33,25 @@
         if (j && j.success) {
           document.getElementById('mode').textContent = j.mode || 'unknown';
           document.getElementById('ssid').textContent = j.ssid || '-';
-          document.getElementById('ips').textContent = (j.ips && j.ips.length) ? j.ips.join(', ') : '-';
+          const ipsText = (j.ips && j.ips.length) ? j.ips.join(', ') : '-';
+          document.getElementById('ips').textContent = ipsText;
+          const ipForUrl = (j.ips && j.ips.length) ? j.ips[0] : null;
+          if (ipForUrl) {
+            document.getElementById('access').innerHTML = `http://${ipForUrl}:5173/`;
+          } else {
+            document.getElementById('access').textContent = j.access || '-';
+          }
         } else {
           document.getElementById('mode').textContent = 'unknown';
           document.getElementById('ssid').textContent = '-';
           document.getElementById('ips').textContent = '-';
+          document.getElementById('access').textContent = '-';
         }
       } catch (e) {
         document.getElementById('mode').textContent = 'error';
         document.getElementById('ssid').textContent = '-';
         document.getElementById('ips').textContent = '-';
+        document.getElementById('access').textContent = '-';
       }
     }
     document.getElementById('refresh').addEventListener('click', update);

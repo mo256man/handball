@@ -245,7 +245,6 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         { label: "▲", value: "+" },
         { label: "7", value: "7" },
         { label: "▼", value: "-" },
-        { label: "（消）", value: "" },
       ],
       grid: "1fr"
     };
@@ -253,10 +252,15 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     return (
       <div className="keyboard-body persistent situation" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className={"keyboard-btn " + (String(inputValues.situation) === String(btn.value) ? 'active' : '')} onClick={() => {
-              setInputValues(prev => ({ ...prev, situation: btn.value }));
+          <button
+            key={idx}
+            className={"keyboard-btn " + (String(inputValues.situation) === String(btn.value) ? 'active' : '')}
+            onClick={() => {
+              // 同じボタンを2回押したら値を消去する（トグル動作）
+              setInputValues(prev => ({ ...prev, situation: String(prev.situation) === String(btn.value) ? '' : btn.value }));
             }}
-            dangerouslySetInnerHTML={{ __html: btn.label }} />
+            dangerouslySetInnerHTML={{ __html: btn.label }}
+          />
         ))}
       </div>
     );
@@ -279,7 +283,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             { label: '7', value: '7' },
             { label: '（消）', value: '' },
       ],
-      grid: "repeat(2, 1fr)"
+      grid: "repeat(4, 1fr)"
     }
     const result = {
       title: keyboardConfig.title,
@@ -312,7 +316,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             { label: '7', value: '7' },
             { label: '（消）', value: '' },
       ],
-      grid: "repeat(2, 1fr)"
+      grid: "repeat(4, 1fr)"
     }
     return (
       <div className="keyboard-body persistent kind" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
@@ -453,6 +457,30 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         </div>
       )
     };
+  }
+
+  // 相手チームのGKを常時表示するバージョン（ポップアップではなく常時表示）
+  const setPersistentOppoGK = () => {
+    const gkPlayers = players[oppoTeam].filter(p => p.position === "GK");
+    const gridCols = `repeat(${gkPlayers.length || 1}, 1fr)`;
+    return (
+      <div className="keyboard-body persistent oppoGK" style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '10px', marginTop: '10px' }}>
+        {gkPlayers.map((p, idx) => {
+          const isActive = String(selectedOppoGK[oppoTeam]) === String(p.number);
+          return (
+            <button key={idx} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
+              setSelectedOppoGK(prev => {
+                const newArr = [...prev];
+                newArr[oppoTeam] = p.number;
+                return newArr;
+              });
+            }}>
+              <div>{p.number}<br />{p.shortname}</div>
+            </button>
+          );
+        })}
+      </div>
+    );
   }
 
 
@@ -852,14 +880,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             {renderScore()}
             {renderPenalty()}
             {renderPenaltyBtns()}
+            {setPersistentOppoGK()}
           </div>
           <div className="column">
-            222
-          </div>
-
-
-        </div>
-        {/* コメント 
         <div className="row">
           <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', gap: '6px', border: '1px solid red', margin: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
             <div className="cell header">Situation</div>
@@ -914,7 +937,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             </div>
         </div>
         </div>
-        */}
+        </div>
+
+
+        </div>
       </div>
       <div className="footer">
         <div className="btnStartContainer">
