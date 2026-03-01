@@ -176,46 +176,6 @@ table.inputTable td{
 }
 
 
-/* まとめるラッパー */
-.group {
-  /* ラベル寸法（調整値のみ） */
-  --label-height: 24px;
-  position: relative;
-  display: inline-block;
-  padding-top: calc(var(--label-height) / 2);
-  margin: 5px;
-}
-
-.label {
-  position: absolute;
-  font-size: small;
-  left: 15px;
-  top: 0;
-  height: var(--label-height);
-  line-height: var(--label-height);
-  padding: 0 10px;
-  border: 1px solid black;
-  background: white;
-  white-space: nowrap;
-  box-sizing: border-box;
-  z-index: 1;
-  user-select: none;
-}
-
-.container {
-  border-radius: 12px;
-  border: 1px solid black;
-  background: white;
-  padding: 16px 5px 5px 5px;
-  min-width: 120px;
-  box-sizing: border-box;
-
-  /* ラベルの縦中央にコンテナ上端を合わせるため、半分だけ下げる */
-  margin-top: calc(-var(--label-height) / 2);
-}
-
-
-
 .playerInput {
   font-size: xx-large;
   width: 50px;
@@ -630,4 +590,28 @@ input.passName {
 #penaltyBtns {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+}
+
+
+.group {
+  border: 1px solid green;
+  display: inline-block;
+  padding: 2px;
+}
+
+.label {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid black;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: white;
+  font-size: small;
+  font-weight: bold;
+}
+
+.content {
+  border: 1px solid black;
+  padding: 12px;
+  background: white;
 }

@@ -891,7 +891,6 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             <div className="cell header">Result</div>
             <div className="cell header">Shoot Area</div>
             <div className="cell header">Goal</div>
-
             <div className="cell value" id="value_situ">{inputValues.situation}</div>
             <div className="cell value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
             <div className="cell value" id="value_kind">{inputValues.kind}</div>
@@ -901,25 +900,22 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           </div>
         </div>
         <div className="row">
-          <div style={{border: "1px solid red", padding: "10px", borderRadius: "4px", margin: "10px", backgroundColor: "rgba(255, 255, 255, 0.8)", width:"100%", height:"100%"}}>
+          <div style={{flex: "1 1 auto"}}>
             <div className="row">
-              <div id="areaSitu" style={{border: "1px solid red"}}>{setPersistentSituation()}</div>
-              <div id="areaNumber" style={{border: "1px solid red"}}>{setPersistentPlayers()}</div>
-              <div id="areaArea" style={{ width: '100%' }}>
-                  <div style={{ display: 'inline-block' }}>
-                  <DrawShootArea
-                    width="100%"
-                    height="auto"
-                    onClick={(type, value) => {
-                      if (type === "area") {
-                        setInputValues(prev => ({ ...prev, shootArea: value }));
-                      }
-                    }}
-                  />
+              <div className="group">
+                <div className="label">Player</div>
+                <div className="content">
+                  <div id="areaNumber" style={{border: "1px solid red"}}>{setPersistentPlayers()}</div>
                 </div>
               </div>
             </div>
-            <div className="row" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+            <div className="row">
+              <div className="group">
+                <div className="label">Situ</div>
+                <div className="content ">
+                  <div id="areaSitu" style={{border: "1px solid red"}}>{setPersistentSituation()}</div>
+                </div>
+              </div>
               <div style={{ flex: 1 }}>
                 <div id="areaKindWrapper" style={{ position: 'relative', width: '100%', minHeight: '320px' }}>
                   <div id="areaKindBack" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
@@ -927,16 +923,52 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                       <DrawShootArea width="100%" height="100%" showText={false} />
                     </div>
                   </div>
-                  <div id="areaKind" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
-                    {setPersistentKind()}
+                  <div className="group">
+                    <div className="label">Kind</div>
+                    <div className="content">
+                      <div id="areaKind" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+                        {setPersistentKind()}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div id="areaResult">{setPersistentResult()}</div>
-              <div id="areaGoal" style={{border: "1px solid red"}}>{setPersistentGoal()}</div>
+              <div className="group">
+                <div className="label">Result</div>
+                <div className="content">
+                  <div id="areaResult">{setPersistentResult()}</div>
+                </div>
+              </div>
             </div>
+          </div>
+          <div style={{display: "flex", flexDirection:"column"}}>
+            <div className="group">
+              <div className="label">Area</div>
+              <div className="content ">
+                <div id="areaArea" style={{ width: '100%' }}>
+                    <div style={{ display: 'inline-block' }}>
+                    <DrawShootArea
+                      width="100%"
+                      height="auto"
+                      onClick={(type, value) => {
+                        if (type === "area") {
+                          setInputValues(prev => ({ ...prev, shootArea: value }));
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+              <div className="group">
+                <div className="label">Goal</div>
+                <div className="content ">
+                  <div id="areaGoal" style={{border: "1px solid red"}}>{setPersistentGoal()}</div>
+                </div>
+              </div>
+          </div>
         </div>
-        </div>
+
         </div>
 
 
