@@ -38,7 +38,7 @@ const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, 
   const labelBox = (x, y, w = 48, h = 20) => ({ x: x - w / 2, y: y - h / 2, w, h });
 
   return (
-    <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${viewBoxW} ${viewBoxH}`}>
+    <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${viewBoxW} ${viewBoxH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%', display: 'block' }}>
       <path d={createSectorPath(85 + x0, 10 + y0, 130, 90, 135)} fill="lightyellow" onClick={() => onClick("area", "L9")} className="shootArea"/>
       <path d={createSectorPath(115 + x0, 10 + y0, 130, 45, 90)} fill="lightyellow" onClick={() => onClick("area", "R9")} className="shootArea" />
       <path d={createSectorPath(85 + x0, 10 + y0, 90, 90, 135)} fill="lightblue" onClick={() => onClick("area", "L6")} className="shootArea" />

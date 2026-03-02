@@ -392,14 +392,14 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   const setPersistentGoal = () => {
     return (
-      <div className="keyboard-body" style={{ marginTop: '10px' }}>
+      <div className="keyboard-body" style={{ marginTop: '10px', height: '100%' }}>
         <DrawGoal
           drawOut={true}
           onClick={(_type, value) => {
             setInputValues(prev => ({ ...prev, goal: value }));
           }}
           width="100%"
-          height="auto"
+          height="100%"
         />
       </div>
     );
@@ -875,33 +875,33 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" } style={{background: "lightpink"}}>
         <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
         <div className="mainContainer">
-          <div className="column">
-            {renderTimer()}
+          <div id="leftColumn" className="column">
+            {/* {renderTimer()}
             {renderScore()}
             {renderPenalty()}
             {renderPenaltyBtns()}
-            {setPersistentOppoGK()}
+            {setPersistentOppoGK()} */}
           </div>
-          <div className="column">
-        <div className="row">
-          <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', gap: '6px', border: '1px solid red', margin: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
-            <div className="cell header">Situation</div>
-            <div className="cell header">Player</div>
-            <div className="cell header">Kind</div>
-            <div className="cell header">Result</div>
-            <div className="cell header">Shoot Area</div>
-            <div className="cell header">Goal</div>
-            <div className="cell value" id="value_situ">{inputValues.situation}</div>
-            <div className="cell value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
-            <div className="cell value" id="value_kind">{inputValues.kind}</div>
-            <div className="cell value" id="value_result">{inputValues.result}</div>
-            <div className="cell value" id="value_shoot_area">{inputValues.shootArea}</div>
-            <div className="cell value" id="value_goal">{inputValues.goal}</div>
+        <div id="rightColumn" className="column" style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+          <div className="row" style={{flex: '0 0 auto'}}>
+            <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', gap: '6px', border: '1px solid red', margin: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
+              <div className="cell header">Situation</div>
+              <div className="cell header">Player</div>
+              <div className="cell header">Kind</div>
+              <div className="cell header">Result</div>
+              <div className="cell header">Shoot Area</div>
+              <div className="cell header">Goal</div>
+              <div className="cell value" id="value_situ">{inputValues.situation}</div>
+              <div className="cell value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
+              <div className="cell value" id="value_kind">{inputValues.kind}</div>
+              <div className="cell value" id="value_result">{inputValues.result}</div>
+              <div className="cell value" id="value_shoot_area">{inputValues.shootArea}</div>
+              <div className="cell value" id="value_goal">{inputValues.goal}</div>
+            </div>
           </div>
-        </div>
-        <div className="row">
-          <div style={{flex: "1 1 auto"}}>
-            <div className="row">
+        <div id="inputArea" className="row" style={{flex: 1, display: 'flex', flexDirection: 'row', height: '100%', border: '1px solid red'}}>
+          <div style={{flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0}}>
+            {/* <div className="row">
               <div className="group">
                 <div className="label">Player</div>
                 <div className="content">
@@ -939,33 +939,35 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                   <div id="areaResult">{setPersistentResult()}</div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
-          <div style={{display: "flex", flexDirection:"column"}}>
-            <div className="group">
-              <div className="label">Area</div>
-              <div className="content ">
-                <div id="areaArea" style={{ width: '100%' }}>
-                    <div style={{ display: 'inline-block' }}>
-                    <DrawShootArea
-                      width="100%"
-                      height="auto"
-                      onClick={(type, value) => {
-                        if (type === "area") {
-                          setInputValues(prev => ({ ...prev, shootArea: value }));
-                        }
-                      }}
-                    />
+          <div id="map_column" style={{display: "flex", flexDirection:"column", height:"100%", flex: 1}}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div className="group" style={{ flex: 1, minHeight: 0 }}>
+                <div className="label">Area</div>
+                <div className="content ">
+                  <div id="areaArea" style={{ width: '100%', height: '100%' }}>
+                    <div style={{ display: 'block', height: '100%' }}>
+                      <DrawShootArea
+                        width="100%"
+                        height="100%"
+                        onClick={(type, value) => {
+                          if (type === "area") {
+                            setInputValues(prev => ({ ...prev, shootArea: value }));
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-              <div className="group">
+              <div className="group" style={{ flex: 1, minHeight: 0 }}>
                 <div className="label">Goal</div>
                 <div className="content ">
                   <div id="areaGoal" style={{border: "1px solid red"}}>{setPersistentGoal()}</div>
                 </div>
               </div>
+            </div>
           </div>
         </div>
 

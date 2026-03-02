@@ -491,6 +491,10 @@ input.passName {
 .mainContainer > .column {
   background: lightgray;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* allow children to not overflow */
+  overflow: hidden;
 }
 
 #timer {
@@ -595,12 +599,16 @@ input.passName {
 
 .group {
   border: 1px solid green;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
   padding: 2px;
+  min-height: 0;
 }
 
-.label {
+.group .label {
+  flex: 0 0 auto;
   display: inline-block;
+  align-self: flex-start;
   padding: 4px 12px;
   border: 1px solid black;
   border-bottom: none;
@@ -610,8 +618,35 @@ input.passName {
   font-weight: bold;
 }
 
-.content {
+.group .content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   border: 1px solid black;
   padding: 12px;
   background: white;
+  min-height: 0;
+}
+
+/* テキストは下側を隠す（スクロールさせない） */
+.group .content {
+  overflow: hidden;
+  position: relative;
+}
+
+/* content 内の直下要素はパディング領域内にフィットするよう絶対配置して高さを親に合わせる */
+.group .content > * {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  box-sizing: border-box;
+}
+
+/* 改行を含む文字列を表示する際に使うクラス（下部はクリップされる） */
+.prewrap {
+  white-space: pre-wrap;
+  overflow: hidden;
+  height: 100%;
 }
