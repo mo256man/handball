@@ -626,21 +626,35 @@ input.passName {
   padding: 12px;
   background: white;
   min-height: 0;
+  overflow: auto;
 }
 
-/* テキストは下側を隠す（スクロールさせない） */
-.group .content {
+/* content 内の直下要素は通常レイアウト */
+.group .content > * {
+  position: static;
+  box-sizing: border-box;
+}
+
+/* map_column内のgroupはFlexレイアウトを使用してSVGを表示 */
+#map_column .group {
+  flex: 1;
+  min-height: 0;
+}
+
+#map_column .group .content {
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
 }
 
-/* content 内の直下要素はパディング領域内にフィットするよう絶対配置して高さを親に合わせる */
-.group .content > * {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
+#map_column .group .content > * {
+  position: static;
+  width: 100%;
+  max-height: 100%;
   box-sizing: border-box;
 }
 

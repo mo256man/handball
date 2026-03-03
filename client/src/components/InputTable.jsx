@@ -901,7 +901,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           </div>
         <div id="inputArea" className="row" style={{flex: 1, display: 'flex', flexDirection: 'row', height: '100%', border: '1px solid red'}}>
           <div style={{flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0}}>
-            {/* <div className="row">
+            <div className="row">
               <div className="group">
                 <div className="label">Player</div>
                 <div className="content">
@@ -939,10 +939,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                   <div id="areaResult">{setPersistentResult()}</div>
                 </div>
               </div>
-            </div> */}
+            </div>
           </div>
           <div id="map_column" style={{display: "flex", flexDirection:"column", height:"100%", flex: 1}}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div className="group" style={{ flex: 1, minHeight: 0 }}>
                 <div className="label">Area</div>
                 <div className="content ">
