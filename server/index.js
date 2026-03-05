@@ -279,6 +279,57 @@ app.post('/api/record', async (req, res) => {
     }
 });
 
+// APIエンドポイント: 前のrecord取得（matchId内で現在のidより小さい最大のid）
+app.get('/api/record/:matchId/prev/:currentId', async (req, res) => {
+    try {
+        const { matchId, currentId } = req.params;
+        const query = `SELECT * FROM record WHERE matchId = ? AND id < ? ORDER BY id DESC LIMIT 1`;
+        const rows = await queryAll(db, query, [matchId, currentId]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).json({ error: 'No previous record found' });
+        }
+    } catch (error) {
+        console.error('前のレコード取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// APIエンドポイント: 次のrecord取得（matchId内で現在のidより大きい最小のid）
+app.get('/api/record/:matchId/next/:currentId', async (req, res) => {
+    try {
+        const { matchId, currentId } = req.params;
+        const query = `SELECT * FROM record WHERE matchId = ? AND id > ? ORDER BY id ASC LIMIT 1`;
+        const rows = await queryAll(db, query, [matchId, currentId]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).json({ error: 'No next record found' });
+        }
+    } catch (error) {
+        console.error('次のレコード取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// APIエンドポイント: 最初のrecord取得（matchId内の最小id）
+app.get('/api/record/:matchId/first', async (req, res) => {
+    try {
+        const { matchId } = req.params;
+        const query = `SELECT * FROM record WHERE matchId = ? ORDER BY id ASC LIMIT 1`;
+        const rows = await queryAll(db, query, [matchId]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).json({ error: 'No record found' });
+        }
+    } catch (error) {
+        console.error('最初のレコード取得エラー:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // APIエンドポイント: matchテーブルにデータを挿入
 app.post('/api/insertMatch', async (req, res) => {
     try {

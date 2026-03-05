@@ -5,22 +5,22 @@ import "./style_input.css";
 
 export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet, score1st, setScore1st, score2nd, setScore2nd, score, setScore }) {
 
-  // 相手GK選択値
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
   const [oppoTeam, setOppoTeam] = useState(1);
   const [currentHalf, setCurrentHalf] = useState("前半");
   const [showPopup, setShowPopup] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [keyboardType, setKeyboardType] = useState("");
-  // 各ボタンの値を管理するstate
   const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
   const [isConfirmAvailable, setIsConfirmAvailable] = useState(false);
+  const [inputMode, setInputMode] = useState(true);
+  const [currentRecordId, setCurrentRecordId] = useState(null);
+
   const remarksInputRef = useRef(null);
 
   const [items, setItems] = useState([]);
   const [setPlayStr, setSetPlayStr] = useState("");
 
-  // Timer state
   const [timerSec, setTimerSec] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const timerRef = useRef(null);
@@ -74,6 +74,88 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     };
   }, []);
 
+  const changeInputMode = (bool) => {
+    setInputMode(bool);
+    if (bool) {
+      // 入力モードに戻したときは入力値をリセット
+      setInputValues({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
+      setSelectedOppoGK(["", ""]);
+      setCurrentRecordId(null);
+      setIsConfirmAvailable(false);
+      return;
+    }
+    if (!bool && matchId) {
+      // 修正モードに入るときは最初のrecordを自動取得
+      fetch(`/api/record/${matchId}/first`)
+        .then(res => res.ok ? res.json() : null)
+        .then(record => {
+          if (record) {
+            setCurrentRecordId(record.id);
+            // matchのteamIdに合わせて攻撃チームを切り替える
+            const teamIndex = teams.findIndex(t => t.id === record.teamId);
+            const useTeam = teamIndex >= 0 ? teamIndex : offenseTeam;
+            if (teamIndex >= 0) {
+              setOffenseTeam(useTeam);
+              setOppoTeam(1 - useTeam);
+            }
+            const playerObj = players[useTeam] ? players[useTeam].find(p => p.number === record.playeNumberr) : null;
+            setInputValues({
+              situation: record.situation || "",
+              player: playerObj || "",
+              kind: record.kind || "",
+              shootArea: record.area || "",
+              goal: record.goal || "",
+              result: record.result || "",
+              remarks: record.remarks || ""
+            });
+            if (record.gk) {
+              const newOppo = (teamIndex >= 0) ? 1 - useTeam : oppoTeam;
+              setSelectedOppoGK(prev => {
+                const newArr = [...prev];
+                newArr[newOppo] = record.gk;
+                return newArr;
+              });
+            }
+          }
+        });
+    }
+  };
+
+  const loadRecord = (direction) => {
+    if (!currentRecordId || !matchId) return;
+    fetch(`/api/record/${matchId}/${direction}/${currentRecordId}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(record => {
+        if (record) {
+          setCurrentRecordId(record.id);
+          // record.teamId に合わせて攻撃チームを切り替える
+          const teamIndex = teams.findIndex(t => t.id === record.teamId);
+          const useTeam = teamIndex >= 0 ? teamIndex : offenseTeam;
+          if (teamIndex >= 0) {
+            setOffenseTeam(useTeam);
+            setOppoTeam(1 - useTeam);
+          }
+          const playerObj = players[useTeam] ? players[useTeam].find(p => p.number === record.playeNumberr) : null;
+          setInputValues({
+            situation: record.situation || "",
+            player: playerObj || "",
+            kind: record.kind || "",
+            shootArea: record.area || "",
+            goal: record.goal || "",
+            result: record.result || "",
+            remarks: record.remarks || ""
+          });
+          if (record.gk) {
+            const newOppo = (teamIndex >= 0) ? 1 - useTeam : oppoTeam;
+            setSelectedOppoGK(prev => {
+              const newArr = [...prev];
+              newArr[newOppo] = record.gk;
+              return newArr;
+            });
+          }
+        }
+      });
+  };
 
 
   // 必須項目のチェック
@@ -531,9 +613,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   }
 
   const autoFill = () => {
+    const playerNumber = getRandomPlayer();
+    const playerObj = players[offenseTeam].find(p => p.number === playerNumber);
     setInputValues({
       situation: getRandomSituation(),
-      player: getRandomPlayer(),
+      player: playerObj || "",
       kind: getRandomKind(),
       result: getRandomResult(),
       shootArea: getRandomShootArea(),
@@ -556,8 +640,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     }
     try {
       // 選手情報を取得
-      const player = players[offenseTeam].find(p => p.number === parseInt(inputValues.player));
-      if (!player) {
+      const player = inputValues.player;
+      if (!player || !player.id) {
         alert("選手を選択してください");
         return;
       }
@@ -662,6 +746,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const createLwrBtns = () => {
     // 各ボタンの値をinputValuesから取得
     const getValueByTeam = (id) => {
+      if (id === 'player' && typeof inputValues.player === 'object') {
+        return `${inputValues.player.number} ${inputValues.player.shortname}`;
+      }
       return inputValues[id] || '';
     };
     
@@ -797,9 +884,21 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       </div>
 
       <div className="footer">
-        <div className="btnStartContainer">
-          <div className="btnStart" onClick={handleSubmit}>登録</div>
+        {inputMode && 
+        <div className="btnStartContainer" style={{ display: 'grid', gridTemplateColumns: '1fr 10%', gap: '10px' }}>
+          <div id="btnRegister" onClick={handleSubmit} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#007BFF', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>登録</div>
+          <div id="btnModeCorrect" onClick={() => setInputMode(false)} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#6C757D', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>修正</div>
         </div>
+        }
+        {!inputMode && 
+        <div className="btnStartContainer" style={{ display: 'grid', gridTemplateColumns: '2fr 4fr 2fr 1fr 10%', gap: '10px' }}>
+          <div onClick={() => loadRecord('prev')} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#FFB6C1', color: '#000', borderRadius: '5px', cursor: 'pointer' }}>＜</div>
+          <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#E0E0E0', color: '#000', borderRadius: '5px' }}>修正</div>
+          <div onClick={() => loadRecord('next')} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#FFB6C1', color: '#000', borderRadius: '5px', cursor: 'pointer' }}>＞</div>
+          <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#FF6347', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>消去</div>
+          <div id="btnModeCorrect" onClick={() => setInputMode(true)} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#6C757D', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>入力</div>
+        </div>
+        }
       </div>
     </div>);
     return content;
@@ -876,11 +975,12 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
         <div className="mainContainer">
           <div id="leftColumn" className="column">
-            {/* {renderTimer()}
+            {renderTimer()}
             {renderScore()}
+          <button className="btnFunc span3" onClick={changeTeam}><div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div></button>
             {renderPenalty()}
             {renderPenaltyBtns()}
-            {setPersistentOppoGK()} */}
+            {setPersistentOppoGK()}
           </div>
         <div id="rightColumn" className="column" style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
           <div className="row" style={{flex: '0 0 auto'}}>
@@ -977,9 +1077,20 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         </div>
       </div>
       <div className="footer">
-        <div className="btnStartContainer">
-          <div className="btnStart" onClick={handleSubmit}>登録</div>
-        </div>
+        {inputMode ? (
+          <div className="btnStartContainer" style={{ display: 'grid', gridTemplateColumns: '1fr 10%', gap: '10px' }}>
+            <div id="btnRegister" onClick={handleSubmit} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#007BFF', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>登録</div>
+            <div id="btnModeCorrect" onClick={() => changeInputMode(false)} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#6C757D', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>修正モードへ</div>
+          </div>
+        ) : (
+          <div className="btnStartContainer" style={{ display: 'grid', gridTemplateColumns: '2fr 4fr 2fr 1fr 10%', gap: '10px' }}>
+            <div onClick={() => loadRecord('prev')} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#FFB6C1', color: '#000', borderRadius: '5px', cursor: 'pointer' }}>＜</div>
+            <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#E0E0E0', color: '#000', borderRadius: '5px' }}>修正</div>
+            <div onClick={() => loadRecord('next')} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#FFB6C1', color: '#000', borderRadius: '5px', cursor: 'pointer' }}>＞</div>
+            <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#FF6347', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>消去</div>
+            <div id="btnModeCorrect" onClick={() => changeInputMode(true)} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#6C757D', color: '#fff', borderRadius: '5px', cursor: 'pointer' }}>入力モードへ</div>
+          </div>
+        )}
       </div>
     </div>);
     return content;
