@@ -664,3 +664,17 @@ input.passName {
   overflow: hidden;
   height: 100%;
 }
+
+.cell_header {
+  font-size: normal;
+  font-weight: bold;
+  border: 1px solid black;
+  text-align: center;
+}
+
+.cell_value {
+  font-size: large;
+  font-weight: normal;
+  border: 1px solid black;
+  text-align: center;
+}

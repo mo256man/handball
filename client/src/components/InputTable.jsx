@@ -985,18 +985,18 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         <div id="rightColumn" className="column" style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
           <div className="row" style={{flex: '0 0 auto'}}>
             <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', gap: '6px', border: '1px solid red', margin: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
-              <div className="cell header">Situation</div>
-              <div className="cell header">Player</div>
-              <div className="cell header">Kind</div>
-              <div className="cell header">Result</div>
-              <div className="cell header">Shoot Area</div>
-              <div className="cell header">Goal</div>
-              <div className="cell value" id="value_situ">{inputValues.situation}</div>
-              <div className="cell value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
-              <div className="cell value" id="value_kind">{inputValues.kind}</div>
-              <div className="cell value" id="value_result">{inputValues.result}</div>
-              <div className="cell value" id="value_shoot_area">{inputValues.shootArea}</div>
-              <div className="cell value" id="value_goal">{inputValues.goal}</div>
+              <div className="cell_header">Situation</div>
+              <div className="cell_header">Player</div>
+              <div className="cell_header">Kind</div>
+              <div className="cell_header">Result</div>
+              <div className="cell_header">Shoot Area</div>
+              <div className="cell_header">Goal</div>
+              <div className="cell_value" id="value_situ">{inputValues.situation}</div>
+              <div className="cell_value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
+              <div className="cell_value" id="value_kind">{inputValues.kind}</div>
+              <div className="cell_value" id="value_result">{inputValues.result}</div>
+              <div className="cell_value" id="value_shoot_area">{inputValues.shootArea}</div>
+              <div className="cell_value" id="value_goal">{inputValues.goal}</div>
             </div>
           </div>
         <div id="inputArea" className="row" style={{flex: 1, display: 'flex', flexDirection: 'row', height: '100%', border: '1px solid red'}}>
@@ -1041,7 +1041,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               </div>
             </div>
           </div>
-          <div id="map_column" style={{display: "flex", flexDirection:"column", height:"100%", flex: 1}}>
+          <div id="map_column" style={{display: "flex", flexDirection:"column", height:"100%", flex: 1, width:"100px" }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div className="group" style={{ flex: 1, minHeight: 0 }}>
                 <div className="label">Area</div>
