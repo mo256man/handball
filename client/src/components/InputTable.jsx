@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import DrawShootArea from "./DrawShootArea";
 import DrawGoal from "./DrawGoal";
-import "./style_input.css";
+// import "./style_input.css";
 
 export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet, score1st, setScore1st, score2nd, setScore2nd, score, setScore }) {
 
@@ -266,7 +266,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     const result = {
       title: keyboardConfig.title,
       component: (
-      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', width: '100%' }}>
         {keyboardConfig.btns.map((btn, idx) => (
           <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
@@ -300,11 +300,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     const keyboardConfig = {
       title: "選手（常時表示）",
       btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p })),
-      grid: "repeat(8, 1fr)" // 8列固定
+      grid: "repeat(6, 1fr)" // 6列固定
     };
 
     return (
-      <div className="keyboard-body persistent players" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, auto)', gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent players" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, auto)', gap: '10px', width: '100%', boxSizing: 'border-box' }}>
         {keyboardConfig.btns.map((btn, idx) => {
           const isActive = (typeof inputValues.player === 'object') ? String(inputValues.player.number) === String(btn.value.number) : String(inputValues.player) === String(btn.value.number);
           return (
@@ -315,6 +315,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               dangerouslySetInnerHTML={{ __html: btn.label }} />
           );
         })}
+        <div key="blank" aria-hidden={true} style={{ visibility: 'hidden'}} />
+        <button key="del" className="keyboard-btn" onClick={() => { setInputValues(prev => ({ ...prev, player: "" })); backspace(); }}>
+          削除
+        </button>
       </div>
     );
   }
@@ -1000,12 +1004,12 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             </div>
           </div>
         <div id="inputArea" className="row" style={{flex: 1, display: 'flex', flexDirection: 'row', height: '100%', border: '1px solid red'}}>
-          <div style={{flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0}}>
+          <div id="input_column" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', alignSelf: 'flex-start', minHeight: 0, minWidth: 0}}>
             <div className="row">
-              <div className="group">
+              <div className="group" style={{ width: '100%' }}>
                 <div className="label">Player</div>
-                <div className="content">
-                  <div id="areaNumber" style={{border: "1px solid red"}}>{setPersistentPlayers()}</div>
+                <div className="content" style={{ width: '100%' }}>
+                  <div id="areaNumber" style={{border: "1px solid red", width: '100%'}}>{setPersistentPlayers()}</div>
                 </div>
               </div>
             </div>
@@ -1041,7 +1045,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               </div>
             </div>
           </div>
-          <div id="map_column" style={{display: "flex", flexDirection:"column", height:"100%", flex: 1, width:"100px" }}>
+          <div id="map_column" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 100px', width:"100px" }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div className="group" style={{ flex: 1, minHeight: 0 }}>
                 <div className="label">Area</div>

@@ -414,6 +414,41 @@
   transition: background 0.12s ease, color 0.12s ease, transform 0.06s ease;
 }
 
+/* Ensure keyboard buttons fill their grid cells and can shrink inside flex containers */
+.keyboard-body .keyboard-btn {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Make keyboard container fit its parent and prevent internal overflow */
+.keyboard-body {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Ensure long labels wrap and don't force width */
+.keyboard-body .keyboard-btn {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Prevent flex children from forcing parent widths */
+.group,
+.group .content {
+  min-width: 0;
+}
+
+/* Specific container for persistent players area */
+#areaNumber {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
 .btnGk {
   border-radius: 5px;
   height: 60px;
