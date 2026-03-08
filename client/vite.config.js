@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     host: true,
     hmr: {
-      host: '192.168.0.7',
+      host: process.env.VITE_HMR_HOST || 'localhost',
       protocol: 'ws'
     },
     proxy: {

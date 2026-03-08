@@ -673,8 +673,21 @@ input.passName {
 }
 
 .cell_value {
+  height: 2em;
   font-size: large;
   font-weight: normal;
   border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+}
+
+
+.keyboard-btn {
+  border-radius: 10px;
+  height: 50px;
+  color: white;
+  background: darkblue;
+  font-size: large;
 }

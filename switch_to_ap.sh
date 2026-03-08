@@ -13,9 +13,6 @@ INTERFACE="wlan0"
 SSID="HandballAP"
 # WPA2 passphrase (8-63 characters)
 PASSWD="handballpass"
-# Uplink interface which provides internet (for NAT)
-# Leave empty to disable internet sharing/NAT
-UPLINK=""
 # -----------------------------------------------
 
 DHCPD_CONF=/etc/dhcpcd.conf
@@ -78,21 +75,6 @@ else
   echo "DAEMON_CONF=\"$HOSTAPD_CONF\"" > "$DEFAULT_HOSTAPD"
 fi
 
-echo "Enable IPv4 forwarding and save original state"
-GET_FORWARD=$(sysctl -n net.ipv4.ip_forward 2>/dev/null || echo 0)
-echo "$GET_FORWARD" > /etc/handball_ip_forward.backup
-sysctl -w net.ipv4.ip_forward=1
-
-if [ -n "$UPLINK" ]; then
-  echo "Setting up NAT (uplink: $UPLINK)"
-  iptables -t nat -A POSTROUTING -o "$UPLINK" -j MASQUERADE || true
-  iptables -A FORWARD -i "$UPLINK" -o "$INTERFACE" -m state --state RELATED,ESTABLISHED -j ACCEPT || true
-  iptables -A FORWARD -i "$INTERFACE" -o "$UPLINK" -j ACCEPT || true
-  iptables-save > /etc/iptables.ipv4.nat || true
-else
-  echo "No UPLINK specified — skipping NAT/iptables setup"
-fi
-
 echo "Stopping wpa_supplicant and restarting dhcpcd"
 systemctl stop wpa_supplicant.service 2>/dev/null || true
 systemctl restart dhcpcd.service || true
@@ -105,7 +87,7 @@ systemctl restart hostapd.service dnsmasq.service || true
 echo "AP mode started"
 echo "SSID: $SSID"
 echo "AP IP: 192.168.4.1"
-
-echo "If your uplink isn't $UPLINK, re-run and adjust UPLINK variable at top of this script."
+echo ""
+echo "Connect your smartphone to SSID '$SSID' and access http://192.168.4.1"
 
 exit 0

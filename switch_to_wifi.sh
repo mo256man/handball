@@ -9,8 +9,6 @@ fi
 # --- Configuration (edit these values directly) ---
 # Wireless interface used for Wi-Fi client mode
 INTERFACE="wlan0"
-# Uplink interface used previously for NAT (leave empty if none)
-UPLINK=""
 # -----------------------------------------------
 
 DHCPD_CONF=/etc/dhcpcd.conf
@@ -33,24 +31,9 @@ echo "Restarting dhcpcd and wpa_supplicant"
 systemctl restart dhcpcd.service || true
 systemctl start wpa_supplicant.service 2>/dev/null || true
 
-if [ -n "$UPLINK" ]; then
-  echo "Removing iptables NAT rules (uplink: $UPLINK)"
-  iptables -t nat -D POSTROUTING -o "$UPLINK" -j MASQUERADE 2>/dev/null || true
-  iptables -D FORWARD -i "$UPLINK" -o "$INTERFACE" -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
-  iptables -D FORWARD -i "$INTERFACE" -o "$UPLINK" -j ACCEPT 2>/dev/null || true
-else
-  echo "No UPLINK specified — skipping iptables cleanup"
-fi
-
-echo "Restoring IP forwarding to original state"
-if [ -f /etc/handball_ip_forward.backup ]; then
-  ORIGINAL_FORWARD=$(cat /etc/handball_ip_forward.backup)
-  sysctl -w net.ipv4.ip_forward=$ORIGINAL_FORWARD
-  rm /etc/handball_ip_forward.backup
-else
-  sysctl -w net.ipv4.ip_forward=0
-fi
-
-echo "Switch to Wi-Fi mode completed. You may need to reboot or run 'sudo wpa_cli -i $INTERFACE reconfigure' to reconnect to networks."
+echo "Wi-Fi client mode restored"
+echo ""
+echo "Run 'sudo wpa_cli -i $INTERFACE reconfigure' to reconnect to Wi-Fi networks"
+echo "Or reboot the system with 'sudo reboot'"
 
 exit 0

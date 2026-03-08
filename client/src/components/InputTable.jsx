@@ -268,7 +268,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', width: '100%' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -287,7 +287,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -304,11 +304,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     };
 
     return (
-      <div className="keyboard-body persistent players" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, auto)', gap: '10px', width: '100%', boxSizing: 'border-box' }}>
+      <div className="keyboard-body persistent players" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, 1fr)', gap: '10px', width: '100%', height: '100%', boxSizing: 'border-box', overflow: 'hidden', minWidth: 0 }}>
         {keyboardConfig.btns.map((btn, idx) => {
           const isActive = (typeof inputValues.player === 'object') ? String(inputValues.player.number) === String(btn.value.number) : String(inputValues.player) === String(btn.value.number);
           return (
-            <button key={idx} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
+            <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.8rem', overflow: 'hidden' }} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
                 setInputValues(prev => ({ ...prev, player: btn.value }));
                 append(String(btn.value.number));
               }}
@@ -316,7 +316,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           );
         })}
         <div key="blank" aria-hidden={true} style={{ visibility: 'hidden'}} />
-        <button key="del" className="keyboard-btn" onClick={() => { setInputValues(prev => ({ ...prev, player: "" })); backspace(); }}>
+        <button key="del" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.8rem', overflow: 'hidden' }} className="keyboard-btn" onClick={() => { setInputValues(prev => ({ ...prev, player: "" })); backspace(); }}>
           削除
         </button>
       </div>
@@ -336,10 +336,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     };
 
     return (
-      <div className="keyboard-body persistent situation" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent situation" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(1, 1fr)', gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
         {keyboardConfig.btns.map((btn, idx) => (
           <button
             key={idx}
+            style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
             className={"keyboard-btn " + (String(inputValues.situation) === String(btn.value) ? 'active' : '')}
             onClick={() => {
               // 同じボタンを2回押したら値を消去する（トグル動作）
@@ -376,7 +377,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -405,9 +406,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       grid: "repeat(4, 1fr)"
     }
     return (
-      <div className="keyboard-body persistent kind" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent kind" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(3, 1fr)', gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className={"keyboard-btn " + (String(inputValues.kind) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, kind: btn.value }))}
+          <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.85rem', overflow: 'hidden' }} className={"keyboard-btn " + (String(inputValues.kind) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, kind: btn.value }))}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>
@@ -434,7 +435,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       component: (
       <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
+          <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>)
@@ -478,7 +479,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   const setPersistentGoal = () => {
     return (
-      <div className="keyboard-body" style={{ marginTop: '10px', height: '100%' }}>
+      <div className="keyboard-body" style={{ marginTop: '10px', height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
         <DrawGoal
           drawOut={true}
           onClick={(_type, value) => {
@@ -508,9 +509,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       grid: "repeat(2, 1fr)"
     }
     return (
-      <div className="keyboard-body persistent result" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent result" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(4, 1fr)', gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} className={"keyboard-btn " + (String(inputValues.result) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, result: btn.value }))}
+          <button key={idx} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.75rem', overflow: 'hidden', width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues.result) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, result: btn.value }))}
             dangerouslySetInnerHTML={{ __html: btn.label }} />
         ))}
       </div>
@@ -528,7 +529,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           {gkPlayers.map((p, idx) => {
             const isActive = String(selectedOppoGK[oppoTeam]) === String(p.number);
             return (
-              <button key={idx} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
+              <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
                 handleKeyboardClick(p.number);
                 setSelectedOppoGK(prev => {
                   const newArr = [...prev];
@@ -550,11 +551,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     const gkPlayers = players[oppoTeam].filter(p => p.position === "GK");
     const gridCols = `repeat(${gkPlayers.length || 1}, 1fr)`;
     return (
-      <div className="keyboard-body persistent oppoGK" style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '10px', marginTop: '10px' }}>
+      <div className="keyboard-body persistent oppoGK" style={{ display: 'grid', gridTemplateColumns: gridCols, gridTemplateRows: `repeat(${gkPlayers.length || 1}, 1fr)`, gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
         {gkPlayers.map((p, idx) => {
           const isActive = String(selectedOppoGK[oppoTeam]) === String(p.number);
           return (
-            <button key={idx} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
+            <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.8rem', overflow: 'hidden' }} className={"keyboard-btn " + (isActive ? 'active' : '')} onClick={() => {
               setSelectedOppoGK(prev => {
                 const newArr = [...prev];
                 newArr[oppoTeam] = p.number;
@@ -1008,16 +1009,16 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             <div className="row">
               <div className="group" style={{ width: '100%' }}>
                 <div className="label">Player</div>
-                <div className="content" style={{ width: '100%' }}>
-                  <div id="areaNumber" style={{border: "1px solid red", width: '100%'}}>{setPersistentPlayers()}</div>
+                <div className="content" style={{ width: '100%', overflow: 'hidden', boxSizing: 'border-box' }}>
+                  <div id="areaNumber" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentPlayers()}</div>
                 </div>
               </div>
             </div>
             <div className="row">
               <div className="group">
                 <div className="label">Situ</div>
-                <div className="content ">
-                  <div id="areaSitu" style={{border: "1px solid red"}}>{setPersistentSituation()}</div>
+                <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+                  <div id="areaSitu" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentSituation()}</div>
                 </div>
               </div>
               <div style={{ flex: 1 }}>
@@ -1029,7 +1030,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                   </div>
                   <div className="group">
                     <div className="label">Kind</div>
-                    <div className="content">
+                    <div className="content" style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
                       <div id="areaKind" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
                         {setPersistentKind()}
                       </div>
@@ -1039,8 +1040,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               </div>
               <div className="group">
                 <div className="label">Result</div>
-                <div className="content">
-                  <div id="areaResult">{setPersistentResult()}</div>
+                <div className="content" style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+                  <div id="areaResult" style={{width: '100%', boxSizing: 'border-box'}}>{setPersistentResult()}</div>
                 </div>
               </div>
             </div>
@@ -1067,8 +1068,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               </div>
               <div className="group" style={{ flex: 1, minHeight: 0 }}>
                 <div className="label">Goal</div>
-                <div className="content ">
-                  <div id="areaGoal" style={{border: "1px solid red"}}>{setPersistentGoal()}</div>
+                <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+                  <div id="areaGoal" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentGoal()}</div>
                 </div>
               </div>
             </div>
