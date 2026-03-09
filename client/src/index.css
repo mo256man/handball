@@ -2,7 +2,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  height: 100dvh;
+  height: 100svh;
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Arial', 'Meiryo', sans-serif;
 }
@@ -17,7 +17,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   position: relative;
-  height: 100dvh;
+  height: 100svh;
 }
 
 .header {

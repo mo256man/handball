@@ -963,9 +963,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     );
   }
 
-  const renderTablet = () => {
-    const content = (
-      <div className="base">
+  const renderHeader = () => {
+    return (
       <div className="header row">
         <div className="header-title left">
           <div>{teams[0].shortname} vs {teams[1].shortname}</div>
@@ -976,77 +975,85 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           <div onClick={() => setView("inputMatch")} className="header-icon header-btn">🔙</div>
         </div>
       </div>
-      <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" } style={{background: "lightpink"}}>
-        <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
-        <div className="mainContainer">
-          <div id="leftColumn" className="column">
+    );
+  }
+
+  const renderTablet = () => {
+    const content = (
+      <div className="base">
+        <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{background: "lightpink", display: 'flex', flexDirection: 'row', height: '100%', gap: 0}}>
+          <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
+          <div id="leftColumn" className="column" style={{flex: '0 0 10%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
+            {renderHeader()}
             {renderTimer()}
             {renderScore()}
-          <button className="btnFunc span3" onClick={changeTeam}><div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div></button>
             {renderPenalty()}
             {renderPenaltyBtns()}
             {setPersistentOppoGK()}
           </div>
-        <div id="rightColumn" className="column" style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-          <div className="row" style={{flex: '0 0 auto'}}>
-            <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', gap: '6px', border: '1px solid red', margin: '10px', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
-              <div className="cell_header">Situation</div>
-              <div className="cell_header">Player</div>
-              <div className="cell_header">Kind</div>
-              <div className="cell_header">Result</div>
-              <div className="cell_header">Shoot Area</div>
-              <div className="cell_header">Goal</div>
-              <div className="cell_value" id="value_situ">{inputValues.situation}</div>
-              <div className="cell_value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
-              <div className="cell_value" id="value_kind">{inputValues.kind}</div>
-              <div className="cell_value" id="value_result">{inputValues.result}</div>
-              <div className="cell_value" id="value_shoot_area">{inputValues.shootArea}</div>
-              <div className="cell_value" id="value_goal">{inputValues.goal}</div>
-            </div>
-          </div>
-        <div id="inputArea" className="row" style={{flex: 1, display: 'flex', flexDirection: 'row', height: '100%', border: '1px solid red'}}>
-          <div id="input_column" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', alignSelf: 'flex-start', minHeight: 0, minWidth: 0}}>
-            <div className="row">
-              <div className="group" style={{ width: '100%' }}>
-                <div className="label">Player</div>
-                <div className="content" style={{ width: '100%', overflow: 'hidden', boxSizing: 'border-box' }}>
-                  <div id="areaNumber" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentPlayers()}</div>
-                </div>
+          <div id="midColumn" className="column" style={{flex: '0 0 60%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
+            <div className="row" style={{flex: '0 0 auto'}}>
+              <button className="btnFunc" onClick={changeTeam}><div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div></button>
+              <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', border: '1px solid red', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
+                <div className="cell_header">Situation</div>
+                <div className="cell_header">Player</div>
+                <div className="cell_header">Kind</div>
+                <div className="cell_header">Result</div>
+                <div className="cell_header">Shoot Area</div>
+                <div className="cell_header">Goal</div>
+                <div className="cell_value" id="value_situ">{inputValues.situation}</div>
+                <div className="cell_value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
+                <div className="cell_value" id="value_kind">{inputValues.kind}</div>
+                <div className="cell_value" id="value_result">{inputValues.result}</div>
+                <div className="cell_value" id="value_shoot_area">{inputValues.shootArea}</div>
+                <div className="cell_value" id="value_goal">{inputValues.goal}</div>
               </div>
             </div>
-            <div className="row">
-              <div className="group">
-                <div className="label">Situ</div>
-                <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
-                  <div id="areaSitu" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentSituation()}</div>
-                </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div id="areaKindWrapper" style={{ position: 'relative', width: '100%', minHeight: '320px' }}>
-                  <div id="areaKindBack" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
-                    <div style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', width: '90%', height: '90%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <DrawShootArea width="100%" height="100%" showText={false} />
+            <div id="inputArea" className="row" style={{flex: 1, display: 'flex', flexDirection: 'row', height: '100%', border: '1px solid red'}}>
+              <div id="input_column" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', alignSelf: 'flex-start', minHeight: 0, minWidth: 0}}>
+                <div className="row">
+                  <div className="group" style={{ width: '100%' }}>
+                    <div className="label">Player</div>
+                    <div className="content" style={{ width: '100%', overflow: 'hidden', boxSizing: 'border-box' }}>
+                      <div id="areaNumber" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentPlayers()}</div>
                     </div>
                   </div>
+                </div>
+                <div className="row">
                   <div className="group">
-                    <div className="label">Kind</div>
-                    <div className="content" style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
-                      <div id="areaKind" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
-                        {setPersistentKind()}
+                    <div className="label">Situ</div>
+                    <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+                      <div id="areaSitu" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentSituation()}</div>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div id="areaKindWrapper" style={{ position: 'relative', width: '100%', minHeight: '320px' }}>
+                      <div id="areaKindBack" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
+                        <div style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', width: '90%', height: '90%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <DrawShootArea width="100%" height="100%" showText={false} />
+                        </div>
+                      </div>
+                      <div className="group">
+                        <div className="label">Kind</div>
+                        <div className="content" style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+                          <div id="areaKind" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+                            {setPersistentKind()}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div className="group">
-                <div className="label">Result</div>
-                <div className="content" style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
-                  <div id="areaResult" style={{width: '100%', boxSizing: 'border-box'}}>{setPersistentResult()}</div>
+                  <div className="group">
+                    <div className="label">Result</div>
+                    <div className="content" style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+                      <div id="areaResult" style={{width: '100%', boxSizing: 'border-box'}}>{setPersistentResult()}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div id="map_column" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 100px', width:"100px" }}>
+<div id="RightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 30%', minWidth: 0}}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div className="group" style={{ flex: 1, minHeight: 0 }}>
                 <div className="label">Area</div>
@@ -1073,13 +1080,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        </div>
-
-
-        </div>
+            </div>
       </div>
       <div className="footer">
         {inputMode ? (
