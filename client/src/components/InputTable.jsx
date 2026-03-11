@@ -1027,17 +1027,17 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                     </div>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div id="areaKindWrapper" style={{ position: 'relative', width: '100%', minHeight: '320px' }}>
-                      <div id="areaKindBack" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
-                        <div style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', width: '90%', height: '90%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                          <DrawShootArea width="100%" height="100%" showText={false} />
-                        </div>
-                      </div>
+                    <div id="areaKindWrapper" style={{ width: '100%' }}>
                       <div className="group">
                         <div className="label">Kind</div>
-                        <div className="content" style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
-                          <div id="areaKind" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+                        <div className="content" style={{ position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box', minHeight: 0 }}>
+                          <div id="areaKind" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
                             {setPersistentKind()}
+                          </div>
+                          <div id="areaKindBack" style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
+                            <div style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', width: '90%', height: '90%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                              <DrawShootArea width="100%" height="100%" showText={false} />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1053,7 +1053,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               </div>
             </div>
           </div>
-<div id="RightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 30%', minWidth: 0}}>
+<div id="rightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 30%', minWidth: 0}}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div className="group" style={{ flex: 1, minHeight: 0 }}>
                 <div className="label">Area</div>
