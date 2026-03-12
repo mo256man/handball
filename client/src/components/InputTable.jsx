@@ -993,20 +993,26 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           </div>
           <div id="midColumn" className="column" style={{flex: '0 0 60%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
             <div className="row" style={{flex: '0 0 auto'}}>
-              <button className="btnFunc" onClick={changeTeam}><div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div></button>
-              <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', border: '1px solid red', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
-                <div className="cell_header">Situation</div>
-                <div className="cell_header">Player</div>
-                <div className="cell_header">Kind</div>
-                <div className="cell_header">Result</div>
-                <div className="cell_header">Shoot Area</div>
-                <div className="cell_header">Goal</div>
-                <div className="cell_value" id="value_situ">{inputValues.situation}</div>
-                <div className="cell_value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
-                <div className="cell_value" id="value_kind">{inputValues.kind}</div>
-                <div className="cell_value" id="value_result">{inputValues.result}</div>
-                <div className="cell_value" id="value_shoot_area">{inputValues.shootArea}</div>
-                <div className="cell_value" id="value_goal">{inputValues.goal}</div>
+              <button className="btnFunc" onClick={changeTeam}>
+                <img src={teams[offenseTeam]?.image || ""} alt="team logo" style={{width: '64px', height: '64px'}} />
+                <div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div>
+              </button>
+              <div>
+                <div id="setPlay">{renderSetPlay()}</div>
+                <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', border: '1px solid red', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
+                  <div className="cell_header">Situation</div>
+                  <div className="cell_header">Player</div>
+                  <div className="cell_header">Kind</div>
+                  <div className="cell_header">Result</div>
+                  <div className="cell_header">Shoot Area</div>
+                  <div className="cell_header">Goal</div>
+                  <div className="cell_value" id="value_situ">{inputValues.situation}</div>
+                  <div className="cell_value" id="value_player">{(typeof inputValues.player === 'object' && `${inputValues.player.number} ${inputValues.player.shortname}`) || inputValues.player}</div>
+                  <div className="cell_value" id="value_kind">{inputValues.kind}</div>
+                  <div className="cell_value" id="value_result">{inputValues.result}</div>
+                  <div className="cell_value" id="value_shoot_area">{inputValues.shootArea}</div>
+                  <div className="cell_value" id="value_goal">{inputValues.goal}</div>
+                </div>
               </div>
             </div>
             <div id="inputArea" className="row" style={{flex: 1, display: 'flex', flexDirection: 'row', height: '100%', border: '1px solid red'}}>
