@@ -873,9 +873,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       <div className={ offenseTeam ? "main bgTeam1" : "main bgTeam0" }>
         <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
         {createUprBtns()}
-        <div className="align-bottom">
+          <div className="align-bottom">
             <div>セットプレイ</div>
-          <div id="setPlay">{renderSetPlay()}</div>
+          <div id="setPlay" style={{ height: '1em', lineHeight: '1em', overflow: 'hidden' }}>{renderSetPlay()}</div>
           <div id="areaSitu">{setPersistentSituation()}</div>
           <div id="btnPlayers">{setPersistentPlayers()}</div>
             <div className="row"><div onClick={autoFill}>ランダム生成</div></div>
@@ -980,10 +980,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   const renderTablet = () => {
     const content = (
-      <div className="base">
-        <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{background: "lightpink", display: 'flex', flexDirection: 'row', height: '100%', gap: 0}}>
+      <div className="base" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+        <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{background: "lightpink", display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
           <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
-          <div id="leftColumn" className="column" style={{flex: '0 0 10%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
+          <div id="leftColumn" className="column" style={{flex: '2 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
             {renderHeader()}
             {renderTimer()}
             {renderScore()}
@@ -991,14 +991,17 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             {renderPenaltyBtns()}
             {setPersistentOppoGK()}
           </div>
-          <div id="midColumn" className="column" style={{flex: '0 0 60%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
+          <div id="midColumn" className="column" style={{flex: '5 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
             <div className="row" style={{flex: '0 0 auto'}}>
               <button className="btnFunc" onClick={changeTeam}>
                 <img src={teams[offenseTeam]?.image || ""} alt="team logo" style={{width: '64px', height: '64px'}} />
                 <div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div>
               </button>
               <div>
-                <div id="setPlay">{renderSetPlay()}</div>
+                <div id="setPlay" 
+                  style={{ height: '1em', lineHeight: '1em', background:"black", color:"white"}}>
+                    {renderSetPlay()}
+                </div>
                 <div id="inputedValues" style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, auto)', border: '1px solid red', backgroundColor: 'rgba(255, 255, 255, 0.8)', width: '100%', padding: '8px', boxSizing: 'border-box'}}>
                   <div className="cell_header">Situation</div>
                   <div className="cell_header">Player</div>
@@ -1059,9 +1062,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               </div>
             </div>
           </div>
-<div id="rightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 30%', minWidth: 0}}>
+<div id="rightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 min(350px, 35vw)', width: 'min(350px, 35vw)', minWidth: 0}}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              <div className="group" style={{ flex: 1, minHeight: 0 }}>
+              <div className="group" style={{ flex: 1, minHeight: 0, maxHeight: '400px', overflowY: 'auto' }}>
                 <div className="label">Area</div>
                 <div className="content ">
                   <div id="areaArea" style={{ width: '100%', height: '100%' }}>
@@ -1079,7 +1082,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                   </div>
                 </div>
               </div>
-              <div className="group" style={{ flex: 1, minHeight: 0 }}>
+              <div className="group" style={{ flex: 1, minHeight: 0, maxHeight: '400px', overflowY: 'auto' }}>
                 <div className="label">Goal</div>
                 <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
                   <div id="areaGoal" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentGoal()}</div>

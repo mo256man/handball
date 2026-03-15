@@ -5,10 +5,17 @@
   <title>WiFi / AP Status</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    body { font-family: Arial, Helvetica, sans-serif; padding: 20px; }
-    .card { border: 1px solid #ddd; padding: 16px; border-radius: 8px; max-width: 480px; }
-    .label { color: #666; font-size: 14px; }
-    .value { font-size: 20px; margin-top: 6px; }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body { font-family: Arial, Helvetica, sans-serif; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+    h1 { font-size: clamp(3rem, 8vw, 6rem); margin: 0 0 16px; text-align: center; }
+    .card { border: 1px solid #ddd; padding: 32px; border-radius: 8px; max-width: 1100px; width: 100%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }
+    .label { color: #666; font-size: clamp(1.2rem, 3vw, 2rem); }
+    .value { font-size: clamp(2.5rem, 6vw, 4.5rem); margin-top: 6px; word-break: break-word; text-align: center; }
+    button#refresh { font-size: 1.4rem; padding: 10px 18px; }
+    @media (min-width: 768px) {
+      h1 { font-size: 5rem; }
+      .value { font-size: 4.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -33,9 +40,9 @@
         if (j && j.success) {
           document.getElementById('mode').textContent = j.mode || 'unknown';
           document.getElementById('ssid').textContent = j.ssid || '-';
-          const ipsText = (j.ips && j.ips.length) ? j.ips.join(', ') : '-';
+          const ipsText = (j.mode === 'ap' && j.ips && j.ips.length) ? j.ips.join(', ') : '-';
           document.getElementById('ips').textContent = ipsText;
-          const ipForUrl = (j.ips && j.ips.length) ? j.ips[0] : null;
+          const ipForUrl = (j.mode === 'ap' && j.ips && j.ips.length) ? j.ips[0] : null;
           if (ipForUrl) {
             document.getElementById('access').innerHTML = `http://${ipForUrl}:5173/`;
           } else {
