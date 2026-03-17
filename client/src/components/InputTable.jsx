@@ -1028,7 +1028,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                     </div>
                   </div>
                 </div>
-                <div className="row">
+                <div className="row" style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div className="group">
                     <div className="label">Situ</div>
                     <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
