@@ -981,7 +981,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const renderTablet = () => {
     const content = (
       <div className="base" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-        <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{background: "lightpink", display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
+        <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
           <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
           <div id="leftColumn" className="column" style={{flex: '2 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
             {renderHeader()}
