@@ -102,7 +102,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               setOffenseTeam(useTeam);
               setOppoTeam(1 - useTeam);
             }
-            const playerObj = players[useTeam] ? players[useTeam].find(p => p.number === record.playeNumberr) : null;
+            const playerObj = players[useTeam] ? players[useTeam].find(p => p.number === record.playerNumber) : null;
             setInputValues({
               situation: record.situation || "",
               player: playerObj || "",
@@ -139,7 +139,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             setOffenseTeam(useTeam);
             setOppoTeam(1 - useTeam);
           }
-          const playerObj = players[useTeam] ? players[useTeam].find(p => p.number === record.playeNumberr) : null;
+          const playerObj = players[useTeam] ? players[useTeam].find(p => p.number === record.playerNumber) : null;
           setInputValues({
             situation: record.situation || "",
             player: playerObj || "",
@@ -736,7 +736,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         matchId: matchId,
         teamId: teams[offenseTeam].id,
         playerId: player.id,
-        playeNumberr: player.number,
+        playerNumber: player.number,
         playerPosition: player.position,
         playerName: player.name,
         half: currentHalf,

@@ -181,13 +181,13 @@ app.post('/api/insertRecord', async (req, res) => {
         if (!data) {
             return res.status(400).json({ error: 'データが指定されていません' });
         }
-        const query = `INSERT INTO record (date, team, half, situation, number, kind, result, gk, yellowcard, "2min", remarks, area, goal, player, team1, team2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const query = `INSERT INTO record (date, team, half, situation, playerNumber, kind, result, gk, yellowcard, "2min", remarks, area, goal, player, team1, team2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const params = [
             data.date,
             data.team,
             data.half,
             data.situation,
-            data.number,
+            data.playerNumber,
             data.kind,
             data.result,
             data.gk,
@@ -239,14 +239,14 @@ app.post('/api/record', async (req, res) => {
     try {
         const data = req.body;
         const query = `INSERT INTO record (
-            matchId, teamId, playerId, playeNumberr, playerPosition, playerName,
+            matchId, teamId, playerId, playerNumber, playerPosition, playerName,
             half, situation, kind, result, gk, remarks, area, goal, setPlay, isGS, isGSO, isAtk, isSht, isFB
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const params = [
             data.matchId,
             data.teamId,
             data.playerId,
-            data.playeNumberr,
+            data.playerNumber,
             data.playerPosition,
             data.playerName,
             data.half,
