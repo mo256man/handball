@@ -6,16 +6,20 @@ import DrawGoal from "./DrawGoal";
 export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet, score1st, setScore1st, score2nd, setScore2nd, score, setScore }) {
 
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
-  const [oppoTeam, setOppoTeam] = useState(1);
+  const [oppoTeam, setOppoTeam] = useState(1 - (offenseTeam ?? 0));
   const [currentHalf, setCurrentHalf] = useState("前半");
   const [showPopup, setShowPopup] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [keyboardType, setKeyboardType] = useState("");
+  const [showOppoPlayersPopup, setShowOppoPlayersPopup] = useState(false);
+  const [oppoPlayersPopupType, setOppoPlayersPopupType] = useState("oppoPlayers");
+  const [oppoPlayersPopupIsGKOnly, setOppoPlayersPopupIsGKOnly] = useState(false);
   const [inputValues, setInputValues] = useState({ situation: "", player: "", kind: "", shootArea: "", goal: "", result: "", remarks: "" });
   const [isConfirmAvailable, setIsConfirmAvailable] = useState(false);
   const [inputMode, setInputMode] = useState(true);
   const [currentRecordId, setCurrentRecordId] = useState(null);
-
+  const [yellowCard, setYellowCard] = useState("");
+  const [twoMinSuspension, setTwoMinSuspension] = useState("");
   const remarksInputRef = useRef(null);
 
   const [items, setItems] = useState([]);
@@ -186,6 +190,62 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const closeKeyboard = () => {
     setShowKeyboard(false);
     setKeyboardType("");
+  }
+
+  const openOppoPlayersPopup = (type = "oppoPlayers", isGKOnly = false) => {
+    setOppoPlayersPopupType(type);
+    setOppoPlayersPopupIsGKOnly(isGKOnly);
+    setShowOppoPlayersPopup(true);
+  };
+
+  const closeOppoPlayersPopup = () => {
+    setShowOppoPlayersPopup(false);
+  };
+
+  const renderOppoPlayersPopup = () => {
+    if (!showOppoPlayersPopup) return null;
+
+    let title;
+    if (oppoPlayersPopupType === "yellowCard") {
+      title = "イエローカード";
+    } else if (oppoPlayersPopupType === "2minSuspension") {
+      title = "2分間退場";
+    }
+
+    let oppoPlayers = players[oppoTeam];
+    
+    // isGKOnly=true の場合、GKのみをフィルタ
+    if (oppoPlayersPopupIsGKOnly) {
+      oppoPlayers = oppoPlayers.filter(p => p.position === "GK");
+    }
+
+    const gridCols = 'repeat(4, 1fr)';
+
+    return (
+      <div className="keyboard-overlay" onClick={closeOppoPlayersPopup}>
+        <div className="keyboard-popup" onClick={(e) => e.stopPropagation()}>
+          <div className="keyboard-header">
+            <div>{title}</div>
+            <button className="keyboard-close" onClick={closeOppoPlayersPopup}>✕</button>
+          </div>
+          <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '10px', marginTop: '10px' }}>
+            {oppoPlayers.map((p, idx) => (
+              <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }} className="keyboard-btn" onClick={() => {
+                // type に応じて該当 state に選手の id を格納
+                if (oppoPlayersPopupType === "yellowCard") {
+                  setYellowCard(p.id);
+                } else if (oppoPlayersPopupType === "2minSuspension") {
+                  setTwoMinSuspension(p.id);
+                }
+                closeOppoPlayersPopup();
+              }}>
+                <div>{p.number}<br />{p.shortname}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // ランダム入力関数群
@@ -617,6 +677,11 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     setOppoTeam(prev => (prev === 0 ? 1 : 0));
   }
 
+  // offenseTeam が外部から変更された場合に oppoTeam を自動で同期する
+  useEffect(() => {
+    setOppoTeam(1 - (offenseTeam ?? 0));
+  }, [offenseTeam]);
+
   const autoFill = () => {
     const playerNumber = getRandomPlayer();
     const playerObj = players[offenseTeam].find(p => p.number === playerNumber);
@@ -859,6 +924,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     const content = (
       <div className="base">
       {renderKeyboard()}
+      {renderOppoPlayersPopup()}
       <div className="header row">
         <div className="header-title left">
           <div>{teams[0].shortname} vs {teams[1].shortname}</div>
@@ -956,8 +1022,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const renderPenaltyBtns = () => {
     return (
       <div id="penaltyBtns">
-        <div onClick={() => {}}>🟨</div>
-        <div onClick={() => {}}>✌</div>
+        <div onClick={() => openOppoPlayersPopup("yellowCard", false)}>🟨</div>
+        <div onClick={() => openOppoPlayersPopup("2minSuspension", true)}>✌</div>
         <div onClick={() => {}}>⏲</div>
       </div>
     );
@@ -981,6 +1047,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const renderTablet = () => {
     const content = (
       <div className="base" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+        {renderOppoPlayersPopup()}
         <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
           <img src={teams[offenseTeam]?.image || ""} className="backgroundImage"/>
           <div id="leftColumn" className="column" style={{flex: '2 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
@@ -1062,7 +1129,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
               </div>
             </div>
           </div>
-<div id="rightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 min(350px, 35vw)', width: 'min(350px, 35vw)', minWidth: 0}}>
+          <div id="rightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 min(350px, 35vw)', width: 'min(350px, 35vw)', minWidth: 0}}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div className="group" style={{ flex: 1, minHeight: 0, maxHeight: '400px', overflowY: 'auto' }}>
                 <div className="label">Area</div>
@@ -1072,8 +1139,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                       <DrawShootArea
                         width="100%"
                         height="100%"
-                        onClick={(type, value) => {
-                          if (type === "area") {
+                        onClick={(t, value) => {
+                          if (t === "area") {
                             setInputValues(prev => ({ ...prev, shootArea: value }));
                           }
                         }}
@@ -1089,7 +1156,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                 </div>
               </div>
             </div>
-            </div>
+          </div>
       </div>
       <div className="footer">
         {inputMode ? (
