@@ -1,12 +1,51 @@
-.titleArea {
+.titleMain {
+  height: 100%;
+  width: 400px;
   margin: 0 auto;
+  position: relative;
+}
+
+.titleHeader {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.titleFooter{
+  width: 100%;
+  height: 200px;
+  position: absolute;
+  bottom: 0;
   background: rgba(173, 216, 230, 0.5);
   padding: 10px 20px;
-  width: 300px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
+.titleString {
+  padding-top: 20px;
+  font-size: xx-large;
+  font-weight: bold;
+  color: darkblue;
+  text-align: center;
+}
+
+.btnLogin {
+    background: lightgreen;
+    border: green 4px solid;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: x-large;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    margin: 10px;
+}
+
 
 .btnTitle {
   background: lightyellow;
@@ -36,9 +75,12 @@
   max-width: 300px;
 }
 
-input {
-    font-size: x-large;
-    margin-bottom: 5px;
+input.passName {
+  background: white;
+  font-size: x-large;
+  text-align: left;
+  width: 100%;
+  margin: 5px 0;
 }
 
 .team {
@@ -65,7 +107,6 @@ input {
     user-select: none;
     cursor: pointer;
 }
-
 
 .selectTeamPopup {
     position: absolute;

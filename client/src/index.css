@@ -475,12 +475,6 @@ table.resultTable, table.resultTable td {
 }
 
 
-input.passName {
-  background: white;
-  font-size: x-large;
-  margin: 0 20px;
-  text-align: left;}
-
 .mainContainer {
   width: 100%;
   height: 100%;

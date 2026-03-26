@@ -1,0 +1,12 @@
+.react-datepicker {
+  font-size: 1.5rem; /* 文字サイズを大きく設定 */
+}
+
+.react-datepicker__header {
+  font-size: 1.6rem; /* ヘッダーの文字サイズをさらに大きく */
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name {
+  font-size: 1.4rem; /* 日付部分の文字サイズを調整 */
+}

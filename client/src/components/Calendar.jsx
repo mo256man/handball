@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ja } from "date-fns/locale";
+import "./style_calendar.css"; // カスタムスタイルをインポート
 
 // 汎用カレンダーコンポーネント
 // props:

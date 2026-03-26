@@ -37,10 +37,15 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
   );
 
   const handlePassClick = async () => {
+    // 名前またはパスワードが空の場合はエラーを表示して終了
+    if (!username.trim() || !password.trim()) {
+      setPassError("名前とパスワードを入力してください");
+      return;
+    }
+
     // パスワード確認
     setPassError("");
     try {
-      // 空文字もそのまま送信
       const response = await fetch("/api/checkpass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +79,7 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
 
   const renderNamePass = () => (
     // 名前とパスワード入力画面
-    <div id="pass" className="titleArea">
+    <div id="pass">
       <input
         className="passName"
         type="text"
@@ -89,14 +94,14 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
         value={password}
         onChange={e => setPassword(e.target.value)}
       />
-      <div className="btnConfirm" onClick={handlePassClick}>ログイン</div>
+      <div className="btnLogin" onClick={handlePassClick}>ログイン</div>
       <div className="errorMessage">{passError}</div>
     </div>
   );
 
   const renderMenu = () => (
     // メニュー画面
-    <div id="menu" className="titleArea">
+    <div id="menu">
       <div className="row">
         <div className="teamname-title center">{teams[0].teamname}</div>
       </div>
@@ -104,25 +109,21 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
         <div className="btnTitle" onClick={() => { setView('inputMenu'); setIsEditor(true); }}>📝</div>
         <div className="btnTitle" onClick={() => { setView('outputMenu'); setIsEditor(false); }}>📊</div>
       </div>
-      <div className="btnConfirm" onClick={() => { setTitleMode('pass'); setTeams([null, null]); setIsEditor(null); setMatchId(null); }}>ログアウト</div>
+      <div className="btnLogin" onClick={() => { setTitleMode('pass'); setTeams([null, null]); setIsEditor(null); setMatchId(null); }}>ログアウト</div>
     </div>
   );
 
   return (
     <div className="base">
       <img src={teams[0]?.image || "irasutoya.png"} className="backgroundImage" />
-      {showPopup && renderSelectTeams()}
+      <div className="titleMain">
+        {showPopup && renderSelectTeams()}
         {drawFrameBtn()}
-      <div className="header row">
-        <div className="header-title left">
-          <div>ハンドスタッツ入力支援</div>
-        </div>
-        <div className="header-title right" style={{display: "flex"}}>
+        <div className="titleHeader">
           <div className="header-icon header-btn">☰</div>
         </div>
-      </div>
-      <div className={teams[0] ? "main bgTeam0" : "main"}>
-        <div className="align-bottom">
+        <div className="titleString">ハンドスタッツ入力支援</div>
+        <div className={teams[0] ? "titleFooter bgTeam0" : "titleFooter"}>
           {titleMode === 'pass' && renderNamePass()}
           {titleMode === 'menu' && renderMenu()}
         </div>
