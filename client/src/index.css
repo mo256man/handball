@@ -1,15 +1,40 @@
-html, body, #root {
+html, body {
+  height: 100%;
   margin: 0;
-  padding: 0;
   overflow: hidden;
-  height: 100dvh;
-  width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Arial', 'Meiryo', sans-serif;
+  width: 100%;
+}
+
+/* ビューポート全体に固定されたグラデーション背景 */
+body {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #1e90ff, #0b1a33);
 }
 
 #root {
-  /* background-color: white; */
+  /* ビューポート全体を覆うコンテナ */
+  width: 100%;
+  height: 100%;
   padding: 0 !important;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 内部ラッパー (#myMain) が spa.html の #myMain と同じ役割を持つ */
+#myMain {
+  width: 1280px;
+  height: 640px; /* 基準サイズを変更する場合はここを調整 */
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  transform-origin: center center;
+  background: lightgreen;
+  overflow: hidden;
 }
 
 .base {
@@ -17,7 +42,9 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   position: relative;
-  height: 100dvh;
+  /* ルート要素(#root)の高さに合わせる。viewport 単位だとスケール後に不整合を起こす */
+  height: 100%;
+  min-height: 0;
 }
 
 .header {
@@ -487,7 +514,7 @@ table.resultTable, table.resultTable td {
   height: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 0; /* allow children to not overflow */
+  min-height: 0; /* 子要素がはみ出さないようにする */
   overflow: hidden;
 }
 
@@ -686,11 +713,11 @@ table.resultTable, table.resultTable td {
   font-size: large;
 }
 
-/* Prevent SVG in the right column from overflowing its parent (SPA: no page scroll)
-   Keep the column clipped and scale SVG to fit within available space. */
+/* 右カラム内のSVGが親からはみ出さないようにする（SPA: ページスクロールなし）
+  カラムをクリップし、利用可能な領域内にSVGをスケールする */
 .mainContainer > #rightColumn,
 .mainContainer #rightColumn {
-  overflow: hidden; /* clip any overflow rather than causing page scroll */
+  overflow: hidden; /* ページスクロールを引き起こすよりもオーバーフローをクリップする */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -707,7 +734,7 @@ table.resultTable, table.resultTable td {
   box-sizing: border-box;
 }
 
-/* Ensure .content is positioned and svg is used as a background behind #areaKind */
+/* .content を相対配置にし、#areaKind の背後にSVGを背景として配置する */
 #areaKindWrapper .content,
 #areaKindWrapper > .content {
   position: relative;
@@ -739,4 +766,18 @@ table.resultTable, table.resultTable td {
   max-height: 100%;
   display: block;
   box-sizing: border-box;
+}
+
+img.backgroundImage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  opacity: 0.2;
 }

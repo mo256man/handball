@@ -114,9 +114,9 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
   );
 
   return (
-    <div className="base">
+    <>
+    <div className="titleMain">
       <img src={teams[0]?.image || "irasutoya.png"} className="backgroundImage" />
-      <div className="titleMain">
         {showPopup && renderSelectTeams()}
         {drawFrameBtn()}
         <div className="titleHeader">
@@ -128,6 +128,6 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
           {titleMode === 'menu' && renderMenu()}
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,51 +1,76 @@
-.titleMain {
+/* 祖先要素の高さを確保し、百分率指定が機能するようにする。
+  また `.titleMain` が親に合わせて伸長するようにする */
+html, body, #root {
   height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* タイトルコンポーネントのスタイル（整理版） */
+
+.titleMain {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+    /* 親の高さが指定されているならそれを使い、ビューポート単位は使わない
+      - height:100% を優先して親に従う
+      - min-height:0 を指定して flex 子での高さ制約を防ぐ */
+    height: 100%;
+    min-height: 0;
+  flex: 1 1 auto;
+  align-self: stretch;
   width: 400px;
   margin: 0 auto;
-  position: relative;
+  background: white;
+  box-sizing: border-box;
 }
 
 .titleHeader {
   display: flex;
   justify-content: flex-end;
-}
-
-.titleFooter{
-  width: 100%;
-  height: 200px;
-  position: absolute;
-  bottom: 0;
-  background: rgba(173, 216, 230, 0.5);
-  padding: 10px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  margin: 0;
+  padding: 0;
 }
 
 .titleString {
   padding-top: 20px;
+  margin: 0;
   font-size: xx-large;
   font-weight: bold;
   color: darkblue;
   text-align: center;
 }
 
-.btnLogin {
-    background: lightgreen;
-    border: green 4px solid;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: x-large;
-    font-weight: bold;
-    user-select: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-    margin: 10px;
+.titleFooter {
+  width: 100%;
+  height: 200px;
+  /* フッターをコンテナの最後に配置するため、absolute は使わずにマージンで下詰めする */
+  margin-top: auto;
+  background: rgba(173, 216, 230, 0.5);
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
+.btnLogin {
+  background: lightgreen;
+  border: green 4px solid;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: x-large;
+  font-weight: bold;
+  user-select: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  margin: 10px;
+}
 
 .btnTitle {
   background: lightyellow;
@@ -84,105 +109,104 @@ input.passName {
 }
 
 .team {
-    cursor: pointer;
-    padding: 10px;
+  cursor: pointer;
+  padding: 10px;
 }
 
 .btnSetting {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: lightyellow;
-    border: yellow 5px solid;
-    border-radius: 5px;
-    margin: 5px;
-    padding: 5px;
-    font-size: x-large;
-    text-align: center;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: lightyellow;
+  border: yellow 5px solid;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 5px;
+  font-size: x-large;
+  text-align: center;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
 }
 
 .selectTeamPopup {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    border-radius: 20px;
-    height: auto;
-    max-height: 80vh;
-    margin: 0;
-    background: white;
-    border-radius: 5px;
-    padding: 10px 30px;
-    box-sizing: border-box;
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  border-radius: 20px;
+  height: auto;
+  max-height: 80vh;
+  margin: 0;
+  background: white;
+  border-radius: 5px;
+  padding: 10px 30px;
+  box-sizing: border-box;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
 }
 
 .selectTeamArea {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  overflow-y: auto;
 }
 
-
 .team-item {
-    font-size: normal;
-    font-weight: bold;
-    color: darkblue;
-    background: lightblue;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  font-size: normal;
+  font-weight: bold;
+  color: darkblue;
+  background: lightblue;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .team-item:hover {
-    background: lightcyan;
+  background: lightcyan;
 }
 
 .team-item:active {
-    background: darkcyan;
+  background: darkcyan;
 }
 
 img.team-logo {
-    max-width: 80%;
-    height: auto;
+  max-width: 80%;
+  height: auto;
 }
 
 .teamname-title {
-    font-size: x-large;
-    font-weight: bold;
+  font-size: x-large;
+  font-weight: bold;
 }
 
 .btnPopupClose {
-    font-size: xx-large;
-    cursor: pointer;
-    user-select: none;
-    align-self: flex-end;
-    margin-bottom: 5px;
-    margin-left: auto;
+  font-size: xx-large;
+  cursor: pointer;
+  user-select: none;
+  align-self: flex-end;
+  margin-bottom: 5px;
+  margin-left: auto;
 }
 
 .errorMessage {
-    color: red;
-    font-weight: bold;
-    min-height: 1.2em;
-    line-height: 1.2em;
-    display: flex;
-    align-items: center;
+  color: red;
+  font-weight: bold;
+  min-height: 1.2em;
+  line-height: 1.2em;
+  display: flex;
+  align-items: center;
 }
