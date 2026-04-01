@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "./style_title.css";
+// import "./style_title.css";
+import styles from "./Title.module.css";
 
 export default function Title({allTeams, setView, teams, setTeams, titleMode, setTitleMode, setIsEditor, setMatchId}) {
   const [showPopup, setShowPopup] = useState(false);        // チーム選択ポップアップ表示フラグ
@@ -81,53 +82,62 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
     // 名前とパスワード入力画面
     <div id="pass">
       <input
-        className="passName"
+        className={styles.passName}
         type="text"
         placeholder="名前"
         value={username}
         onChange={e => setUsername(e.target.value)}
       />
       <input
-        className="passName"
+        className={styles.passName}
         type="password"
         placeholder="パスワード"
         value={password}
         onChange={e => setPassword(e.target.value)}
       />
-      <div className="btnLogin" onClick={handlePassClick}>ログイン</div>
-      <div className="errorMessage">{passError}</div>
+      <div className={styles.btnLogin} onClick={handlePassClick}>ログイン</div>
+      <div className={styles.errorMessage}>{passError}</div>
     </div>
   );
 
   const renderMenu = () => (
     // メニュー画面
     <div id="menu">
-      <div className="row">
-        <div className="teamname-title center">{teams[0].teamname}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+        <div className={styles.btnTitle} onClick={() => { setView('inputMenu'); setIsEditor(true); }}>
+          <div className={styles.fontNormal}>記入</div>
+          <div className={styles.fontLarge}>📝</div>
+        </div>
+        <div className={styles.btnTitle} onClick={() => { setView('outputMenu'); setIsEditor(false); }}>
+          <div className={styles.fontNormal}>閲覧</div>
+          <div className={styles.fontLarge}>📊</div>
+        </div>
+        <div className={styles.btnTitle} onClick={() => { setView('settingsMenu'); setIsEditor(false); }}>
+          <div className={styles.fontNormal}>設定</div>
+          <div className={styles.fontLarge}>🔧</div>
+        </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-        <div className="btnTitle" onClick={() => { setView('inputMenu'); setIsEditor(true); }}>📝</div>
-        <div className="btnTitle" onClick={() => { setView('outputMenu'); setIsEditor(false); }}>📊</div>
-      </div>
-      <div className="btnLogin" onClick={() => { setTitleMode('pass'); setTeams([null, null]); setIsEditor(null); setMatchId(null); }}>ログアウト</div>
+      <div className={styles.btnLogin} onClick={() => { setTitleMode('pass'); setTeams([null, null]); setIsEditor(null); setMatchId(null); }}>ログアウト</div>
     </div>
   );
 
-  return (
+  const content = () => (
     <>
-    <div className="titleMain">
-      <img src={teams[0]?.image || "irasutoya.png"} className="backgroundImage" />
-        {showPopup && renderSelectTeams()}
-        {drawFrameBtn()}
-        <div className="titleHeader">
-          <div className="header-icon header-btn">☰</div>
-        </div>
-        <div className="titleString">ハンドスタッツ入力支援</div>
-        <div className={teams[0] ? "titleFooter bgTeam0" : "titleFooter"}>
-          {titleMode === 'pass' && renderNamePass()}
-          {titleMode === 'menu' && renderMenu()}
-        </div>
+    <div className={styles.main}>
+      <img src={teams[0]?.image || "irasutoya.png"} className={styles.backgroundImage} />
+      <div className={styles.titleString}>ハンドスタッツ入力支援</div>
+      {teams[0] && (
+        <div className={styles.teamname}>{teams[0].teamname}</div>
+      )}
+      <div className={teams[0] ? styles.footer + " " + styles.bgTeam0 : styles.footer}>
+        {titleMode === 'pass' && renderNamePass()}
+        {titleMode === 'menu' && renderMenu()}
       </div>
+    </div>
     </>
+  );
+  
+  return (
+    <>{content()}</>
   );
 }

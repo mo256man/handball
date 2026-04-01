@@ -323,7 +323,7 @@ function App() {
   // }
 
   return (
-    <div>{content}</div>
+    <>{content}</>
   );
 }
 

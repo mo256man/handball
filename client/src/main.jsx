@@ -19,9 +19,8 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator && import.meta
 }
 
 function fitToViewport() {
-  // 拡縮対象はまず #myMain を探し、無ければ #root をフォールバック
-  const main = document.getElementById('myMain') || document.getElementById('root');
-  if (!main) {
+  const root = document.getElementById('root');
+  if (!root) {
     console.error("Element with id 'root' not found.");
     return;
   }
@@ -37,7 +36,6 @@ function fitToViewport() {
     return { w, h };
   }
 
-  // spa.html と同じ基準サイズを固定で使う（安定して同一挙動にする）
   const BASE_WIDTH = 1280;
   const BASE_HEIGHT = 640;
   function getBaseSize() {
@@ -51,40 +49,40 @@ function fitToViewport() {
     // インラインで基準サイズ(px)を固定して、他のCSSルールに上書きされるのを防ぐ
     try {
       // 強制的に優先度を上げて設定して、外部CSSに上書きされるのを防ぐ
-      main.style.setProperty('width', base.baseW + 'px', 'important');
-      main.style.setProperty('height', base.baseH + 'px', 'important');
-      main.style.setProperty('max-width', 'none', 'important');
-      main.style.setProperty('max-height', 'none', 'important');
-      main.style.setProperty('transform-origin', 'center center', 'important');
-      main.style.setProperty('will-change', 'transform', 'important');
+      root.style.setProperty('width', base.baseW + 'px', 'important');
+      root.style.setProperty('height', base.baseH + 'px', 'important');
+      root.style.setProperty('max-width', 'none', 'important');
+      root.style.setProperty('max-height', 'none', 'important');
+      root.style.setProperty('transform-origin', 'center center', 'important');
+      root.style.setProperty('will-change', 'transform', 'important');
     } catch (e) {}
     // 親要素の transform やレイアウト干渉を避けるため、
     // 一時的に position:fixed でビューポート基準にする（診断用）
     try {
-      main.style.position = 'fixed';
-      main.style.left = '50%';
-      main.style.top = '50%';
-      main.style.margin = '0';
-      main.style.boxSizing = 'border-box';
-      main.style.zIndex = '1000';
-      main.style.overflow = 'hidden';
+      root.style.position = 'fixed';
+      root.style.left = '50%';
+      root.style.top = '50%';
+      root.style.margin = '0';
+      root.style.boxSizing = 'border-box';
+      root.style.zIndex = '1000';
+      root.style.overflow = 'hidden';
     } catch (e) {}
-    main.style.setProperty('--scale', String(s));
+    root.style.setProperty('--scale', String(s));
     // CSS が上書きされるケースや計算順の問題を避けるため、
     // インラインで transform を直接設定して確実に反映させる。
     try {
-      main.style.transform = `translate(-50%, -50%) scale(${s})`;
+      root.style.transform = `translate(-50%, -50%) scale(${s})`;
     } catch (e) {}
     // デバッグ: vp / base / scale / rendered を一つのログで出力
     try {
-      const rect = main.getBoundingClientRect();
+      const rect = root.getBoundingClientRect();
       // eslint-disable-next-line no-console
       console.log('[fit]', { vp, base, scale: s, rendered: { width: rect.width, height: rect.height } });
       try {
-        const csMain = getComputedStyle(main);
+        const csRoot = getComputedStyle(root);
         // eslint-disable-next-line no-console
-        console.log('[fit-debug] computed:', { width: csMain.width, height: csMain.height, transform: csMain.transform, inlineWidth: main.style.width, inlineHeight: main.style.height, client: { cw: main.clientWidth, ch: main.clientHeight, offsetH: main.offsetHeight } });
-        const parent = main.parentElement;
+        console.log('[fit-debug] computed:', { width: csRoot.width, height: csRoot.height, transform: csRoot.transform, inlineWidth: root.style.width, inlineHeight: root.style.height, client: { cw: root.clientWidth, ch: root.clientHeight, offsetH: root.offsetHeight } });
+        const parent = root.parentElement;
         if (parent) {
           const csParent = getComputedStyle(parent);
           // eslint-disable-next-line no-console
@@ -93,7 +91,7 @@ function fitToViewport() {
         // 追加診断: 祖先チェーンを辿って各要素の transform/rect を出力する
         try {
           const chain = [];
-          let el = main;
+          let el = root;
           while (el) {
             const cs = getComputedStyle(el);
             const rect = el.getBoundingClientRect();
@@ -127,9 +125,7 @@ function fitToViewport() {
 const rootContainer = createRoot(document.getElementById('root'));
 rootContainer.render(
   <StrictMode>
-    <div id="myMain">
-      <App />
-    </div>
+    <App />
   </StrictMode>,
 )
 
