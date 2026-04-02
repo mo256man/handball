@@ -1,0 +1,35 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 500px;
+  margin: 0 auto;
+  background: white;
+  box-sizing: border-box;
+}
+
+img.backgroundImage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  opacity: 0.2;
+}
+
+.titleString {
+  padding-top: 20px;
+  margin: 0;
+  font-size: xx-large;
+  font-weight: bold;
+  color: darkblue;
+  text-align: center;
+}

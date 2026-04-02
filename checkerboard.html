@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkerboard Layout</title>
+  <style>
+    body { margin: 0; padding: 0; }
+
+    .checkerboard{
+      /* 設定値 */
+      --size: 100px;
+      --color1: #3498db;   /* タイルAの色 */
+      --color2: #f1c40f;   /* タイルBの色 */
+      --image: url("image1.png");
+
+      /* 共有計算値 */
+      --step: calc(var(--size) * 2);
+      --tileA: var(--color1);
+
+      /* 共有パターン（タイルA部分を塗る／マスクする用途で再利用） */
+      --pattern: conic-gradient(
+        from 0deg at 50% 50%,
+        var(--tileA) 0 90deg,
+        transparent 90deg 180deg,
+        var(--tileA) 180deg 270deg,
+        transparent 270deg 360deg
+      );
+
+      width: 100%;
+      height: 100vh;
+      position: relative;
+
+      /* 背面：タイルBで全面を塗りつぶし／前面：タイルAのパターンを重ねる */
+      background-image: var(--pattern), linear-gradient(var(--color2), var(--color2));
+      background-size: var(--step) var(--step), 100% 100%;
+      background-position: center, center;
+      background-repeat: repeat, no-repeat;
+    }
+
+    .checkerboard::before{
+      content:"";
+      position:absolute;
+      inset:0;
+	  opacity: 0.5;
+		
+      /* タイルA部分にのみ画像を繰り返し表示（起点はパターンと同期） */
+      background-image: var(--image);
+      background-size: var(--size) var(--size);
+      background-repeat: repeat;
+      background-position: calc(50% - (var(--size) / 2)) calc(50% - (var(--size) / 2));
+
+      /* 同一パターンを「黒」で上書きし、タイルA形状をマスクとして使用 */
+      --tileA: #000;
+      -webkit-mask-image: var(--pattern);
+      -webkit-mask-size: var(--step) var(--step);
+      -webkit-mask-position: center;
+      -webkit-mask-repeat: repeat;
+
+      mask-image: var(--pattern);
+      mask-size: var(--step) var(--step);
+      mask-position: center;
+      mask-repeat: repeat;
+    }
+  </style>
+</head>
+<body>
+  <div class="checkerboard"></div>
+</body>
+</html>

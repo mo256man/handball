@@ -17,16 +17,52 @@ body {
 
 
 #root {
-  width: 1280px;
-  height: 640px; /* 基準サイズを変更する場合はここを調整 */
+  /* CSS 変数定義 */
+  --size: 200px;
+  --color1: lightblue;
+  --color2: lightskyblue;
+  
+  /* 計算値 */
+  --step: calc(var(--size) * 2);
+  --tileA: var(--color1);
+  
+  /* チェッカーボード パターン */
+  --pattern: conic-gradient(
+    from 0deg at 50% 50%,
+    var(--tileA) 0 90deg,
+    transparent 90deg 180deg,
+    var(--tileA) 180deg 270deg,
+    transparent 270deg 360deg
+  );
+  
+  width: 1376px;
+  height: 942px;
   box-sizing: border-box;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%) scale(var(--scale, 1));
   transform-origin: center center;
-  background: lightgreen;
   overflow: hidden;
+  
+  /* チェッカーボード背景（色のみ） */
+  background-image: var(--pattern), linear-gradient(var(--color2), var(--color2));
+  background-size: var(--step) var(--step), 100% 100%;
+  background-position: center, center;
+  background-repeat: repeat, no-repeat;
+}
+
+#root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root > * {
+  position: relative;
+  z-index: 1;
 }
 
 .base {

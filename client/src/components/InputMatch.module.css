@@ -1,0 +1,49 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  margin: 0 auto;
+  background: white;
+  box-sizing: border-box;
+}
+
+
+
+.titleString {
+  padding-top: 20px;
+  margin: 0;
+  font-size: xx-large;
+  font-weight: bold;
+  color: darkblue;
+  text-align: center;
+}
+
+.tablesContainer{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: lightyellow;
+}
+
+
+.teamWrapper {
+  padding: 0 10px;
+  position: relative;
+}
+
+.teamWrapper img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  max-width: 100%;
+  max-height: 100%;
+  opacity: 0.2;
+}

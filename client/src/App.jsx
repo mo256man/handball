@@ -75,6 +75,73 @@ function App() {
     setScore([score1st[0] + score2nd[0], score1st[1] + score2nd[1]]);
   }, [score1st, score2nd]);
 
+  // チェッカーボード背景の画像を SVG で生成
+  useEffect(() => {
+    const root = document.getElementById('root');
+    const styles = getComputedStyle(root);
+    const tileSizeStr = styles.getPropertyValue('--size').trim();
+    const tileSize = parseFloat(tileSizeStr);
+    const stepSize = tileSize * 2;
+    const width = 1376;
+    const height = 942;
+    const imagePath = !teams[0] ? 'irasutoya.png' : teams[0].image;
+    
+    // CSS の background-position: center と同じオフセット
+    const offsetX = (width % stepSize) / 2;
+    const offsetY = (height % stepSize) / 2;
+    
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.style.position = 'absolute';
+    svg.style.inset = '0';
+    svg.style.pointerEvents = 'none';
+    svg.style.zIndex = '0';
+    svg.style.opacity = '0.5';
+    
+    const defs = document.createElementNS(svgNS, 'defs');
+    const pattern = document.createElementNS(svgNS, 'pattern');
+    pattern.setAttribute('id', 'bgPattern');
+    pattern.setAttribute('x', offsetX);
+    pattern.setAttribute('y', offsetY);
+    pattern.setAttribute('width', stepSize);
+    pattern.setAttribute('height', stepSize);
+    pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+    
+    const image1 = document.createElementNS(svgNS, 'image');
+    image1.setAttribute('href', imagePath);
+    image1.setAttribute('x', '0');
+    image1.setAttribute('y', '0');
+    image1.setAttribute('width', tileSize);
+    image1.setAttribute('height', tileSize);
+    image1.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    
+    const image2 = document.createElementNS(svgNS, 'image');
+    image2.setAttribute('href', imagePath);
+    image2.setAttribute('x', tileSize);
+    image2.setAttribute('y', tileSize);
+    image2.setAttribute('width', tileSize);
+    image2.setAttribute('height', tileSize);
+    image2.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    
+    pattern.appendChild(image1);
+    pattern.appendChild(image2);
+    defs.appendChild(pattern);
+    svg.appendChild(defs);
+    
+    const rect = document.createElementNS(svgNS, 'rect');
+    rect.setAttribute('width', width);
+    rect.setAttribute('height', height);
+    rect.setAttribute('fill', 'url(#bgPattern)');
+    svg.appendChild(rect);
+    
+    const existing = root.querySelector('svg[style*="position: absolute"]');
+    if (existing) existing.remove();
+    
+    root.appendChild(svg);
+  }, [teams]);
 
     const [match, setMatch] = useState({
       team1: null,

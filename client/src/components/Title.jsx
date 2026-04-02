@@ -9,7 +9,7 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
   const [username, setUsername] = useState("");
 
   console.log(teams);
-  
+
   // outlineデバッグ用のトグル
   const [outlineOn, setOutlineOn] = useState(false);
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
     </div>
   );
 
-  const content = () => (
+  const content = (
     <>
     <div className={styles.main}>
       <img src={teams[0]?.image || "irasutoya.png"} className={styles.backgroundImage} />
@@ -138,6 +138,6 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
   );
   
   return (
-    <>{content()}</>
+    <>{content}</>
   );
 }

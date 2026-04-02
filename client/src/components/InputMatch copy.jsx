@@ -154,7 +154,7 @@ export default function InputMatch(
         setPlayers([benchPlayers0, benchPlayers1]);
         if (typeof setMatchId === 'function') setMatchId(matchId);
       }
-      
+
       // 指定のビューへ移動
       setView(targetView);
     } catch (error) {
@@ -172,39 +172,64 @@ export default function InputMatch(
     ));
   };
 
-
-
-  const renderSelectTeams = () => {
+  const renderLockBtn = () => {
     return (
-      <div id="tab-area" className={`tab-area tab-area-${offenseTeam}`}>
-        <div className="tabs">
-          <button className="tab bgTeam0" onClick={() => setOffenseTeam(0)}>自チーム</button>
-          <button className="tab bgTeam1" onClick={() => setOffenseTeam(1)}>対戦チーム</button>
-        </div>
-        <div className={ offenseTeam ? "tab-content bgTeam1" : "tab-content bgTeam0" }>
-          {renderTable(offenseTeam)}
-        </div>
+      <div 
+        id="playerLocked"
+        onClick={() => {
+          console.log("Lock button clicked"); // イベント発火確認用ログ
+          if (matchId) {
+            setPlayerLocked((prev) => {
+              const newState = !prev;
+              console.log("playerLocked state changed:", newState); // 状態変更確認用ログ
+              return newState;
+            });
+          }
+        }}
+        style={{ cursor: matchId ? 'pointer' : 'default' }}
+      >
+        {playerLocked ? "🔒" : "🔓"}
+      </div>
+    );
+  }
+
+  const renderTeamTables = () => {
+    return (
+      <div className="team-tables-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        {teams.map((team, index) => (
+          <div key={index} className="team-wrapper">
+            <img src={teams[index]?.image}/>
+            <div
+              key={index}
+              className="team-table-wrapper"
+            >
+              <h3>{team?.teamname}</h3>
+              {index === 0 && renderLockBtn()} {/* team0の場合のみrenderLockBtnを表示 */}
+              {renderTable(index)}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
 
   const renderTable = (teamIdx) => {
-    const playersArr = players[teamIdx];
+    const playersArr = teamIdx === 1 && !teams[teamIdx]?.teamname ? [] : players[teamIdx]; // team1が未選択の場合は空の配列
     const selectedCount = playersArr.filter(p => p.isOnBench).length;
-    const teamName = teams[teamIdx].teamname;
+    const teamName = teams[teamIdx]?.teamname || ""; // team1が未選択の場合は空文字
     return (<>
       <select
-        id={`teamName${offenseTeam}`}
-        value={teamName}
+        id={`teamName${teamIdx}`}
+        value={teamName || ""} // 初期値を空文字に設定
         onChange={e => {
+          if (teamIdx === 0) return; // team0は変更不可
           const newTeams = [...teams];
-          newTeams[offenseTeam] = allTeams.find(t => t.teamname === e.target.value);
+          newTeams[teamIdx] = allTeams.find(t => t.teamname === e.target.value) || null; // 未選択の場合はnull
           setTeams(newTeams);
         }}
         className="team-select team-area-item"
-        disabled={offenseTeam === 0 || playerLocked}
+        disabled={teamIdx === 0 || playerLocked} // team0は常に無効化
       >
-        {/* <option value="">-- 相手チームを選択してください --</option> */}
         {AllTeamNames.map((name, index) => (
           <option key={index} value={name}>{name}</option>
         ))}
@@ -242,37 +267,29 @@ export default function InputMatch(
 
   const content = (
     <div className="base">
-    <div className="header row">
-      <div className="header-title left">
-        <div>チーム・出場選手選択</div>
-      </div>
-      <div className="header-title right" style={{display: "flex"}}>
-        <div onClick={() => setView("inputMenu")} className="header-icon header-btn">🔙</div>
-      </div>
-    </div>
-    <div className="main">
-      <img src={teams[offenseTeam]?.image} className="backgroundImage" />
-      <div id="matchDate">{matchDate}</div>
-      {errorMessage && (
-        <div style={{ color: 'red', padding: '10px', marginBottom: '10px', border: '1px solid red', borderRadius: '4px' }}>
-          {errorMessage}
+      <div className="header row">
+        <div className="header-title left">
+          <div id="matchDate">{matchDate}</div>
         </div>
-      )}
-      <div 
-        id="playerLocked"
-        onClick={() => matchId && setPlayerLocked(!playerLocked)}
-        style={{ cursor: matchId ? 'pointer' : 'default' }}
-      >
-        {playerLocked ? "🔒" : "🔓"}
+        <div className="header-title right" style={{ display: "flex" }}>
+          <div onClick={() => setView("inputMenu")} className="header-icon header-btn">🔙</div>
+        </div>
       </div>
-      {renderSelectTeams()}
-    </div>
-    <div className="footer">
-    <div className="btnStart" onClick={() => handleStartClick()}>START</div>
-    <div className="btnStart" onClick={() => handleStartClick("inputTable")}>START_TAB</div>
-  </div>
-  </div>
-  )
+      <div className="main">
+        <h1>チーム・出場選手選択</h1>
+        {errorMessage && (
+          <div style={{ color: 'red', padding: '10px', marginBottom: '10px', border: '1px solid red', borderRadius: '4px' }}>
+            {errorMessage}
+          </div>
+        )}
 
+        {renderTeamTables()}
+      </div>
+      <div className="footer">
+        {/* <div className="btnStart" onClick={() => handleStartClick()}>START</div> */}
+        <div className="btnStart" onClick={() => handleStartClick("inputTable")}>START</div>
+      </div>
+    </div>
+  );
   return content;
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Player } from "../models/Player";
-import "./style_input.css";
+// import "./style_input.css";
+import styles from "./InputMatch.module.css";
 import { ja } from "date-fns/locale";
 import { insertMatch, updateMatch, getMatchById, getRecordsByMatchId } from "../api";
 
@@ -195,9 +196,9 @@ export default function InputMatch(
 
   const renderTeamTables = () => {
     return (
-      <div className="team-tables-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div className={styles.tablesContainer}>
         {teams.map((team, index) => (
-          <div key={index} className="team-wrapper">
+          <div key={index} className={styles.teamWrapper}>
             <img src={teams[index]?.image}/>
             <div
               key={index}
@@ -265,7 +266,7 @@ export default function InputMatch(
     </>)
   }
 
-  const content = (
+  const content0 = (
     <div className="base">
       <div className="header row">
         <div className="header-title left">
@@ -291,5 +292,15 @@ export default function InputMatch(
       </div>
     </div>
   );
+
+  const content = (
+    <>
+    <div className={styles.main}>
+      <div className={styles.titleString}>チーム・選手選択</div>
+      {renderTeamTables()}
+    </div>
+    </>
+  )
+
   return content;
 }

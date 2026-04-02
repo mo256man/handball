@@ -36,8 +36,8 @@ function fitToViewport() {
     return { w, h };
   }
 
-  const BASE_WIDTH = 1280;
-  const BASE_HEIGHT = 640;
+  const BASE_WIDTH = 1376;
+  const BASE_HEIGHT = 942;
   function getBaseSize() {
     return { baseW: BASE_WIDTH, baseH: BASE_HEIGHT };
   }
