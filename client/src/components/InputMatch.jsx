@@ -173,16 +173,15 @@ export default function InputMatch(
     ));
   };
 
-  const renderLockBtn = () => {
-    return (
+  const renderLockBtn = (bool) => {
+    return bool ? (
       <div 
+        className={styles.lockBtnArea}
         id="playerLocked"
         onClick={() => {
-          console.log("Lock button clicked"); // イベント発火確認用ログ
           if (matchId) {
             setPlayerLocked((prev) => {
               const newState = !prev;
-              console.log("playerLocked state changed:", newState); // 状態変更確認用ログ
               return newState;
             });
           }
@@ -191,6 +190,8 @@ export default function InputMatch(
       >
         {playerLocked ? "🔒" : "🔓"}
       </div>
+    ) : (
+      <div className={styles.lockBtnArea}></div>
     );
   }
 
@@ -200,12 +201,8 @@ export default function InputMatch(
         {teams.map((team, index) => (
           <div key={index} className={styles.teamWrapper}>
             <img src={teams[index]?.image}/>
-            <div
-              key={index}
-              className="team-table-wrapper"
-            >
-              <h3>{team?.teamname}</h3>
-              {index === 0 && renderLockBtn()} {/* team0の場合のみrenderLockBtnを表示 */}
+            <div key={index} className="team-table-wrapper">
+              <div style={{ textAlign: "center", fontSize: "x-large", fontWeight: "bold" }}>{index===0 ? "自チーム" : "相手チーム"}</div>
               {renderTable(index)}
             </div>
           </div>
@@ -218,24 +215,28 @@ export default function InputMatch(
     const playersArr = teamIdx === 1 && !teams[teamIdx]?.teamname ? [] : players[teamIdx]; // team1が未選択の場合は空の配列
     const selectedCount = playersArr.filter(p => p.isOnBench).length;
     const teamName = teams[teamIdx]?.teamname || ""; // team1が未選択の場合は空文字
+    const bool = (teamIdx === 1); // team1の場合のみロックボタンを表示するためのフラグ
     return (<>
-      <select
-        id={`teamName${teamIdx}`}
-        value={teamName || ""} // 初期値を空文字に設定
-        onChange={e => {
-          if (teamIdx === 0) return; // team0は変更不可
-          const newTeams = [...teams];
-          newTeams[teamIdx] = allTeams.find(t => t.teamname === e.target.value) || null; // 未選択の場合はnull
-          setTeams(newTeams);
-        }}
-        className="team-select team-area-item"
-        disabled={teamIdx === 0 || playerLocked} // team0は常に無効化
-      >
-        {AllTeamNames.map((name, index) => (
-          <option key={index} value={name}>{name}</option>
-        ))}
-      </select>
-      <div className="selectedMember team-area-item">
+      <div className="row">
+        {renderLockBtn(bool)}
+        <select
+          id={`teamName${teamIdx}`}
+          value={teamName || ""} // 初期値を空文字に設定
+          onChange={e => {
+            if (teamIdx === 0) return; // team0は変更不可
+            const newTeams = [...teams];
+            newTeams[teamIdx] = allTeams.find(t => t.teamname === e.target.value) || null; // 未選択の場合はnull
+            setTeams(newTeams);
+          }}
+          className={styles.teamSelect}
+          disabled={teamIdx === 0 || (teamIdx === 1 && playerLocked)} // team0は常に無効化、team1はplayerLockedに基づく
+        >
+          {AllTeamNames.map((name, index) => (
+            <option key={index} value={name}>{name}</option>
+          ))}
+        </select>
+      </div>
+      <div className={styles.selectedMemberCount}>
         選択中: {selectedCount} / {playersArr.length}人
       </div>
       <div className="team-table-container">
