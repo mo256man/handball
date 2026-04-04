@@ -5,7 +5,7 @@ import "./style_output.css";
 import { getMatchDates, getMatches, getRecordsByMatchId } from "../api";
 import { useSocket } from "../hooks/useSocket";
 
-export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEditor }) {
+export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEditor, setMatchId, setTeams, teams, allPlayers, setPlayers }) {
   const { socketRef } = useSocket();
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
   const [selectedDate, setSelectedDate] = useState(today);
@@ -134,6 +134,15 @@ export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEdi
 
   // 新規試合登録の処理
   const handleCreateNewMatch = () => {
+    // matchIdをnullに設定
+    if (setMatchId) setMatchId(null);
+    // teams[1]をnullに設定
+    if (setTeams) setTeams([teams[0], null]);
+    // team0のplayersを初期化
+    if (setPlayers && teams[0]) {
+      const playersForTeam0 = allPlayers.filter(player => player.teamId === teams[0].id);
+      setPlayers([playersForTeam0, []]);
+    }
     // 選択した日付を含むデータをsetSelectedMatchで保存
     if (setSelectedMatch) setSelectedMatch({ matchDate: selectedDate, matchId: null });
     // 新規試合登録画面へ遷移

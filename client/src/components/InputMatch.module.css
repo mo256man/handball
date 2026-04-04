@@ -12,7 +12,23 @@
   box-sizing: border-box;
 }
 
+.btnBack {
+  width: 32px;
+  height: 32px;
+  background: lightgray;
+  border: gray 4px solid;
+  border-radius: 4px;
+  font-size: large;
+  text-align: center;
+  justify-content: center;
+  margin: 2px 2px 0 auto;
+}
 
+.titleArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .titleString {
   padding-top: 20px;
@@ -23,17 +39,43 @@
   text-align: center;
 }
 
+.btnStart {
+    background: lightgreen;
+    border: green 3px solid;
+    border-radius: 10px;
+    font-size: x-large;
+    font-weight: bold;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    width: 50%;
+    margin: 20px auto;
+}
+
 .tablesContainer{
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   background: lightyellow;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 
 .teamWrapper {
   padding: 0 10px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.teamTableWrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .teamWrapper img {
@@ -56,11 +98,15 @@
 }
 
 .teamSelect {
-    font-size: x-large;
-    width: 80%;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  font-size: x-large;
+  font-weight: bold;
+  width: 70%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: block;
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 /* 無効（disabled）状態のプルダウンの見た目を明示的に定義 */
@@ -73,5 +119,90 @@
 
 .selectedMemberCount {
   font-size: x-large;
-  padding-left: 30px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.tableContainer {
+  flex: 1;
+  min-height: 0;
+  overflow-y: scroll; /* 常時スクロールバーを表示 */
+  scrollbar-gutter: stable; /* 幅の変化を防ぐ */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* WebKit 系でスクロールバーの見た目を調整（任意） */
+.tableContainer::-webkit-scrollbar {
+  width: 12px;
+}
+.tableContainer::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.18);
+  border-radius: 6px;
+}
+.tableContainer::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.03);
+}
+
+
+.teamTable {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: medium;
+  user-select: none;
+  table-layout: fixed;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.teamTable th {
+  position: sticky;
+  top: 0;
+  background: white;
+  font-size: normal;
+  background-color: rgba(100,100,200,0.3);
+  z-index: 3;
+}
+
+.teamTable thead th {
+  /* ヘッダー固定時に境界線が消えないよう、box-shadow で区切りを付ける */
+  border: none;
+  box-shadow: 0 5px 0 #ccc; /* 下方向に太めの線を描画 */
+  background: white;
+  background-clip: padding-box;
+}
+
+.teamTable td {
+  /* データ行は上罫線のみ表示 */
+  border: none;
+  border-top: 1px solid #ccc;
+  font-size: large;
+  cursor: pointer;
+}
+
+/* 行の選択状態（ベンチ入り／非ベンチ）をCSSで管理 */
+.teamTable tr.on-bench { /* 選択時の背景 */
+  background-color: #eee;
+  color: #111;
+}
+
+
+.teamTable tr.off-bench { /* 非選択時の背景 */
+  background-color: #666;
+  color: #eee;
+}
+
+.teamTable th:nth-child(1) {
+    width: 50px;
+}
+
+.teamTable th:nth-child(2) {
+    width: 100px;
+}
+
+.teamTable td:nth-child(1) {
+    text-align: right;
+}
+
+.teamTable td:nth-child(2) {
+    text-align: center;
 }

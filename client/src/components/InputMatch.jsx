@@ -65,16 +65,6 @@ export default function InputMatch(
     }
   }, [matchId, allTeams, allPlayers]);
 
-  // players0/players1を更新（matchIdが空の場合、または新規作成時）
-  useEffect(() => {
-    if (!matchId && teams[0] && teams[1]) {
-      setPlayers([
-        allPlayers.filter(player => player.teamId === teams[0].id),
-        allPlayers.filter(player => player.teamId === teams[1].id)
-      ]);
-    }
-  }, [teams, allPlayers, matchId]);
-
   // playerLockedを管理（matchIdに基づいて初期化）
   useEffect(() => {
     if (matchId) {
@@ -84,7 +74,7 @@ export default function InputMatch(
     }
   }, [matchId]);
 
-  if (!teams[0] || !teams[1]) {
+  if (!teams[0]) {
     return <div>Loading...</div>;
   }
 
@@ -173,25 +163,22 @@ export default function InputMatch(
     ));
   };
 
-  const renderLockBtn = (bool) => {
-    return bool ? (
+  const renderLockBtn = () => {
+    if (!matchId) {
+      return null;
+    }
+    
+    return (
       <div 
         className={styles.lockBtnArea}
         id="playerLocked"
         onClick={() => {
-          if (matchId) {
-            setPlayerLocked((prev) => {
-              const newState = !prev;
-              return newState;
-            });
-          }
+          setPlayerLocked((prev) => !prev);
         }}
-        style={{ cursor: matchId ? 'pointer' : 'default' }}
+        style={{ cursor: 'pointer' }}
       >
         {playerLocked ? "🔒" : "🔓"}
       </div>
-    ) : (
-      <div className={styles.lockBtnArea}></div>
     );
   }
 
@@ -201,7 +188,7 @@ export default function InputMatch(
         {teams.map((team, index) => (
           <div key={index} className={styles.teamWrapper}>
             <img src={teams[index]?.image}/>
-            <div key={index} className="team-table-wrapper">
+            <div className={styles.teamTableWrapper}>
               <div style={{ textAlign: "center", fontSize: "x-large", fontWeight: "bold" }}>{index===0 ? "自チーム" : "相手チーム"}</div>
               {renderTable(index)}
             </div>
@@ -212,35 +199,42 @@ export default function InputMatch(
   }
 
   const renderTable = (teamIdx) => {
-    const playersArr = teamIdx === 1 && !teams[teamIdx]?.teamname ? [] : players[teamIdx]; // team1が未選択の場合は空の配列
+    const playersArr = !teams[teamIdx] ? [] : (players[teamIdx] || []); // teams[teamIdx]がnullの場合は空配列
     const selectedCount = playersArr.filter(p => p.isOnBench).length;
     const teamName = teams[teamIdx]?.teamname || ""; // team1が未選択の場合は空文字
-    const bool = (teamIdx === 1); // team1の場合のみロックボタンを表示するためのフラグ
-    return (<>
-      <div className="row">
-        {renderLockBtn(bool)}
+    return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1 }}>
         <select
-          id={`teamName${teamIdx}`}
+          id={`team${teamIdx}`}
           value={teamName || ""} // 初期値を空文字に設定
           onChange={e => {
-            if (teamIdx === 0) return; // team0は変更不可
             const newTeams = [...teams];
-            newTeams[teamIdx] = allTeams.find(t => t.teamname === e.target.value) || null; // 未選択の場合はnull
+            const selectedTeam = allTeams.find(t => t.teamname === e.target.value) || null;
+            newTeams[teamIdx] = selectedTeam;
             setTeams(newTeams);
+            
+            // 選択されたチームに紐づく選手のみを更新
+            if (selectedTeam) {
+              const newPlayers = [...players];
+              newPlayers[teamIdx] = allPlayers.filter(player => player.teamId === selectedTeam.id);
+              setPlayers(newPlayers);
+            }
           }}
           className={styles.teamSelect}
-          disabled={teamIdx === 0 || (teamIdx === 1 && playerLocked)} // team0は常に無効化、team1はplayerLockedに基づく
+          disabled={teamIdx === 0 || (teamIdx === 1 && matchId)} // team0は常に無効化、team1はmatchId定義済み時に無効化
         >
+          {teamIdx === 1 && !teams[teamIdx] && (
+            <option value="">ーー　チームを選択してください　ーー</option>
+          )}
           {AllTeamNames.map((name, index) => (
             <option key={index} value={name}>{name}</option>
           ))}
         </select>
-      </div>
       <div className={styles.selectedMemberCount}>
         選択中: {selectedCount} / {playersArr.length}人
       </div>
-      <div className="team-table-container">
-        <table className="team-table">
+      <div className={styles.tableContainer}>
+        <table className={styles.teamTable}>
           <thead>
             <tr>
               <th>背番号</th>
@@ -253,7 +247,7 @@ export default function InputMatch(
               <tr
                 key={index}
                 onClick={() => playerLocked === false && toggleMemberSelection(teamIdx, index)}
-                className={player.isOnBench ? 'on-bench' : 'off-bench'}
+                className={player.isOnBench ? styles['on-bench'] : styles['off-bench']}
                 style={{ cursor: playerLocked === false ? 'pointer' : 'default' }}
               >
                 <td>{player.number}</td>
@@ -264,7 +258,8 @@ export default function InputMatch(
           </tbody>
         </table>
       </div>
-    </>)
+    </div>
+    );
   }
 
   const content0 = (
@@ -295,13 +290,18 @@ export default function InputMatch(
   );
 
   const content = (
-    <>
     <div className={styles.main}>
-      <div className={styles.titleString}>チーム・選手選択</div>
+      <div onClick={() => setView("inputMenu")} className={styles.btnBack}>🔙</div>
+      <div className={styles.titleArea}>
+        {renderLockBtn()}
+        <div className={styles.titleString}>チーム・選手選択</div>
+      </div>
       {renderTeamTables()}
+      <div className="footer">
+        <div className={styles.btnStart} onClick={() => handleStartClick("inputTable")}>START</div>
+      </div>
     </div>
-    </>
-  )
+  );
 
   return content;
 }

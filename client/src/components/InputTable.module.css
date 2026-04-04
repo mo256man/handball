@@ -1,0 +1,163 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  margin: 0 auto;
+  background: lightye;
+  box-sizing: border-box;
+}
+
+
+.header {
+  display: flex;
+  font-size: xx-large;
+  align-items: center;
+  background-color: aqua;
+}
+
+.headerLeft {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex: 1;
+}
+
+.headerRight {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.mainContent {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  box-sizing: border-box;
+  background-color: yellow;
+  border: 1px solid red;
+}
+
+.footer {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 20px;
+}
+
+.btnUI {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: gray 4px solid;
+  border-radius: 8px;
+  font-size: xx-large;
+  cursor: pointer;
+  margin: 2px;
+  flex-shrink: 0;
+}
+
+.btnStart {
+  font-size: x-large;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  color: #111;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.offenseTeamBtn {
+  width: 120px;
+  height: 120px;
+  border: darkgray 3px solid;
+  border-radius: 20px;
+  color: darkblue;
+  text-align: center;
+  margin: 2px;
+}
+
+.offenseTeamBtnImg {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin: 5px auto;
+}
+
+.setPlayArea {
+  font-size: large;
+  height: 20px;
+  padding: 2px 5px;
+  background: black;
+  color: white;
+  margin-bottom: 2px;
+}
+
+.inputedValues {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(2, auto);
+  border: 1px solid red;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.cell_header {
+  font-size: normal;
+  font-weight: normal;
+  border: 1px solid black;
+  background: #ddd;
+  height: 25px;
+  text-align: center;
+}
+
+.cell_atk_auto {
+  font-size: normal;
+  font-weight: normal;
+  border: 1px solid black;
+  height: 25px;
+  text-align: center;
+  background: #88e;
+}
+
+.cell_atk_manual {
+  font-size: normal;
+  font-weight: normal;
+  border: 1px solid black;
+  height: 25px;
+  text-align: center;
+  background: #e88;
+}
+
+.cell_value {
+  height: 2em;
+  font-size: large;
+  font-weight: normal;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: white;
+}
+
+.inputArea {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  background: lightpink;
+}

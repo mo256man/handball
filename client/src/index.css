@@ -645,7 +645,7 @@ table.resultTable, table.resultTable td {
   border-bottom: none;
   border-radius: 6px 6px 0 0;
   background: white;
-  font-size: small;
+  font-size: normal;
   font-weight: bold;
 }
 
@@ -696,23 +696,6 @@ table.resultTable, table.resultTable td {
   height: 100%;
 }
 
-.cell_header {
-  font-size: normal;
-  font-weight: bold;
-  border: 1px solid black;
-  text-align: center;
-}
-
-.cell_value {
-  height: 2em;
-  font-size: large;
-  font-weight: normal;
-  border: 1px solid black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
 
 
 .keyboard-btn {
