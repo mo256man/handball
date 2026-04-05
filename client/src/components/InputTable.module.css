@@ -8,7 +8,6 @@
   align-self: stretch;
   width: 100%;
   margin: 0 auto;
-  background: lightye;
   box-sizing: border-box;
 }
 
@@ -40,7 +39,6 @@
   flex-direction: column;
   overflow: auto;
   box-sizing: border-box;
-  background-color: yellow;
   border: 1px solid red;
 }
 

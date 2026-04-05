@@ -1322,7 +1322,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
 
   const content = (
-    <div className={styles.main}>
+    <div className={`${styles.main} ${oppoTeam === 0 ? 'bgTeam0' : 'bgTeam1'}`}>
       {renderHeader}
       {renderMain}
       {renderFooter}
