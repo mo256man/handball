@@ -241,7 +241,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                 }
                 closeOppoPlayersPopup();
               }}>
-                <div>{p.number}<br />{p.shortname}</div>
+                <div className="styleA">{p.number}</div>
+                <div className="styleB">{p.shortname}</div>
               </button>
             ))}
           </div>
@@ -262,7 +263,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   }
 
   const getRandomPlayer = () => {
-    const playerBtns = players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number }));
+    const playerBtns = players[offenseTeam].map((p) => ({
+      label: p.number + "<br>" + p.shortname,
+      value: p,
+    }));
     return playerBtns[Math.floor(Math.random() * playerBtns.length)].value;
   }
 
@@ -341,7 +345,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   const setKeyboardPlayers = (handleKeyboardClick) => {
     const keyboardConfig = {
       title: "選手",
-      btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p.number })),
+      btns: players[offenseTeam].map((p) => ({
+        label: p.number + "<br>" + p.shortname,
+        value: p,
+      })),
       grid: "repeat(4, 1fr)"
     };
     const result = {
@@ -359,25 +366,31 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   const setPersistentPlayers = () => {
     const keyboardConfig = {
-      title: "選手（常時表示）",
-      btns: players[offenseTeam].map((p) => ({ label: p.number + "<br>" + p.shortname, value: p })),
+      title: "選手",
+      btns: players[offenseTeam].map((p) => ({
+        label: { number: p.number, shortname: p.shortname },
+        value: p,
+      })),
       grid: "repeat(6, 1fr)" // 6列固定
     };
 
     return (
-      <div className="keyboard-body persistent players" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(2, 1fr)', gap: '10px', width: '100%', height: '100%', boxSizing: 'border-box', overflow: 'hidden', minWidth: 0 }}>
+      <div className={styles.btnPlayers}>
         {keyboardConfig.btns.map((btn, idx) => {
           const isActive = (typeof inputValues.player === 'object') ? String(inputValues.player.number) === String(btn.value.number) : String(inputValues.player) === String(btn.value.number);
+          const isGK = btn.value.position === "GK";
           return (
             <button 
               key={idx} 
-              style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.8rem', overflow: 'hidden' }} className={"keyboard-btn " + (isActive ? 'active' : '')} 
+              className={`${styles.btnPlayer} ${isGK ? styles.btnPlayerGK : styles.btnPlayerNotGK}`}
               onClick={() => {
                 setInputValues(prev => ({ ...prev, player: btn.value }));
                 append(String(btn.value.number));
               }}
-              dangerouslySetInnerHTML={{ __html: btn.label }} 
-            />
+            >
+              <div className="styleA">{btn.label.number}</div>
+              <div className="styleB">{btn.label.shortname}</div>
+            </button>
           );
         })}
         <div key="blank" aria-hidden={true} style={{ visibility: 'hidden'}} />
@@ -1103,7 +1116,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   //                 <div className="group" style={{ width: '100%' }}>
   //                   <div className="label">Player</div>
   //                   <div className="content" style={{ width: '100%', overflow: 'hidden', boxSizing: 'border-box' }}>
-  //                     <div id="areaNumber" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentPlayers()}</div>
+  //                     <div id="areaNumber" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>
+  //                       {setPersistentPlayers()}
+  //                     </div>
   //                   </div>
   //                 </div>
   //               </div>
@@ -1202,8 +1217,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     <div className={styles.mainContent}>
       {renderOppoPlayersPopup()}
       <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
-           <div id="leftColumn" className="column" style={{flex: '2 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
-           </div>
+        <div id="leftColumn" className="column" style={{flex: '2 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
+        </div>
            <div id="midColumn" className="column" style={{flex: '5 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
               <div className="row" style={{flex: '0 0 auto', display: 'flex', gap: '10px'}}>
                 {renderOffenseTeamBtn}
@@ -1218,7 +1233,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                    <div className="group" style={{ width: '100%' }}>
                     <div className="label">Player</div>
                      <div className="content" style={{ width: '100%', overflow: 'hidden', boxSizing: 'border-box' }}>
-                       <div id="areaNumber" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentPlayers()}</div>
+                       <div id="areaNumber" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>
+                        {setPersistentPlayers()}
+                      </div>
                      </div>
                    </div>
                  </div>
