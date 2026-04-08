@@ -380,23 +380,26 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           const isActive = (typeof inputValues.player === 'object') ? String(inputValues.player.number) === String(btn.value.number) : String(inputValues.player) === String(btn.value.number);
           const isGK = btn.value.position === "GK";
           return (
-            <button 
+            <div
               key={idx} 
-              className={`${styles.btnPlayer} ${isGK ? styles.btnPlayerGK : styles.btnPlayerNotGK}`}
+              className={`${styles.btnPlayer} ${isGK ? styles.colorGK : styles.colorFP}`}
               onClick={() => {
                 setInputValues(prev => ({ ...prev, player: btn.value }));
                 append(String(btn.value.number));
               }}
             >
-              <div className="styleA">{btn.label.number}</div>
-              <div className="styleB">{btn.label.shortname}</div>
-            </button>
+              <div className={styles.playerNum}>{btn.label.number}</div>
+              <div className={styles.playerName}>{btn.label.shortname}</div>
+            </div>
           );
         })}
         <div key="blank" aria-hidden={true} style={{ visibility: 'hidden'}} />
-        <button key="del" style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.8rem', overflow: 'hidden' }} className="keyboard-btn" onClick={() => { setInputValues(prev => ({ ...prev, player: "" })); backspace(); }}>
-          削除
-        </button>
+        <div 
+          key="del" 
+          className={`${styles.btnPlayer} ${styles.colorDel}`} 
+          onClick={() => { setInputValues(prev => ({ ...prev, player: "" })); backspace(); }}>
+          <div className={styles.playerNum}>削除</div>
+        </div>
       </div>
     );
   }
