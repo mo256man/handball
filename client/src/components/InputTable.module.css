@@ -184,12 +184,12 @@
   align-items: center;
 }
 
-.playerNum {
+.fontLarge {
   font-size: x-large;
   font-weight: bold;
 }
 
-.playerName {
+.fontSmall {
   font-size: small;
 }
 
@@ -203,4 +203,33 @@
 
 .colorDel {
   background-color: darkred;
+}
+
+.btnSitus {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5px;
+  width: 60px;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  min-width: 0;
+}
+
+
+.btnSitu {
+  width: 100%;
+  height: 60px;
+  color: white;
+  background: darkgreen;
+  font-size: x-large;
+  font-weight: bold;
+  border-radius: 10px;
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

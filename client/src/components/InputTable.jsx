@@ -366,12 +366,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
 
   const setPersistentPlayers = () => {
     const keyboardConfig = {
-      title: "選手",
       btns: players[offenseTeam].map((p) => ({
         label: { number: p.number, shortname: p.shortname },
         value: p,
-      })),
-      grid: "repeat(6, 1fr)" // 6列固定
+      }))
     };
 
     return (
@@ -388,8 +386,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                 append(String(btn.value.number));
               }}
             >
-              <div className={styles.playerNum}>{btn.label.number}</div>
-              <div className={styles.playerName}>{btn.label.shortname}</div>
+              <div className={styles.fontLarge}>{btn.label.number}</div>
+              <div className={styles.fontSmall}>{btn.label.shortname}</div>
             </div>
           );
         })}
@@ -398,37 +396,34 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           key="del" 
           className={`${styles.btnPlayer} ${styles.colorDel}`} 
           onClick={() => { setInputValues(prev => ({ ...prev, player: "" })); backspace(); }}>
-          <div className={styles.playerNum}>削除</div>
+          <div className={styles.fontLarge}>削除</div>
         </div>
       </div>
     );
   }
 
-  // setKeyboardSituation をコピーして、常時表示用のSituationボタンを生成する関数
   const setPersistentSituation = () => {
     const keyboardConfig = {
-      title: "状況（常時表示）",
       btns: [
         { label: "▲", value: "+" },
         { label: "7", value: "7" },
         { label: "▼", value: "-" },
       ],
-      grid: "1fr"
     };
 
     return (
-      <div className="keyboard-body persistent situation" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(1, 1fr)', gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
+      <div className={styles.btnSitus}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button
+          <div
             key={idx}
-            style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
-            className={"keyboard-btn " + (String(inputValues.situation) === String(btn.value) ? 'active' : '')}
+            className={styles.btnSitu}
             onClick={() => {
               // 同じボタンを2回押したら値を消去する（トグル動作）
               setInputValues(prev => ({ ...prev, situation: String(prev.situation) === String(btn.value) ? '' : btn.value }));
             }}
-            dangerouslySetInnerHTML={{ __html: btn.label }}
-          />
+          >
+            {btn.label}
+          </div>
         ))}
       </div>
     );
@@ -456,10 +451,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     const result = {
       title: keyboardConfig.title,
       component: (
-      <div className="keyboard-body" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gap: '10px', marginTop: '10px' }}>
+      <div className={styles.btnPlayer} onClick={() => handleKeyboardClick(btns.value)}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues[keyboardType]) === String(btn.value) ? 'active' : '')} onClick={() => handleKeyboardClick(btn.value)}
-            dangerouslySetInnerHTML={{ __html: btn.label }} />
+          <div className={styles.fontLarge}>{btn.label}</div>
         ))}
       </div>)
     }
@@ -1220,7 +1214,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     <div className={styles.mainContent}>
       {renderOppoPlayersPopup()}
       <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
-        <div id="leftColumn" className="column" style={{flex: '2 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
+        <div id="leftColumn" className="column" style={{flex: '1 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
         </div>
            <div id="midColumn" className="column" style={{flex: '5 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
               <div className="row" style={{flex: '0 0 auto', display: 'flex', gap: '10px'}}>
