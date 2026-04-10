@@ -463,7 +463,6 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   // setKeyboardKind を変更せずコピーして、常時表示用のKindボタンを生成する関数
   const setPersistentKind = () => {
     const keyboardConfig = {
-      title: "攻撃種類（常時表示）",
       btns: [
             { label: '6', value: '6' },
             { label: 'B', value: 'B' },
@@ -478,16 +477,25 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             { label: '7', value: '7' },
             { label: '（消）', value: '' },
       ],
-      grid: "repeat(4, 1fr)"
     }
     return (
-      <div className="keyboard-body persistent kind" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(3, 1fr)', gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
-        {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} style={{ width: '100%', boxSizing: 'border-box', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.85rem', overflow: 'hidden' }} className={"keyboard-btn " + (String(inputValues.kind) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, kind: btn.value }))}
-            dangerouslySetInnerHTML={{ __html: btn.label }} />
-        ))}
+      <div className={styles.btnPlayers}>
+        {keyboardConfig.btns.map((btn, idx) => {
+          return (
+            <div
+              key={idx} 
+              className={`${styles.btnPlayer} ${styles.colorFP}`}
+              onClick={() => {
+                setInputValues(prev => ({ ...prev, kind: btn.value }));
+              }}
+            >
+              <div className={styles.fontLarge}>{btn.label}</div>
+              <div className={styles.fontSmall}>{btn.value}</div>
+            </div>
+          );
+        })}
       </div>
-    )
+    );
   }
 
   const setKeyboardResult = (handleKeyboardClick) => {
@@ -1236,19 +1244,19 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                      </div>
                    </div>
                  </div>
-                 <div className="row" style={{ display: 'flex', alignItems: 'flex-start' }}>
+                 <div className="row" style={{ display: 'flex', alignItems: 'flex-start', flex: 1, minHeight: 0 }}>
                    <div className="group">
                      <div className="label">Situ</div>
                      <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
                        <div id="areaSitu" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentSituation()}</div>
                      </div>
                    </div>
-                   <div style={{ flex: 1 }}>
-                     <div id="areaKindWrapper" style={{ width: '100%' }}>
+                   <div style={{ flex: 1, minHeight: 0 }}>
+                     <div id="areaKindWrapper" style={{ width: '100%', height: '100%' }}>
                        <div className="group">
                          <div className="label">Kind</div>
-                         <div className="content" style={{ position: 'relative', overflow: 'hidden', width: '100%', boxSizing: 'border-box', minHeight: 0 }}>
-                           <div id="areaKind" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+                         <div className="content" style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%', boxSizing: 'border-box', minHeight: 0 }}>
+                           <div id="areaKind" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1, height: '100%' }}>
                              {setPersistentKind()}
                            </div>
                            <div id="areaKindBack" style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
