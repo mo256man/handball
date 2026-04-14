@@ -33,6 +33,7 @@ const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, 
     { id: 'R9', x: 160, y: 115, text: 'R9' },
     { id: 'M6', x: 100, y: 85, text: 'M6' },
     { id: 'M9', x: 100, y: 120, text: 'M9' },
+    { id: '7m', x: 100, y: 170, text: '7m' },
   ];
 
   const labelBox = (x, y, w = 48, h = 20) => ({ x: x - w / 2, y: y - h / 2, w, h });
@@ -47,6 +48,7 @@ const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, 
       <path d={`M ${200 + x0} ${10 + y0} L ${115 + x0} ${10 + y0} L ${200 + x0} ${95 + y0} Z`} fill="lightgreen" onClick={() => onClick("area", "RW")} className="shootArea" />
       <rect x={75 + x0} y={70 + y0} width={50} height={30} fill="lightblue" onClick={() => onClick("area", "M6")} className="shootArea" />
       <rect x={75 + x0} y={100 + y0} width={50} height={40} fill="lightyellow" onClick={() => onClick("area", "M9")} className="shootArea" />
+      <rect x={75 + x0} y={150 + y0} width={50} height={40} fill="lightyellow" onClick={() => onClick("area", "7m")} className="shootArea" />
       <path d={`M ${25 + x0} ${10 + y0} A 60 60 0 0 0 ${85 + x0} ${70 + y0} L ${115 + x0} ${70 + y0} A 60 60 0 0 0 ${175 + x0} ${10 + y0} Z`} fill="white" stroke="black" strokeWidth="1" />
       <path d={`M 0 300 L 0 0 L ${200 + 2*x0} 0 L ${200 + 2*x0} ${300 + 2*y0} L ${200 + x0} ${300 + 2*y0} L ${200 + x0} ${y0} L ${x0} ${y0} L ${x0} ${200+y0} Z`} fill="white" stroke="none" strokeWidth="3" />
       <path d={`M ${0 + x0} ${300 + y0} L ${0 + x0} ${10 + y0} L ${200 + x0} ${10 + y0} L ${200 + x0} ${300 + y0}`} fill="none" stroke="black" strokeWidth="1" />

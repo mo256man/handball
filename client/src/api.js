@@ -42,125 +42,22 @@ export async function getPlayers() {
 }
 
 /**
- * カスタムSELECTクエリを実行
- * @param {string} query SQLクエリ
- * @param {Array} params パラメータ
- * @returns {Promise<Array>} クエリ結果
- */
-export async function executeQuery(query, params = []) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/query`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ query, params }),
-        });
-        
-        const result = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(result.error || 'クエリの実行に失敗しました');
-        }
-        
-        return result.data;
-    } catch (error) {
-        console.error('executeQuery エラー:', error);
-        throw error;
-    }
-}
-
-/**
  * matchId に紐づく record レコードを取得
  * @param {number|string} matchId
  * @returns {Promise<Array>} record の配列
  */
 export async function getRecordsByMatchId(matchId) {
     try {
-        const query = `SELECT * FROM record WHERE matchId = ?`;
-        const data = await executeQuery(query, [matchId]);
-        return data || [];
+        const response = await fetch(`${API_BASE_URL}/getRecordsByMatchId?matchId=${matchId}`);
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'recordの取得に失敗しました');
+        }
+        
+        return result.data || [];
     } catch (error) {
         console.error('getRecordsByMatchId エラー:', error);
-        throw error;
-    }
-}
-
-/**
- * INSERT/UPDATE/DELETEクエリを実行
- * @param {string} query SQLクエリ
- * @param {Array} params パラメータ
- * @returns {Promise<Object>} 実行結果
- */
-export async function executeUpdate(query, params = []) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/execute`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ query, params }),
-        });
-        
-        const result = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(result.error || 'クエリの実行に失敗しました');
-        }
-        
-        return result;
-    } catch (error) {
-        console.error('executeUpdate エラー:', error);
-        throw error;
-    }
-}
-
-/**
- * resultテーブルのカウントを取得
- * @param {string} date 日付
- * @param {string} team チーム名
- * @returns {Promise<number>} カウント数
- */
-export async function getResultCount(date, team) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/resultCount?date=${date}&team=${encodeURIComponent(team)}`);
-        const result = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(result.error || 'カウントの取得に失敗しました');
-        }
-        
-        return result.count;
-    } catch (error) {
-        console.error('getResultCount エラー:', error);
-        throw error;
-    }
-}
-
-/**
- * recordテーブルにデータを挿入
- * @param {Object} data 挿入データ
- * @returns {Promise<Object>} 実行結果
- */
-export async function insertRecord(data) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/insertRecord`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-        
-        const result = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(result.error || 'recordデータの挿入に失敗しました');
-        }
-        
-        return result;
-    } catch (error) {
-        console.error('insertRecord エラー:', error);
         throw error;
     }
 }
@@ -317,6 +214,105 @@ export async function getMatchById(matchId) {
         return await response.json();
     } catch (error) {
         console.error('getMatchById エラー:', error);
+        throw error;
+    }
+}
+
+/**
+ * 任意のSELECT文を実行
+ * @param {string} sql SQL文
+ * @returns {Promise<Array>} クエリ結果
+ */
+export async function executeQuery(sql) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/query?sql=${encodeURIComponent(sql)}`);
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'クエリ実行に失敗しました');
+        }
+        
+        return result.data || [];
+    } catch (error) {
+        console.error('executeQuery エラー:', error);
+        throw error;
+    }
+}
+
+/**
+ * 任意のUPDATE/INSERT/DELETE文を実行
+ * @param {string} sql SQL文
+ * @param {Array} params パラメータ（オプション）
+ * @returns {Promise<Object>} 実行結果
+ */
+export async function executeUpdate(sql, params = []) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/execute`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sql, params }),
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'クエリ実行に失敗しました');
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('executeUpdate エラー:', error);
+        throw error;
+    }
+}
+
+/**
+ * matchIdのレコード数を取得
+ * @param {number|string} matchId
+ * @returns {Promise<number>} レコード数
+ */
+export async function getResultCount(matchId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/resultCount?matchId=${matchId}`);
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'レコード数の取得に失敗しました');
+        }
+        
+        return result.count || 0;
+    } catch (error) {
+        console.error('getResultCount エラー:', error);
+        throw error;
+    }
+}
+
+/**
+ * record テーブルにデータを挿入
+ * @param {Object} recordData レコードデータ
+ * @returns {Promise<Object>} { success, changes, recordId }
+ */
+export async function insertRecord(recordData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/insertRecord`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(recordData),
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'レコードの挿入に失敗しました');
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('insertRecord エラー:', error);
         throw error;
     }
 }

@@ -12,14 +12,14 @@ const DrawGoal = ({ drawOut, onClick, width = 400, height = 300, showValue = fal
     return (
       <>
         {/* 地面 */}
-        <rect x="0" y={y0} width={svgWidth} height={svgHeight - y0} fill="#F5DEB3" />
+        <rect x="0" y={y0} width={svgWidth} height={svgHeight - y0} fill="wheat" />
         {/* 空 */}
         <rect
           x="0"
           y="0"
           width={svgWidth}
           height={y0}
-          fill="#87CEEB"
+          fill="skyblue"
           onClick={onClick ? (e => { e.stopPropagation(); onClick("goal", "Out"); }) : undefined}
           style={{ cursor: onClick ? 'pointer' : 'default' }}
         />
@@ -52,12 +52,12 @@ const DrawGoal = ({ drawOut, onClick, width = 400, height = 300, showValue = fal
     return (
       <>
         {/* ゴール内 */}
-        <rect x={x0} y={y0 - goalHeight} width={goalWidth} height={goalHeight} fill="#D3D3D3" />
+        <rect x={x0} y={y0 - goalHeight} width={goalWidth} height={goalHeight} fill="lightgray" />
         {/* ゴール枠 */}
         <polygon
           points={points}
-          fill="#ffffff"
-          stroke="#000000"
+          fill="white"
+          stroke="black"
           strokeWidth="1"
           onClick={onClick ? (e => { e.stopPropagation(); onClick("post", "Post"); }) : undefined}
           style={{ cursor: onClick ? 'pointer' : 'default' }}
@@ -73,7 +73,7 @@ const DrawGoal = ({ drawOut, onClick, width = 400, height = 300, showValue = fal
             y={y}
             width={thickness}
             height={thickness}
-            fill="#000000"
+            fill="red"
             onClick={onClick ? (e => { e.stopPropagation(); onClick("post", "Post"); }) : undefined}
             style={{ cursor: onClick ? 'pointer' : 'default' }}
           />
@@ -89,7 +89,7 @@ const DrawGoal = ({ drawOut, onClick, width = 400, height = 300, showValue = fal
             y1={y0}
             x2={x}
             y2={y0 - goalHeight}
-            stroke="#000"
+            stroke="red"
             strokeWidth={thickness}
             strokeDasharray="20 20"
             strokeDashoffset="20"
@@ -103,7 +103,7 @@ const DrawGoal = ({ drawOut, onClick, width = 400, height = 300, showValue = fal
           y1={y0 - goalHeight - thickness / 2}
           x2={x0 + goalWidth}
           y2={y0 - goalHeight - thickness / 2}
-          stroke="#000"
+          stroke="red"
           strokeWidth={thickness}
           strokeDasharray="20 20"
           onClick={onClick ? (e => { e.stopPropagation(); onClick("post", "Post"); }) : undefined}
