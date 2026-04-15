@@ -3,10 +3,9 @@ import { Player } from "../models/Player";
 // import "./style_input.css";
 import styles from "./InputMatch.module.css";
 import { ja } from "date-fns/locale";
-import { insertMatch, updateMatch, getMatchById, getRecordsByMatchId } from "../api";
 
 export default function InputMatch(
-  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, setMatchDate, isEditor, matchId, matchDate, offenseTeam, setOffenseTeam, score1st, setScore1st, score2nd, setScore2nd, score, setScore}) {
+  { allTeams, allPlayers, teams, setTeams, players, setPlayers, setView, setMatchId, setMatchDate, isEditor, matchId, matchDate, offenseTeam, setOffenseTeam, score1st, setScore1st, score2nd, setScore2nd, score, setScore, session}) {
   const [disabled, setDisabled] = useState([true, false]);
   const [canSelectPlayers, setCanSelectPlayers] = useState(true);
   const [playerLocked, setPlayerLocked] = useState(true);
@@ -20,13 +19,14 @@ export default function InputMatch(
       setCanSelectPlayers(false);
       const loadMatch = async () => {
         try {
-          console.log('getMatchByIdを呼び出します。matchId=', matchId);
-          const match = await getMatchById(matchId);
-          console.log('getMatchByIdが成功しました。match=', match);
+          console.log('getMatchを呼び出します。matchId=', matchId);
+          const response = await fetch(`/api/getMatch?id=${matchId}`);
+          const match = await response.json();
+          console.log('getMatchが成功しました。match=', match);
           
           // team0, team1からチームオブジェクトを取得
-          const team0 = allTeams.find(t => t.id === match.team0);
-          const team1 = allTeams.find(t => t.id === match.team1);
+          const team0 = allTeams.find(t => t.teamId === match.team0);
+          const team1 = allTeams.find(t => t.teamId === match.team1);
           setTeams([team0, team1]);
           
           // playerIds0/1 = DBに書き込まれたベンチ入り選手ID
@@ -44,7 +44,14 @@ export default function InputMatch(
           setPlayers([playersForTeam0, playersForTeam1]);
 
           // スコアを初期化（result="g"のレコード数をカウント）
-          const records = await getRecordsByMatchId(matchId);
+          const recordResponse = await fetch('/api/getRecordsByMatchId', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session, matchId })
+          });
+          const recordResult = await recordResponse.json();
+          const records = recordResult.success ? (recordResult.data || []) : [];
+          
           const team0Goals = records.filter(r => r.teamId === match.team0 && r.result === 'g');
           const team1Goals = records.filter(r => r.teamId === match.team1 && r.result === 'g');
           
@@ -79,12 +86,12 @@ export default function InputMatch(
   }
 
   // チームオブジェクトからチーム名を取得（文字列のアレイ）
-  const AllTeamNames = allTeams.map(t => t.teamname);
+  const AllTeamNames = allTeams.map(t => t.teamName);
 
   // 選択されたチームの選手を取得（stateから）
   const getTeaPlayers = (teamName) => {
-    if (teamName === teams[0].teamname) return players[0];
-    if (teamName === teams[1].teamname) return players[1];
+    if (teamName === teams[0].teamName) return players[0];
+    if (teamName === teams[1].teamName) return players[1];
     return [];
   };
 
@@ -109,8 +116,13 @@ export default function InputMatch(
         const players0 = benchPlayers0.map(p => p.id).join(',');
         const players1 = benchPlayers1.map(p => p.id).join(',');
 
-        console.log('新規マッチを登録します。date:', matchDate, 'team0:', teams[0].id, 'team1:', teams[1].id);
-        const result = await insertMatch(matchDate, teams[0].id, teams[1].id, players0, players1);
+        console.log('新規マッチを登録します。date:', matchDate, 'team0:', teams[0].teamId, 'team1:', teams[1].teamId);
+        const response = await fetch('/api/insertMatch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: matchDate, team0: teams[0].teamId, team1: teams[1].teamId, players0, players1 })
+        });
+        const result = await response.json();
         console.log('新しいmatchを作成しました。DBのmatchテーブルのid:', result.matchId);
         
         if (!result || !result.matchId) {
@@ -134,7 +146,12 @@ export default function InputMatch(
         const players1 = benchPlayers1.map(p => p.id).join(',');
 
         console.log('既存マッチを更新します。id:', matchId);
-        const result = await updateMatch(matchId, matchDate, teams[0].id, teams[1].id, players0, players1);
+        const response = await fetch('/api/updateMatch', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: matchId, date: matchDate, team0: teams[0].teamId, team1: teams[1].teamId, players0, players1 })
+        });
+        const result = await response.json();
         console.log('マッチ更新結果:', result);
 
         if (!result || !result.success) {
@@ -201,7 +218,7 @@ export default function InputMatch(
   const renderTable = (teamIdx) => {
     const playersArr = !teams[teamIdx] ? [] : (players[teamIdx] || []); // teams[teamIdx]がnullの場合は空配列
     const selectedCount = playersArr.filter(p => p.isOnBench).length;
-    const teamName = teams[teamIdx]?.teamname || ""; // team1が未選択の場合は空文字
+    const teamName = teams[teamIdx]?.teamName || ""; // team1が未選択の場合は空文字
     return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1 }}>
         <select
@@ -209,14 +226,14 @@ export default function InputMatch(
           value={teamName || ""} // 初期値を空文字に設定
           onChange={e => {
             const newTeams = [...teams];
-            const selectedTeam = allTeams.find(t => t.teamname === e.target.value) || null;
+            const selectedTeam = allTeams.find(t => t.teamName === e.target.value) || null;
             newTeams[teamIdx] = selectedTeam;
             setTeams(newTeams);
             
             // 選択されたチームに紐づく選手のみを更新
             if (selectedTeam) {
               const newPlayers = [...players];
-              newPlayers[teamIdx] = allPlayers.filter(player => player.teamId === selectedTeam.id);
+              newPlayers[teamIdx] = allPlayers.filter(player => player.teamId === selectedTeam.teamId);
               setPlayers(newPlayers);
             }
           }}

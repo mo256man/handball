@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext } from 'react';
 export const setCurrentViewContext = createContext(undefined);
+export const SessionContext = createContext(undefined);
 import "./components/style_common.css"
 import Title from "./components/Title"
 import InputMenu from './components/InputMenu';
@@ -17,6 +18,10 @@ import InputMatch from './components/InputMatch';
 import InputTable from './components/InputTable';
 
 function App() {
+  // ログイン状態・セッション管理
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [session, setSession] = useState(null);
+  
   // 攻撃サイド（1 or 2）
   const [currentView, setCurrentView] = useState('title');
   const [titleMode, setTitleMode] = useState('pass');
@@ -41,19 +46,34 @@ function App() {
   const [score2nd, setScore2nd] = useState([0, 0]);
   const [score, setScore] = useState([0, 0]);
 
-  // データベースからteamsとplayersを取得
+  // データベースからteamsとplayersを取得（ログイン後、セッション情報を送信）
   useEffect(() => {
+    if (!session) return;
+    
     const loadData = async () => {
       try {
         setLoading(true);
-        const [teamsData, playersData] = await Promise.all([
-          getTeams(),
-          getPlayers()
-        ]);
-        setAllTeams(teamsData);
-        // Playerクラスのインスタンス配列に変換
-        const playerInstances = playersData.map(p => new Player(p));
-        setAllPlayers(playerInstances);
+        const response = await fetch('/api/initialize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+          console.error('Server Error:', response.status, result);
+          throw new Error(result.error || 'データ初期化に失敗しました');
+        }
+        
+        if (result.success) {
+          setAllTeams(result.teams);
+          // Playerクラスのインスタンス配列に変換
+          const playerInstances = result.players.map(p => new Player(p));
+          setAllPlayers(playerInstances);
+        } else {
+          throw new Error(result.error || 'データ取得に失敗しました');
+        }
       } catch (error) {
         console.error('データ読み込みエラー:', error);
       } finally {
@@ -61,7 +81,32 @@ function App() {
       }
     };
     loadData();
-  }, []);
+  }, [session]);
+
+  // allTeams が更新されたら teams[0] を設定
+  useEffect(() => {
+    console.log('useEffect teams update:', { session, allTeams, allTeamsLength: allTeams.length });
+    
+    if (!session || !session.teamId || allTeams.length === 0) {
+      console.log('Conditions not met:', { hasSession: !!session, hasTeamId: !!session?.teamId, allTeamsEmpty: allTeams.length === 0 });
+      return;
+    }
+    
+    const selectedTeam = allTeams.find(team => {
+      console.log('Checking team:', { teamId: team.teamId, sessionTeamId: session.teamId, match: team.teamId === session.teamId });
+      return team.teamId === session.teamId;
+    });
+    
+    console.log('Selected team:', selectedTeam);
+    
+    if (selectedTeam) {
+      const newTeams = [selectedTeam, teams[1] || (allTeams[1] || null)];
+      console.log('Setting teams:', newTeams);
+      setTeams(newTeams);
+    } else {
+      console.log('No team found for teamId:', session.teamId);
+    }
+  }, [allTeams, session]);
 
   // currentView が outputSheetX に移動したら appOutputSheet を同期する
   useEffect(() => {
@@ -169,10 +214,29 @@ function App() {
         }
     }, [allTeams, allPlayers]);
 
-  // const handleShowMakeMatch = () => setCurrentView('makeMatch');
-  // const onShowInputFlow = () => setCurrentView('inputFlow');
-  // const onShowOutputFlow = () => setCurrentView('outputFlow');
   const handleBackToTitle = () => setCurrentView('title');
+
+  const handleLogin = (userData) => {
+    // セッションを作成
+    const newSession = {
+      userId: userData.userId,
+      teamId: userData.teamId,
+      username: userData.username,
+      createdAt: new Date(),
+      token: Math.random().toString(36).substring(7), // 簡易的なトークン
+    };
+    console.log('設定するセッション:', newSession);
+    setSession(newSession);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setSession(null);
+    setCurrentView('title');
+    setAllTeams([]);
+    setAllPlayers([]);
+  };
 
   const handleShowInput = async (data) => {
     // 同じ試合が既に登録されていないかチェック
@@ -189,6 +253,8 @@ function App() {
   };
 
   let content;
+  console.log('現在のcurrentView:', currentView);
+  
   if (currentView === "title") {
     content = <Title
       allTeams={allTeams}
@@ -199,6 +265,9 @@ function App() {
       setTitleMode={setTitleMode}
       setIsEditor={setIsEditor}
       setMatchId={setMatchId}
+      isLoggedIn={isLoggedIn}
+      onLogin={handleLogin}
+      onLogout={handleLogout}
     />;
   } else if (currentView === "inputMenu") {
     content = <InputMenu
@@ -214,6 +283,7 @@ function App() {
       isEditor={isEditor}
       matchId={matchId}
       setSelectedMatch={setSelectedMatch}
+      session={session}
     />;
   } else if (currentView === "inputMatch") {
     content = <InputMatch
@@ -237,6 +307,7 @@ function App() {
       setScore2nd={setScore2nd}
       score={score}
       setScore={setScore}
+      session={session}
     />;
   } else if (currentView === "inputSheet") {
     content = <InputSheet
@@ -275,14 +346,21 @@ function App() {
       setScore2nd={setScore2nd}
       score={score}
       setScore={setScore}
+      session={session}
     />;
   } else if (currentView === "outputMenu") {
+    console.log('OutputMenu レンダリング時のsession:', session);
     content = <OutputMenu 
       allTeams={allTeams}
       allPlayers={allPlayers}
       setView={setCurrentView}
       setSelectedMatch={setSelectedMatch}
       isEditor={isEditor}
+      setMatchId={setMatchId}
+      setTeams={setTeams}
+      teams={teams}
+      setPlayers={setPlayers}
+      session={session}
      />;
   }
   else if (currentView === "outputSheet1") {
@@ -390,7 +468,9 @@ function App() {
   // }
 
   return (
-    <>{content}</>
+    <SessionContext.Provider value={{ isLoggedIn, session }}>
+      {content}
+    </SessionContext.Provider>
   );
 }
 

@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import Calendar from "./Calendar";
 import "./style_datepicker.css";
 import "./style_output.css";
-import { getMatchDates, getMatches, getRecordsByMatchId } from "../api";
 import { useSocket } from "../hooks/useSocket";
 
-export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEditor, setMatchId, setTeams, teams, allPlayers, setPlayers }) {
+export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEditor, setMatchId, setTeams, teams, allPlayers, setPlayers, session }) {
   const { socketRef } = useSocket();
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
   const [selectedDate, setSelectedDate] = useState(today);
@@ -17,8 +16,8 @@ export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEdi
 
   // チームIDからチーム名を取得
   const getTeamName = (teamId) => {
-    const team = allTeams.find(t => t.id === teamId);
-    return team ? team.teamname : `Team ${teamId}`;
+    const team = allTeams.find(t => t.teamId === teamId);
+    return team ? team.teamName : `Team ${teamId}`;
   };
 
   // マッチテーブルの日付を取得
@@ -26,17 +25,25 @@ export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEdi
     const loadMatchDates = async () => {
       try {
         setLoadingDates(true);
-        const dates = await getMatchDates();
-        setMatchDates(dates);
-        console.log('取得した試合日付:', dates);
+        const response = await fetch("/api/match-dates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session })
+        });
+        const result = await response.json();
+        if (result.success) {
+          setMatchDates(result.dates || []);
+        } else {
+          console.error('試合日付取得エラー:', result.error);
+        }
       } catch (error) {
         console.error('試合日付の取得エラー:', error);
       } finally {
         setLoadingDates(false);
       }
     };
-    loadMatchDates();
-  }, []);
+    if (session) loadMatchDates();
+  }, [session]);
 
   // 選択日付が変わったときにマッチデータを取得
   useEffect(() => {
@@ -44,33 +51,55 @@ export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEdi
       try {
         setLoadingMatches(true);
         const dateStr = typeof selectedDate === 'string' ? selectedDate : selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-        const matchData = await getMatches(dateStr);
-        setMatches(matchData || []);
-        console.log('取得したマッチデータ:', matchData);
+        const response = await fetch("/api/getMatches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session, date: dateStr })
+        });
+        const result = await response.json();
+        if (result.success) {
+          setMatches(result.matches || []);
+        } else {
+          console.error('マッチデータ取得エラー:', result.error);
+        }
       } catch (error) {
         console.error('マッチデータの取得エラー:', error);
       } finally {
         setLoadingMatches(false);
       }
     };
-    loadMatches();
-  }, [selectedDate]);
+    if (session) loadMatches();
+  }, [selectedDate, session]);
 
   // Socket.IO リスナー設定：recordが更新されたら、マッチと日付リストを再取得
   useEffect(() => {
-    if (!socketRef.current) return;
+    if (!socketRef.current || !session) return;
 
     const handleDataUpdated = async () => {
       try {
         console.log('データ更新イベント受信。マッチ日付リストを再取得します');
         // 試合日付リストを再取得
-        const dates = await getMatchDates();
-        setMatchDates(dates);
+        const dateResponse = await fetch("/api/match-dates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session })
+        });
+        const dateResult = await dateResponse.json();
+        if (dateResult.success) {
+          setMatchDates(dateResult.dates || []);
+        }
 
         // 現在の選択日付のマッチデータを再取得
         const dateStr = typeof selectedDate === 'string' ? selectedDate : selectedDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-        const matchData = await getMatches(dateStr);
-        setMatches(matchData || []);
+        const matchResponse = await fetch("/api/getMatches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session, date: dateStr })
+        });
+        const matchResult = await matchResponse.json();
+        if (matchResult.success) {
+          setMatches(matchResult.matches || []);
+        }
       } catch (error) {
         console.error('マッチデータ再取得エラー:', error);
       }
@@ -83,7 +112,7 @@ export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEdi
         socketRef.current.off('data-updated', handleDataUpdated);
       }
     };
-  }, [socketRef, selectedDate]);
+  }, [socketRef, selectedDate, session]);
 
   const renderDatePicker = () => {
     return (
@@ -107,7 +136,13 @@ export default function SearchMatch({ setView, allTeams, setSelectedMatch, isEdi
   // 既存マッチを選択する場合の処理（クリックで即遷移）
   const handleSelectMatch = async (match) => {
     try {
-      const records = await getRecordsByMatchId(match.id);
+      const response = await fetch("/api/getRecordsByMatchId", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session, matchId: match.id })
+      });
+      const result = await response.json();
+      const records = result.success ? (result.data || []) : [];
       const selectedMatchData = { match, records };
       setCurrentSelectedMatch(selectedMatchData);
       if (setSelectedMatch) setSelectedMatch({ matchDate: selectedDate, matchId: match.id, match, records });

@@ -10,3 +10,20 @@
 .react-datepicker__day-name {
   font-size: 1.4rem; /* 日付部分の文字サイズを調整 */
 }
+
+/* 別の月の今日マークを完全に削除 */
+.hide-outside-today {
+  background-color: transparent !important;
+  color: #ccc !important;
+  font-weight: normal !important;
+  border: none !important;
+}
+
+.hide-outside-today:hover {
+  background-color: transparent !important;
+  color: #ccc !important;
+}
+
+.hide-outside-today::before {
+  display: none !important;
+}

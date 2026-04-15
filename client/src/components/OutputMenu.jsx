@@ -2,7 +2,7 @@ import React from "react";
 import SearchMatch from "./SearchMatch";
 import "./style_output.css";
 
-export default function OutputMenu({ setView, allTeams, setSelectedMatch, isEditor }) {
+export default function OutputMenu({ setView, allTeams, setSelectedMatch, isEditor, setMatchId, setTeams, teams, allPlayers, setPlayers, session }) {
 
   return (
     <div className="base">
@@ -15,7 +15,7 @@ export default function OutputMenu({ setView, allTeams, setSelectedMatch, isEdit
         </div>
       </div>
       <div className="main">
-        <SearchMatch setView={setView} allTeams={allTeams} setSelectedMatch={setSelectedMatch} isEditor={isEditor} />
+        <SearchMatch setView={setView} allTeams={allTeams} setSelectedMatch={setSelectedMatch} isEditor={isEditor} setMatchId={setMatchId} setTeams={setTeams} teams={teams} allPlayers={allPlayers} setPlayers={setPlayers} session={session} />
       </div>
     </div>
   );

@@ -48,7 +48,23 @@ export default function Calendar({ value, onChange, showTodayButtonInHeader = tr
   }));
 
   const dayClassName = (date) => {
-    return highlightedSet.has(date.toLocaleDateString("sv-SE")) ? "highlighted-date" : undefined;
+    const dateStr = date.toLocaleDateString("sv-SE");
+    const today = new Date().toLocaleDateString("sv-SE");
+    
+    // 別の月の today には特別なクラスを付ける
+    const currentDate = parseDate(value);
+    const isCurrentMonth = currentDate && 
+      date.getFullYear() === currentDate.getFullYear() && 
+      date.getMonth() === currentDate.getMonth();
+    
+    if (!isCurrentMonth && dateStr === today) {
+      return "hide-outside-today";
+    }
+    
+    // 試合がある日付
+    if (highlightedSet.has(dateStr)) return "highlighted-date";
+    
+    return undefined;
   };
 
   const filterDate = onlyHighlightSelectable

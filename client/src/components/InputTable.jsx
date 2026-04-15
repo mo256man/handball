@@ -4,7 +4,7 @@ import DrawGoal from "./DrawGoal";
 // import "./style_input.css";
 import styles from "./InputTable.module.css";
 
-export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet, score1st, setScore1st, score2nd, setScore2nd, score, setScore }) {
+export default function InputSheet({ teams, players, setView, matchId, isEditor, matchDate, offenseTeam, setOffenseTeam, appOutputSheet, setAppOutputSheet, score1st, setScore1st, score2nd, setScore2nd, score, setScore, session }) {
 
   const [selectedOppoGK, setSelectedOppoGK] = useState(["", ""]);
   const [oppoTeam, setOppoTeam] = useState(1 - (offenseTeam ?? 0));
@@ -98,7 +98,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           if (record) {
             setCurrentRecordId(record.id);
             // matchのteamIdに合わせて攻撃チームを切り替える
-            const teamIndex = teams.findIndex(t => t.id === record.teamId);
+            const teamIndex = teams.findIndex(t => t.teamId === record.teamId);
             const useTeam = teamIndex >= 0 ? teamIndex : offenseTeam;
             if (teamIndex >= 0) {
               setOffenseTeam(useTeam);
@@ -135,7 +135,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
         if (record) {
           setCurrentRecordId(record.id);
           // record.teamId に合わせて攻撃チームを切り替える
-          const teamIndex = teams.findIndex(t => t.id === record.teamId);
+          const teamIndex = teams.findIndex(t => t.teamId === record.teamId);
           const useTeam = teamIndex >= 0 ? teamIndex : offenseTeam;
           if (teamIndex >= 0) {
             setOffenseTeam(useTeam);
@@ -757,7 +757,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       // 登録データを作成
       const recordData = {
         matchId: matchId,
-        teamId: teams[offenseTeam].id,
+        teamId: teams[offenseTeam].teamId,
         playerId: player.id,
         playerNumber: player.number,
         playerPosition: player.position,
@@ -827,10 +827,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
           {currentHalf}
         </button>
         <button className="btnGk span2" id="oppoGK" onClick={() => showInputPopup('oppoGK')}>
-          <div className="labelSmall">{teams[oppoTeam].shortname}のGK</div>
+          <div className="labelSmall">{teams[oppoTeam].shortName}のGK</div>
           <div className="btnLabel">{selectedOppoGK[oppoTeam]}</div>
         </button>
-        <button className="btnFunc span3" onClick={changeTeam}><div className="btnLabel">{teams[offenseTeam].shortname}の攻撃</div></button>
+        <button className="btnFunc span3" onClick={changeTeam}><div className="btnLabel">{teams[offenseTeam].shortName}の攻撃</div></button>
       </div>
     );
   }
@@ -971,7 +971,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
       {renderOppoPlayersPopup()}
       <div className="header row">
         <div className="header-title left">
-          <div>{teams[0].shortname} vs {teams[1].shortname}</div>
+          <div>{teams[0].shortName} vs {teams[1].shortName}</div>
           <div>{matchDate}</div>
           <div id="matchId">{matchId ? `ID: ${matchId}` : ""}</div>
         </div>
@@ -1038,7 +1038,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     return (
       <div id="score">
         <table className="tableTeamName">
-          <tr><td style={{"textAlign":"left"}}>{teams[0].shortname}</td><td style={{"textAlign":"right"}}>{teams[1].shortname}</td></tr>
+          <tr><td style={{"textAlign":"left"}}>{teams[0].shortName}</td><td style={{"textAlign":"right"}}>{teams[1].shortName}</td></tr>
         </table>
         <table className="tableScore">
           <tr><th>{score[0]}</th><th></th><th>{score[1]}</th></tr>
@@ -1053,10 +1053,10 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     return (
       <div id="penalty">
         <div>Penalty</div>
-        {teams[0].shortname}<br />
+        {teams[0].shortName}<br />
         <div id="penalty0">
         </div>
-        {teams[1].shortname}<br />
+        {teams[1].shortName}<br />
         <div id="penalty1">
         </div>
       </div>
@@ -1214,7 +1214,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     <div className={styles.offenseTeamBtn} onClick={changeTeam}>
       <div>攻撃</div>
       <img src={teams[offenseTeam]?.image || ""} className={styles.offenseTeamBtnImg} />
-      <div style={{fontSize:"large", fontWeight:"bold"}}>{teams[offenseTeam].shortname}</div>
+      <div style={{fontSize:"large", fontWeight:"bold"}}>{teams[offenseTeam].shortName}</div>
     </div>
   );
 
@@ -1314,7 +1314,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     <div className={styles.header}>
       <div className={styles.headerLeft}>
         <div>【{matchDate}】</div>
-        <div>{teams[0].shortname} vs {teams[1].shortname}</div>
+        <div>{teams[0].shortName} vs {teams[1].shortName}</div>
       </div>
       <div className={styles.headerRight}>
         <div onClick={() => setView(appOutputSheet)} className={styles.btnUI}>📋</div>

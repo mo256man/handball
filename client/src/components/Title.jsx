@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 // import "./style_title.css";
 import styles from "./Title.module.css";
 
-export default function Title({allTeams, setView, teams, setTeams, titleMode, setTitleMode, setIsEditor, setMatchId}) {
+export default function Title({allTeams, setView, teams, setTeams, titleMode, setTitleMode, setIsEditor, setMatchId, isLoggedIn, onLogin, onLogout}) {
   const [showPopup, setShowPopup] = useState(false);        // チーム選択ポップアップ表示フラグ
   const [password, setPassword] = useState("");
   const [passError, setPassError] = useState("");
@@ -54,21 +54,11 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
       });
       const result = await response.json();
       if (response.ok && result.success) {
-        // サーバーから返るteamIdをもとに、allTeamsから該当チームを探す
-        if (result.teamId && allTeams) {
-          const selectedTeam = allTeams.find(team => team.id === result.teamId);
-          if (selectedTeam) {
-            const newTeams = [...(teams || [null, null])];
-            newTeams[0] = selectedTeam;
-            // teams[1]がnullなら仮の値としてallTeams[1]を設定
-            if (!newTeams[1]) {
-              newTeams[1] = allTeams[1];
-            }
-            setTeams(newTeams);
-          } else {
-            setPassError("該当チームが見つかりません");
-          }
+        // ログインセッションを作成
+        if (onLogin) {
+          onLogin({ username, userId: result.userId, teamId: result.teamId });
         }
+        // セッション作成後、App.jsx の useEffect で teams[0] が自動設定される
         setTitleMode('menu');
       } else {
         setPassError(result.error || "パスワードが違います");
@@ -108,7 +98,11 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
           <div className={styles.fontNormal}>記入</div>
           <div className={styles.fontLarge}>📝</div>
         </div>
-        <div className={styles.btnTitle} onClick={() => { setView('outputMenu'); setIsEditor(false); }}>
+        <div className={styles.btnTitle} onClick={() => { 
+          console.log('「閲覧」ボタンクリック、setView(outputMenu)を呼び出し');
+          setView('outputMenu'); 
+          setIsEditor(false); 
+        }}>
           <div className={styles.fontNormal}>閲覧</div>
           <div className={styles.fontLarge}>📊</div>
         </div>
@@ -117,7 +111,15 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
           <div className={styles.fontLarge}>🔧</div>
         </div>
       </div>
-      <div className={styles.btnLogin} onClick={() => { setTitleMode('pass'); setTeams([null, null]); setIsEditor(null); setMatchId(null); }}>ログアウト</div>
+      <div className={styles.btnLogin} onClick={() => { 
+        if (onLogout) {
+          onLogout();
+        }
+        setTitleMode('pass'); 
+        setTeams([null, null]); 
+        setIsEditor(null); 
+        setMatchId(null); 
+      }}>ログアウト</div>
     </div>
   );
 
@@ -127,7 +129,7 @@ export default function Title({allTeams, setView, teams, setTeams, titleMode, se
       <img src={teams[0]?.image || "irasutoya.png"} className={styles.backgroundImage} />
       <div className={styles.titleString}>ハンドスタッツ入力支援</div>
       {teams[0] && (
-        <div className={styles.teamname}>{teams[0].teamname}</div>
+        <div className={styles.teamname}>{teams[0].teamName}</div>
       )}
       <div className={teams[0] ? styles.footer + " " + styles.bgTeam0 : styles.footer}>
         {titleMode === 'pass' && renderNamePass()}

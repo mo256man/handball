@@ -88,10 +88,12 @@ app.post('/api/execute', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/getRecordsByMatchId', async (req, res) => {
+app.post('/api/getRecordsByMatchId', async (req, res) => {
   try {
-    const { matchId } = req.query;
+    const { matchId, session } = req.body;
     if (!matchId) return res.status(400).json({ error: 'matchIdが指定されていません' });
+    if (!session || !session.userId) return res.status(401).json({ error: 'セッション情報が不正です' });
+    
     const q = buildQuery(
       `SELECT * FROM record WHERE matchId = ? ORDER BY id ASC`,
       `SELECT * FROM "record" WHERE "matchId" = $1 ORDER BY id ASC`
@@ -104,18 +106,20 @@ app.get('/api/getRecordsByMatchId', async (req, res) => {
 app.get('/api/teams', async (req, res) => {
   try {
     const q = buildQuery(
-      "SELECT * FROM teams WHERE isAvailable = 1",
-      'SELECT * FROM "teams" WHERE "isAvailable" = 1'
+      "SELECT * FROM team WHERE isAvailable = 1",
+      'SELECT * FROM "team" WHERE "isAvailable" = 1'
     );
     const teams = await queryAll(db, q);
     const teamsWithImage = teams.map(team => {
       const result = {
-        teamid: team.teamid,
-        teamname: team.teamname,
+        teamId: team.teamId,
+        teamName: team.teamName,
+        shortName: team.shortName,
+        imgFileName: team.imgFileName,
         isAvailable: team.isAvailable,
         color: team.color,
         ...Object.keys(team).reduce((acc, key) => {
-          if (!['teamid', 'teamname', 'isAvailable', 'color', 'image'].includes(key)) acc[key] = team[key];
+          if (!['teamId', 'teamName', 'shortName', 'imgFileName', 'isAvailable', 'color', 'image'].includes(key)) acc[key] = team[key];
           return acc;
         }, {})
       };
@@ -242,10 +246,12 @@ app.post('/api/insertMatch', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/getMatches', async (req, res) => {
+app.post('/api/getMatches', async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, session } = req.body;
     if (!date) return res.status(400).json({ error: 'dateが指定されていません' });
+    if (!session || !session.userId) return res.status(401).json({ error: 'セッション情報が不正です' });
+    
     const q = buildQuery(
       `SELECT * FROM match WHERE date = ?`,
       `SELECT * FROM "match" WHERE "date" = $1`
@@ -285,8 +291,11 @@ app.put('/api/updateMatch', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/match-dates', async (req, res) => {
+app.post('/api/match-dates', async (req, res) => {
   try {
+    const { session } = req.body;
+    if (!session || !session.userId) return res.status(401).json({ error: 'セッション情報が不正です' });
+    
     const q = buildQuery(
       `SELECT DISTINCT date FROM match ORDER BY date ASC`,
       `SELECT DISTINCT "date" FROM "match" ORDER BY "date" ASC`
@@ -325,8 +334,8 @@ app.get('/api/players/by-team', async (req, res) => {
     const { teamname } = req.query;
     if (!teamname) return res.status(400).json({ error: 'teamnameが指定されていません' });
     const q = buildQuery(
-      "SELECT * FROM players WHERE teamname = ?",
-      'SELECT * FROM "players" WHERE teamname = $1'
+      "SELECT * FROM players WHERE teamName = ?",
+      'SELECT * FROM "players" WHERE "teamName" = $1'
     );
     const players = await queryAll(db, q, [teamname]);
     res.json(players);
@@ -339,16 +348,66 @@ app.post('/api/checkpass', async (req, res) => {
     return res.json({ success: false, error: '名前またはパスワード未入力' });
   try {
     const q = buildQuery(
-      "SELECT teamId FROM user WHERE userName = ? AND password = ?",
-      `SELECT "teamId" FROM "user" WHERE "userName" = $1 AND "password" = $2`
+      "SELECT userId, teamId FROM user WHERE userName = ? AND password = ?",
+      `SELECT "userId", "teamId" FROM "user" WHERE "userName" = $1 AND "password" = $2`
     );
     const result = await queryAll(db, q, [username, password]);
     if (result.length > 0) {
-      return res.json({ success: true, teamId: result[0].teamId });
+      return res.json({ success: true, userId: result[0].userId, teamId: result[0].teamId });
     } else {
       return res.json({ success: false, error: '名前またはパスワードが違います' });
     }
   } catch (e) { return res.status(500).json({ success: false, error: 'サーバーエラー' }); }
+});
+
+app.post('/api/initialize', async (req, res) => {
+  try {
+    const { session } = req.body;
+    if (!session || !session.teamId) {
+      return res.status(401).json({ error: 'セッション情報が不正です' });
+    }
+    
+    // チームを取得
+    const teamsQuery = buildQuery(
+      "SELECT * FROM team WHERE isAvailable = 1",
+      'SELECT * FROM "team" WHERE "isAvailable" = 1'
+    );
+    const teams = await queryAll(db, teamsQuery);
+    const teamsWithImage = teams.map(team => {
+      const result = {
+        teamId: team.teamId,
+        teamName: team.teamName,
+        shortName: team.shortName,
+        imgFileName: team.imgFileName,
+        isAvailable: team.isAvailable,
+        color: team.color,
+        ...Object.keys(team).reduce((acc, key) => {
+          if (!['teamId', 'teamName', 'shortName', 'imgFileName', 'isAvailable', 'color', 'image'].includes(key)) acc[key] = team[key];
+          return acc;
+        }, {})
+      };
+      if (team.image) {
+        let buf = team.image;
+        if (buf instanceof Uint8Array) buf = Buffer.from(buf);
+        else if (typeof buf === 'object' && !Buffer.isBuffer(buf)) buf = Buffer.from(Object.values(buf));
+        result.image = 'data:image/png;base64,' + Buffer.from(buf).toString('base64');
+      } else {
+        result.image = null;
+      }
+      return result;
+    });
+    
+    // 選手を取得
+    const playersQuery = buildQuery(
+      "SELECT * FROM players WHERE isAvailable = 1",
+      'SELECT * FROM "players" WHERE "isAvailable" = 1'
+    );
+    const players = await queryAll(db, playersQuery);
+    
+    res.json({ success: true, teams: teamsWithImage, players });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'サーバーは正常に動作しています' }));
