@@ -16,6 +16,7 @@ import { TeamData } from "./models/TeamData";
 import { Player } from "./models/Player";
 import InputMatch from './components/InputMatch';
 import InputTable from './components/InputTable';
+import SettingsMenu from './components/SettingsMenu';
 
 function App() {
   // ログイン状態・セッション管理
@@ -268,6 +269,12 @@ function App() {
       isLoggedIn={isLoggedIn}
       onLogin={handleLogin}
       onLogout={handleLogout}
+    />;
+  } else if (currentView === "settingsMenu") {
+    content = <SettingsMenu
+      setView={setCurrentView}
+      allTeams={allTeams}
+      user={session}
     />;
   } else if (currentView === "inputMenu") {
     content = <InputMenu

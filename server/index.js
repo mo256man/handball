@@ -360,6 +360,42 @@ app.post('/api/checkpass', async (req, res) => {
   } catch (e) { return res.status(500).json({ success: false, error: 'サーバーエラー' }); }
 });
 
+app.post('/api/insertTeam', async (req, res) => {
+  const { teamName, shortName, image, isAvailable } = req.body;
+  if (!teamName || !shortName) {
+    return res.status(400).json({ success: false, error: 'チーム名と短縮名は必須です' });
+  }
+  try {
+    const q = buildQuery(
+      "INSERT INTO team (teamName, shortName, image, isAvailable) VALUES (?, ?, ?, ?)",
+      `INSERT INTO "team" ("teamName", "shortName", "image", "isAvailable") VALUES ($1, $2, $3, $4) RETURNING "teamId"`
+    );
+    const result = await queryRun(db, q, [teamName, shortName, image || null, isAvailable ? 1 : 0]);
+    if (dbMode === 'sqlite') await saveDatabase(db);
+    res.json({ success: true, teamId: result.lastID || result.rows[0].teamId });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.put('/api/updateTeam', async (req, res) => {
+  const { teamId, teamName, shortName, image, isAvailable } = req.body;
+  if (!teamId || !teamName || !shortName) {
+    return res.status(400).json({ success: false, error: 'チームID、名前、短縮名は必須です' });
+  }
+  try {
+    const q = buildQuery(
+      "UPDATE team SET teamName = ?, shortName = ?, image = ?, isAvailable = ? WHERE teamId = ?",
+      `UPDATE "team" SET "teamName" = $1, "shortName" = $2, "image" = $3, "isAvailable" = $4 WHERE "teamId" = $5`
+    );
+    const result = await queryRun(db, q, [teamName, shortName, image || null, isAvailable ? 1 : 0, teamId]);
+    if (dbMode === 'sqlite') await saveDatabase(db);
+    res.json({ success: true, changes: result.changes || 1 });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 app.post('/api/initialize', async (req, res) => {
   try {
     const { session } = req.body;
