@@ -157,6 +157,17 @@
   flex: 1;
   display: flex;
   flex-direction: row;
+  gap: 0;
+}
+
+#input_column {
+  flex: 1;
+  min-width: 0;
+}
+
+#rightColumn {
+  width: 300px;
+  flex-shrink: 0;
 }
 
 .btnPlayers {

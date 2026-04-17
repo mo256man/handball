@@ -16,9 +16,9 @@ const createSectorPath = (centerX, centerY, radius, startAngle, endAngle) => {
   return `M ${centerX} ${centerY} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
 };
 
-const DrawShootArea = ({ onClick, width = 200, height = 150, showValue = false, showText = true, values = [], drawOut = false }) => {
-  const x0 = drawOut ? 15 : 0;
-  const y0 = drawOut ? 10 : 0;
+const DrawShootArea = ({ onClick, width = 200, height = 250, showValue = false, showText = true, values = [] }) => {
+  const x0 = 15;
+  const y0 = 0;
   const svgWidth = typeof width === 'number' ? width + 2 * x0 : width;
   const svgHeight = typeof height === 'number' ? height + 2 * y0 : height;
   const viewBoxW = 200 + 2 * x0;

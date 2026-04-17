@@ -1232,8 +1232,8 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                   {inputedValues}
                 </div>
               </div>
-              <div id="inputArea" className={styles.inputArea}>
-               <div id="input_column" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', alignSelf: 'flex-start', minHeight: 0, minWidth: 0}}>
+              <div id="inputArea" style={{display: 'flex', flexDirection: 'row', height: '100%', gap: 0}}>
+               <div id="input_column" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', minHeight: 0, minWidth: 0}}>
                  <div className="row">
                    <div className="group" style={{ width: '100%' }}>
                     <div className="label">Player</div>
@@ -1261,7 +1261,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                            </div>
                            <div id="areaKindBack" style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 0, pointerEvents: 'none' }}>
                              <div style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', width: '90%', height: '90%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                               <DrawShootArea width="100%" height="100%" showText={false} />
+                               {/* <DrawShootArea width="100%" height="100%" showText={false} /> */}
                              </div>
                            </div>
                          </div>
@@ -1276,13 +1276,13 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                    </div>
                  </div>
                </div>
-                          <div id="rightColumn" style={{display: "flex", flexDirection:"column", height:"100%", flex: '0 0 min(350px, 35vw)', width: 'min(350px, 35vw)', minWidth: 0}}>
-             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-               <div className="group" style={{ flex: 1, minHeight: 0, maxHeight: '400px', overflowY: 'auto' }}>
+            <div id="rightColumn" style={{display: "flex", flexDirection:"column", height:"100%", width: '400px', flex: '0 0 auto', minWidth: 0}}>
+             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, width: '100%' }}>
+               <div className="group" style={{ flex: 1, minHeight: 0, maxHeight: '400px', overflowY: 'auto', width: '100%', boxSizing: 'border-box' }}>
                  <div className="label">Area</div>
                  <div className="content ">
                    <div id="areaArea" style={{ width: '100%', height: '100%' }}>
-                    <div style={{ display: 'block', height: '100%' }}>
+                    <div style={{ border: "1px solid red", display: 'block', height: '100%', backgroundColor:"yellow" }}>
                        <DrawShootArea
                          width="100%"
                          height="100%"
@@ -1296,10 +1296,12 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                   </div>
                  </div>
                </div>
-               <div className="group" style={{ flex: 1, minHeight: 0, maxHeight: '400px', overflowY: 'auto' }}>
+               <div className="group" style={{ flex: 1, minHeight: 0, maxHeight: '400px', overflowY: 'auto', width: '100%', boxSizing: 'border-box' }}>
                  <div className="label">Goal</div>
                  <div className="content " style={{ overflow: 'hidden', width: '100%', boxSizing: 'border-box' }}>
-                   <div id="areaGoal" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>{setPersistentGoal()}</div>
+                   <div id="areaGoal" style={{border: "1px solid red", width: '100%', boxSizing: 'border-box'}}>
+                    {setPersistentGoal()}
+                  </div>
                  </div>
                </div>
              </div>
