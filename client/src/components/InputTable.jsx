@@ -475,7 +475,6 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             { label: 'f3', value: 'f3' },
             { label: 'ag', value: 'ag' },
             { label: '7', value: '7' },
-            { label: '（消）', value: '' },
       ],
     }
     return (
@@ -494,6 +493,12 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
             </div>
           );
         })}
+        <div 
+          key="del" 
+          className={`${styles.btnPlayer} ${styles.colorDel}`} 
+          onClick={() => { setInputValues(prev => ({ ...prev, kind: "" })); backspace(); }}>
+          <div className={styles.fontLarge}>削除</div>
+        </div>
       </div>
     );
   }
@@ -575,28 +580,37 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
     );
   }
 
-  // 結果用の常時表示キーボード（setKeyboardResult を変更せずにコピー）
   const setPersistentResult = () => {
     const keyboardConfig = {
-      title: "結果（常時表示）",
       btns: [
-            { label: 'g (ゴール)', value: 'g' },
-            { label: 'm (ミス)', value: 'm' },
-            { label: 's (セーブ)', value: 's' },
-            { label: 'p (7mをとった)', value: 'p' },
-            { label: 'f (ファールとられた)', value: 'f' },
-            { label: 'r (わからない)', value: 'r' },
-            { label: 'o (Out Goal)', value: 'o' },
-            { label: '（消）', value: '' },
+            { label: 'ゴール', value: 'g' },
+            { label: 'ミス', value: 'm' },
+            { label: 'セーブ', value: 's' },
+            { label: '7mをとった', value: 'p' },
+            { label: 'ファールとられた', value: 'f' },
+            { label: 'わからない', value: 'r' },
+            { label: 'Out Goal', value: 'o' },
       ],
       grid: "repeat(2, 1fr)"
     }
     return (
-      <div className="keyboard-body persistent result" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(4, 1fr)', gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
+      <div className="keyboard-body persistent result" style={{ display: 'grid', gridTemplateColumns: keyboardConfig.grid, gridTemplateRows: 'repeat(5, 1fr)', gap: '10px', marginTop: '10px', width: '100%', height: '100%', minWidth: 0, overflow: 'hidden' }}>
         {keyboardConfig.btns.map((btn, idx) => (
-          <button key={idx} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.75rem', overflow: 'hidden', width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues.result) === String(btn.value) ? 'active' : '')} onClick={() => setInputValues(prev => ({ ...prev, result: btn.value }))}
-            dangerouslySetInnerHTML={{ __html: btn.label }} />
+          <div 
+            key={idx} 
+            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '0.75rem', overflow: 'hidden', width: '100%', boxSizing: 'border-box', minWidth: 0 }} className={"keyboard-btn " + (String(inputValues.result) === String(btn.value) ? 'active' : '')} 
+            onClick={() => setInputValues(prev => ({ ...prev, result: btn.value }))}
+          >
+            <div className={styles.fontLarge}>{btn.value}</div>
+            <div className={styles.fontSmall}>{btn.label}</div>
+          </div>
         ))}
+        <div 
+          key="del" 
+          className={`${styles.btnPlayer} ${styles.colorDel}`} 
+          onClick={() => { setInputValues(prev => ({ ...prev, result: "" })); backspace(); }}>
+          <div className={styles.fontLarge}>削除</div>
+        </div>
       </div>
     )
   }

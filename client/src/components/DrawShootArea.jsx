@@ -22,7 +22,7 @@ const DrawShootArea = ({ onClick, width = 200, height = 250, showValue = false, 
   const svgWidth = typeof width === 'number' ? width + 2 * x0 : width;
   const svgHeight = typeof height === 'number' ? height + 2 * y0 : height;
   const viewBoxW = 200 + 2 * x0;
-  const viewBoxH = 150 + 2 * y0;
+  const viewBoxH = 200;
 
   const labelDefs = [
     { id: 'LW', x: 15, y: 40, text: 'LW' },

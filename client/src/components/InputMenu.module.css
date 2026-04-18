@@ -33,3 +33,15 @@ img.backgroundImage {
   color: darkblue;
   text-align: center;
 }
+
+.btnBack {
+  width: 32px;
+  height: 32px;
+  background: lightgray;
+  border: gray 4px solid;
+  border-radius: 4px;
+  font-size: large;
+  text-align: center;
+  justify-content: center;
+  margin: 2px 2px 0 auto;
+}
