@@ -1233,9 +1233,9 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
   );
 
   const renderMain = (
-    <div className={styles.mainContent}>
+    <div className={`${styles.mainContent} ${oppoTeam === 0 ? 'bgTeam0' : 'bgTeam1'}`}>
       {renderOppoPlayersPopup()}
-      <div className={ offenseTeam ? "mainContainer bgTeam1" : "mainContainer bgTeam0" } style={{display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
+      <div className="mainContainer" style={{display: 'flex', flexDirection: 'row', flex: '1 1 auto', minHeight: 0, overflow: 'auto', gap: 0}}>
         <div id="leftColumn" className="column" style={{flex: '1 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
         </div>
            <div id="midColumn" className="column" style={{flex: '5 1 0%', display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0}}>
@@ -1296,7 +1296,7 @@ export default function InputSheet({ teams, players, setView, matchId, isEditor,
                  <div className="label">Area</div>
                  <div className="content ">
                    <div id="areaArea" style={{ width: '100%', height: '100%' }}>
-                    <div style={{ border: "1px solid red", display: 'block', height: '100%', backgroundColor:"yellow" }}>
+                    <div style={{ border: "1px solid red", display: 'block', height: '100%'}}>
                        <DrawShootArea
                          width="100%"
                          height="100%"
